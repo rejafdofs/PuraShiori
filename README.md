@@ -1,6 +1,6 @@
 # うちのこゴースト化用lean SHIORi
 
-りゃちゃんの大切な「うちの子」を、Lean 4 の純粹（ピュア）な論理（ロギカ / logica）によって伺か（Ukagaka）の幻影（ゴースト / ghost）として受肉させる爲のshioriビブリオテーカ(bibliotheca)にゃん♪
+れゃちゃんの大切な「うちの子」を、Lean 4 の純粹（ピュア）な論理（ロギカ / logica）によって伺か（Ukagaka）の幻影（ゴースト / ghost）として受肉させる爲のshioriビブリオテーカ(bibliotheca)にゃん♪
 
 「うちの子とお話ししてみたい……」
 そんな夢を、型安全且つ堅牢なプログランマ(programma)で葉へる爲の基盤(basis)にゃ！
@@ -42,7 +42,7 @@ name = "ghost"
 root = "Main"
 ```
 
-### ③ `Main.lean` でりゃちゃんのうちの子の振る舞ひを書くにゃ
+### ③ `Main.lean` でれゃちゃんのうちの子の振る舞ひを書くにゃ
 
 `ghost.exe` の實行開始點(punctum initii)として、事象(eventum)と `construe`、そして `main` を記述するにゃ:
 
