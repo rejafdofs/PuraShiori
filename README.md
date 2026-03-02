@@ -49,7 +49,7 @@ root = "Main"
 ```lean
 -- Main.lean
 import PuraShiori
-open UkaLean Sakura
+open PuraShiori Sakura
 
 varia perpetua numerusSalutationum : Nat := 0
 
@@ -73,7 +73,7 @@ eventum "OnClose" fun _ => do
 
 construe
 
-def main : IO Unit := UkaLean.loopPrincipalis
+def main : IO Unit := PuraShiori.loopPrincipalis
 ```
 
 ### ④ 構築(aedificatio)して實行體(exsecutabile) `ghost.exe` を作るにゃ

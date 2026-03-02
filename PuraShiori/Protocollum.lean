@@ -1,7 +1,7 @@
 -- PuraShiori.Protocollum
 -- SHIORI/3.0 プロトコッルムの共通型と定數にゃん
 
-namespace UkaLean
+namespace PuraShiori
 
 /-- SHIORI 要求の手法(methodus)にゃん。GET は應答を期待し、NOTIFY は通知のみにゃ -/
 inductive Methodus where
@@ -59,4 +59,4 @@ end StatusCodis
 /-- 行末の CR+LF にゃん -/
 def crlf : String := "\r\n"
 
-end UkaLean
+end PuraShiori

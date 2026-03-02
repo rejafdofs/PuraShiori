@@ -4,7 +4,7 @@
 
 import PuraShiori.Nuculum
 
-namespace UkaLean
+namespace PuraShiori
 
 /-- 全域の栞參照にゃん。initialize で自動的に作られるにゃ -/
 initialize shioriGlobalis : IO.Ref (Option Shiori) ← IO.mkRef none
@@ -83,4 +83,4 @@ def exportaRequest (catenaRogationis : @& String) : IO String := do
   catch e =>
     return s!"[FATAL in exportaRequest] {e}"
 
-end UkaLean
+end PuraShiori

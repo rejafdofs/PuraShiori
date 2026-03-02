@@ -4,7 +4,7 @@
 
 import Std.Tactic.BVDecide
 
-namespace UkaLean
+namespace PuraShiori
 
 -- ═══════════════════════════════════════════════════
 -- 型クラスにゃん
@@ -410,4 +410,4 @@ theorem decodeField_encodeField_eq
   -- `some v >>= fun w => some (w, ...)` は ι 簡約で `some (v, ...)` にゃん♪
   rfl
 
-end UkaLean
+end PuraShiori

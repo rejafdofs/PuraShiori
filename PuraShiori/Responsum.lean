@@ -3,7 +3,7 @@
 
 import PuraShiori.Protocollum
 
-namespace UkaLean
+namespace PuraShiori
 
 /-- SHIORI/3.0 應答を表す構造體にゃん -/
 structure Responsum where
@@ -47,4 +47,4 @@ def adProtocollum (r : Responsum) : String :=
 
 end Responsum
 
-end UkaLean
+end PuraShiori

@@ -3,7 +3,7 @@
 
 import PuraShiori.Protocollum
 
-namespace UkaLean
+namespace PuraShiori
 
 /-- SHIORI/3.0 要求を表す構造體にゃん -/
 structure Rogatio where
@@ -139,4 +139,4 @@ def interpreta (s : String) : Except String Rogatio := do
 
 end Rogatio
 
-end UkaLean
+end PuraShiori

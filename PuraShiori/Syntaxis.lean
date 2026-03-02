@@ -10,7 +10,7 @@ import PuraShiori.Loop
 
 open Lean Elab Command
 
-namespace UkaLean
+namespace PuraShiori
 
 -- ═══════════════════════════════════════════════════
 -- 環境拡張の定義にゃん
@@ -83,7 +83,7 @@ elab "varia" "temporaria" n:ident ":" t:term ":=" v:term : command => do
 -- ═══════════════════════════════════════════════════
 
 /-- 事象處理器を宣言するにゃん♪
-    `def _tractator_OnBoot : UkaLean.Tractator := body` を即時生成するにゃ。
+    `def _tractator_OnBoot : PuraShiori.Tractator := body` を即時生成するにゃ。
     型エッロルはここで檢出されるにゃ -/
 elab "eventum" nomenEventi:str body:term : command => do
   let nomen := nomenEventi.getString
@@ -91,7 +91,7 @@ elab "eventum" nomenEventi:str body:term : command => do
   let nomenBasisTractatorum := "_tractator_" ++ nomen
   let identTractatorum := mkIdent (Name.mkSimple nomenBasisTractatorum)
   -- 處理器を定義するにゃん♪
-  elabCommand (← `(def $identTractatorum : UkaLean.Tractator := $body))
+  elabCommand (← `(def $identTractatorum : PuraShiori.Tractator := $body))
   -- 現在の名前空間を加味した完全修飾名にゃ
   let ns ← getCurrNamespace
   let nomenPlenumTractatorum := ns ++ Name.mkSimple nomenBasisTractatorum
@@ -133,7 +133,7 @@ elab "construe" : command => do
     -- servaStatum は何もしにゃい版を生成（コンパイルエッロル防止にゃ）
     elabCommand (← `(def servaStatum : IO Unit := pure ()))
     elabCommand (← `(
-      initialize (UkaLean.registraShiori [$pariaTractatorum,*])
+      initialize (PuraShiori.registraShiori [$pariaTractatorum,*])
     ))
   else
     -- 永続化あり: 型タグ付き讀込・書出フックを生成するにゃ♪
@@ -148,9 +148,9 @@ elab "construe" : command => do
       let syntaxisTypi : TSyntax `term := ⟨v.typusSyntax⟩
       `(($signumNominis, fun _tag _s => do
           -- 型タグが一致した時だけ復元するにゃん♪
-          if _tag == UkaLean.StatusPermanens.typusTag (α := $syntaxisTypi) then
+          if _tag == PuraShiori.StatusPermanens.typusTag (α := $syntaxisTypi) then
             if let (some _v : Option $syntaxisTypi) :=
-                UkaLean.StatusPermanens.eBytes _s then
+                PuraShiori.StatusPermanens.eBytes _s then
               ($identVariae).set _v))
 
     -- 書出フック(exire)の要素を生成するにゃ
@@ -164,8 +164,8 @@ elab "construe" : command => do
       `(($signumNominis, do
           let _v ← ($identVariae).get
           -- 型タグと直列化バイトの組を返すにゃん♪
-          return (UkaLean.StatusPermanens.typusTag (α := $syntaxisTypi),
-                  UkaLean.StatusPermanens.adBytes _v)))
+          return (PuraShiori.StatusPermanens.typusTag (α := $syntaxisTypi),
+                  PuraShiori.StatusPermanens.adBytes _v)))
 
     -- terminusTractatorum 等を先に組み立ててから渡すにゃん♪
     let terminusTractatorum ← `([$pariaTractatorum,*])
@@ -176,23 +176,23 @@ elab "construe" : command => do
     -- onExire フックと同じ保存ロジックを共有するにゃ
     elabCommand (← `(
       def servaStatum : IO Unit := do
-        let _domus ← UkaLean.domusObtinere
+        let _domus ← PuraShiori.domusObtinere
         let _via := _domus ++ "/ghost_status.bin"
-        let _paria ← UkaLean.executareScripturam $terminusServandi
-        UkaLean.scribeMappam _via _paria))
+        let _paria ← PuraShiori.executareScripturam $terminusServandi
+        PuraShiori.scribeMappam _via _paria))
 
     -- 全體を一括生成するにゃん♪
     -- onExire は servaStatum を呼ぶだけにゃ（コード重複排除にゃん♪）
     elabCommand (← `(
-      initialize (UkaLean.registraShioriEx
+      initialize (PuraShiori.registraShioriEx
         $terminusTractatorum
         (some (fun _domus => do
           let _via := _domus ++ "/ghost_status.bin"
           try
-            let _paria ← UkaLean.legereMappam _via
-            UkaLean.executareLecturam _paria $terminusOnerandi
+            let _paria ← PuraShiori.legereMappam _via
+            PuraShiori.executareLecturam _paria $terminusOnerandi
           catch _ => pure ()))
         (some servaStatum))
     ))
 
-end UkaLean
+end PuraShiori

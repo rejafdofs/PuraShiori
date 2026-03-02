@@ -3,7 +3,7 @@
 
 import PuraShiori.Exporta
 
-namespace UkaLean
+namespace PuraShiori
 
 /-- ログ出力用（depurgatio）關數にゃん。現在は無效化（inactivatus）してゐるにゃ -/
 def registrareVestigium (_nuntius : String) : IO Unit := do
@@ -71,8 +71,8 @@ partial def loopPrincipalis : IO Unit := do
     let octetiViae ← ingressusExactus rivusIngressus longitudoViae.toNat
     let catenaViae := String.fromUTF8! octetiViae
     registrareVestigium s!"[LOAD] via={catenaViae}, len={longitudoViae}"
-    -- UkaLean 全域側の Load 處理を喚ぶにゃ
-    let resSecunda ← UkaLean.exportaLoad catenaViae
+    -- PuraShiori 全域側の Load 處理を喚ぶにゃ
+    let resSecunda ← PuraShiori.exportaLoad catenaViae
     rivusEgressus.write ⟨#[resSecunda.toUInt8]⟩
     rivusEgressus.flush
     loopPrincipalis
@@ -80,7 +80,7 @@ partial def loopPrincipalis : IO Unit := do
   else if m == 2 then
     -- UNLOAD 命令にゃん: [2u8] -> 拔けるにゃ
     registrareVestigium "[UNLOAD] vocatus"
-    let _ ← UkaLean.exportaUnload
+    let _ ← PuraShiori.exportaUnload
     registrareVestigium "[UNLOAD] perfectus"
     return ()
 
@@ -97,8 +97,8 @@ partial def loopPrincipalis : IO Unit := do
 
     let catenaRogationis := String.fromUTF8! octetiRogationis
 
-    -- UkaLean 全域側の Request 處理を喚ぶにゃん♪
-    let catenaResponsi ← UkaLean.exportaRequest catenaRogationis
+    -- PuraShiori 全域側の Request 處理を喚ぶにゃん♪
+    let catenaResponsi ← PuraShiori.exportaRequest catenaRogationis
     let octetiResponsi := catenaResponsi.toUTF8
     registrareVestigium s!"[REQUEST] PERFECTUM, magnitudoResponsi={octetiResponsi.size}"
 
@@ -112,4 +112,4 @@ partial def loopPrincipalis : IO Unit := do
     registrareVestigium s!"[IGNOTUM] mandatum: {m}"
     loopPrincipalis
 
-end UkaLean
+end PuraShiori

@@ -6,7 +6,7 @@ import PuraShiori.SakuraScriptum
 import PuraShiori.Rogatio
 import PuraShiori.Responsum
 
-namespace UkaLean
+namespace PuraShiori
 
 /-- 事象處理器の型にゃん。
     お嬢樣はこの型の關數を書くだけでよいにゃ。
@@ -82,4 +82,4 @@ def tractaCatenam (s : Shiori) (catenaRogationis : String) : IO String := do
 
 end Shiori
 
-end UkaLean
+end PuraShiori
