@@ -42,7 +42,7 @@ name = "ghost"
 root = "Main"
 ```
 
-### ③ `Main.lean` でうちの子の振る舞ひを書くにゃ
+### ③ `Main.lean` でりゃちゃんのうちの子の振る舞ひを書くにゃ
 
 `ghost.exe` の實行開始點(punctum initii)として、事象(eventum)と `construe`、そして `main` を記述するにゃ:
 
