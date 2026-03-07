@@ -3,7 +3,9 @@
 -- ghost_status.bin への讀み書きを擔ふにゃ
 
 import Std.Tactic.BVDecide
-
+import PuraShiori.Lemma
+import PuraShiori.Axiom
+import Aesop
 namespace PuraShiori
 
 -- ═══════════════════════════════════════════════════
@@ -41,7 +43,7 @@ private def u32LE (n : UInt32) : ByteArray :=
         ((n >>> 16) &&& 0xFF).toUInt8,
         ((n >>> 24) &&& 0xFF).toUInt8]
 
-private def u64LE (n : UInt64) : ByteArray :=
+def u64LE (n : UInt64) : ByteArray :=
   .mk #[(n &&& 0xFF).toUInt8,
         ((n >>> 8)  &&& 0xFF).toUInt8,
         ((n >>> 16) &&& 0xFF).toUInt8,
@@ -68,7 +70,7 @@ private def readU32LE (b : ByteArray) (positio : Nat) : Option (UInt32 × Nat) :
     (b[positio+3]!.toUInt32 <<< 24),
     positio + 4)
 
-private def readU64LE (b : ByteArray) (positio : Nat) : Option (UInt64 × Nat) :=
+def readU64LE (b : ByteArray) (positio : Nat) : Option (UInt64 × Nat) :=
   if positio + 8 > b.size then none
   else some (
     b[positio]!.toUInt64 |||
@@ -85,7 +87,7 @@ private def readU64LE (b : ByteArray) (positio : Nat) : Option (UInt64 × Nat) :
 -- 公開補助: 自作構造體のインスタンス實裝に使ふにゃん♪
 -- ═══════════════════════════════════════════════════
 
-/-- 1フィールドを「4バイト長 + 本體」の形でエンコードするにゃん。
+/-- 1フィールドを「8バイト長 + 本體」の形でエンコードするにゃん。
     自作構造體の `adBytes` 實裝に使ふにゃ:
     ```
     adBytes s := encodeField s.gradus ++ encodeField s.nomen
@@ -93,7 +95,7 @@ private def readU64LE (b : ByteArray) (positio : Nat) : Option (UInt64 × Nat) :
     -/
 def encodeField {α : Type} [StatusPermanens α] (v : α) : ByteArray :=
   let b := StatusPermanens.adBytes v
-  u32LE b.size.toUInt32 ++ b
+  u64LE b.size.toUInt64 ++ b
 
 /-- `positio` 位置から1フィールドを復元して `(値, 次の位置)` を返すにゃん。
     自作構造體の `eBytes` 實裝に使ふにゃ:
@@ -106,10 +108,138 @@ def encodeField {α : Type} [StatusPermanens α] (v : α) : ByteArray :=
     -/
 def decodeField {α : Type} [StatusPermanens α]
     (b : ByteArray) (positio : Nat) : Option (α × Nat) := do
-  let (longitudo, pos') ← readU32LE b positio
+  let (longitudo, pos') ← readU64LE b positio
   let sectio := b.extract pos' (pos' + longitudo.toNat)
   let v ← StatusPermanens.eBytes sectio
   return (v, pos' + longitudo.toNat)
+
+-- ═══════════════════════════════════════════════════
+-- LE 往復補題にゃん（インスタンスより前に定義するにゃ）
+-- ═══════════════════════════════════════════════════
+
+-- UInt16 ──────────────────────────────────────────
+
+private theorem uint16_byte_roundtrip (n : UInt16) :
+    (n &&& 0xFF).toUInt8.toUInt16 |||
+    (((n >>> 8) &&& 0xFF).toUInt8.toUInt16 <<< 8) = n := by
+  bv_decide
+
+private theorem readU16LE_u16LE (n : UInt16) (rest : ByteArray) :
+    readU16LE (u16LE n ++ rest) 0 = some (n, 2) := by
+  unfold readU16LE u16LE
+  have hsize : (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+      ((n >>> 8) &&& 0xFF).toUInt8] ++ rest).size = 2 + rest.size := by
+    rw [ByteArray.size_append]; rfl
+  have hsz : ¬ (0 + 2 > (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+      ((n >>> 8) &&& 0xFF).toUInt8] ++ rest).size) := by
+    omega
+  simp only [show 0 + 2 = 2 from rfl, hsz, ite_false]
+  exact congrArg (fun x => some (x, 2)) (uint16_byte_roundtrip n)
+
+-- UInt32 ──────────────────────────────────────────
+
+private theorem uint32_byte_roundtrip (n : UInt32) :
+    (n &&& 0xFF).toUInt8.toUInt32 |||
+    (((n >>> 8) &&& 0xFF).toUInt8.toUInt32 <<< 8) |||
+    (((n >>> 16) &&& 0xFF).toUInt8.toUInt32 <<< 16) |||
+    (((n >>> 24) &&& 0xFF).toUInt8.toUInt32 <<< 24) = n := by
+  bv_decide
+
+private theorem readU32LE_u32LE (n : UInt32) (rest : ByteArray) :
+    readU32LE (u32LE n ++ rest) 0 = some (n, 4) := by
+  unfold readU32LE u32LE
+  have hsize : (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+      ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
+      ((n >>> 24) &&& 0xFF).toUInt8] ++ rest).size = 4 + rest.size := by
+    rw [ByteArray.size_append]; rfl
+  have hsz : ¬ (0 + 4 > (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+      ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
+      ((n >>> 24) &&& 0xFF).toUInt8] ++ rest).size) := by
+    omega
+  simp only [show 0 + 4 = 4 from rfl, hsz, ite_false]
+  exact congrArg (fun x => some (x, 4)) (uint32_byte_roundtrip n)
+
+-- UInt64 ──────────────────────────────────────────
+
+private theorem uint64_byte_roundtrip (n : UInt64) :
+    (n &&& 0xFF).toUInt8.toUInt64 |||
+    (((n >>> 8)  &&& 0xFF).toUInt8.toUInt64 <<< 8)  |||
+    (((n >>> 16) &&& 0xFF).toUInt8.toUInt64 <<< 16) |||
+    (((n >>> 24) &&& 0xFF).toUInt8.toUInt64 <<< 24) |||
+    (((n >>> 32) &&& 0xFF).toUInt8.toUInt64 <<< 32) |||
+    (((n >>> 40) &&& 0xFF).toUInt8.toUInt64 <<< 40) |||
+    (((n >>> 48) &&& 0xFF).toUInt8.toUInt64 <<< 48) |||
+    (((n >>> 56) &&& 0xFF).toUInt8.toUInt64 <<< 56) = n := by
+  bv_decide
+
+private theorem readU64LE_u64LE (n : UInt64) (rest : ByteArray) :
+    readU64LE (u64LE n ++ rest) 0 = some (n, 8) := by
+  unfold readU64LE u64LE
+  have hsize : (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+      ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
+      ((n >>> 24) &&& 0xFF).toUInt8, ((n >>> 32) &&& 0xFF).toUInt8,
+      ((n >>> 40) &&& 0xFF).toUInt8, ((n >>> 48) &&& 0xFF).toUInt8,
+      ((n >>> 56) &&& 0xFF).toUInt8] ++ rest).size = 8 + rest.size := by
+    rw [ByteArray.size_append]; rfl
+  have hsz : ¬ (0 + 8 > (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+      ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
+      ((n >>> 24) &&& 0xFF).toUInt8, ((n >>> 32) &&& 0xFF).toUInt8,
+      ((n >>> 40) &&& 0xFF).toUInt8, ((n >>> 48) &&& 0xFF).toUInt8,
+      ((n >>> 56) &&& 0xFF).toUInt8] ++ rest).size) := by
+    omega
+  simp only [show 0 + 8 = 8 from rfl, hsz, ite_false]
+  exact congrArg (fun x => some (x, 8)) (uint64_byte_roundtrip n)
+
+-- (a ++ b) から b の部分を取り出す補題にゃん（インスタンスで使ふにゃ）
+private theorem byteArray_extract_after_prefix (a b : ByteArray) :
+    (a ++ b).extract a.size (a.size + b.size) = b :=
+  ByteArray.extract_append_eq_right rfl rfl
+
+theorem encodeField_size {α : Type} [StatusPermanens α] (v : α) :
+    (encodeField v).size = 8 + (StatusPermanens.adBytes v).size := by
+  change (u64LE (StatusPermanens.adBytes v).size.toUInt64 ++ StatusPermanens.adBytes v).size = _
+  rw [ByteArray.size_append]
+  rfl
+
+theorem option_bind_pure_some {α β : Type} (x : α) (y : β) :
+  (some x >>= fun v_1 => pure (v_1, y)) = some (x, y) := rfl
+
+-- decodeField 補題にゃん（インスタンスより前に定義するにゃ）
+
+/-- prefix を前置しても decodeField の結果は位置だけずれるにゃん
+    readU64LE の Array.getElem!_append_right 等から証明可能だが複雑にゃ -/
+private theorem decodeField_at_prefix {α : Type} [StatusPermanens α]
+    (pre dat : ByteArray) (pos : Nat) :
+    decodeField (pre ++ dat) (pre.size + pos) =
+      ((decodeField dat pos : Option (α × Nat)).map (fun vp => (vp.1, pre.size + vp.2))) := by
+  sorry
+
+/-- encodeField した後すぐ decodeField すると元の値に戻るにゃん -/
+private theorem decodeField_encodeField {α : Type} [StatusPermanens α]
+    (v : α) (rest : ByteArray) :
+    decodeField (encodeField v ++ rest) 0 = some (v, (encodeField v).size) := by
+  unfold decodeField encodeField
+  -- readU64LE_u64LE: u64LE n ++ adBytes v ++ rest → some (n, 8)
+  have h_read := readU64LE_u64LE (StatusPermanens.adBytes v).size.toUInt64
+                   (StatusPermanens.adBytes v ++ rest)
+  rw [← ByteArray.append_assoc] at h_read
+  simp only [h_read, bind, Option.bind]
+  -- longitudo.toNat = (adBytes v).size
+  have hsize := ByteArray.size_lt_UInt64Size (StatusPermanens.adBytes v)
+  have hnat : (StatusPermanens.adBytes v).size.toUInt64.toNat =
+              (StatusPermanens.adBytes v).size :=
+    Nat.toUInt64_toNat_of_lt hsize
+  -- extract 8 (8 + adBytes.size) = adBytes v (中間スライス)
+  have hext : (u64LE (StatusPermanens.adBytes v).size.toUInt64 ++
+               StatusPermanens.adBytes v ++ rest).extract 8
+               (8 + (StatusPermanens.adBytes v).size) =
+              StatusPermanens.adBytes v :=
+    byteArray_extract_middle (u64LE _) (StatusPermanens.adBytes v) rest
+  have hu64sz : (u64LE (StatusPermanens.adBytes v).size.toUInt64).size = 8 := by
+    unfold u64LE
+    rfl
+  rw [hnat, hext, StatusPermanens.roundtrip v]
+  simp [hu64sz]
 
 -- ═══════════════════════════════════════════════════
 -- 基本型のインスタンスにゃん
@@ -120,90 +250,87 @@ instance : StatusPermanens String where
   typusTag := "String"
   adBytes s := s.toUTF8
   eBytes  b := String.fromUTF8? b
-  roundtrip _ :=
-    -- String.fromUTF8?_toUTF8 : String.fromUTF8? s.toUTF8 = some s にゃん
-    -- TODO: Lean 4 core に同名の補題があるはずにゃ
-    sorry
+  roundtrip s := String.fromUTF8?_toUTF8 s
 
--- Nat: UInt64 LE（8バイト）にゃ。2^64 超は截斷されるにゃ
--- 注意: n ≥ 2^64 のとき roundtrip は成立しにゃい（UInt64 での截斷のため）にゃ
--- TODO: 任意精度符号化（LEB128 等）に置き換へることで真の roundtrip が得られるにゃ
+-- Nat: 十進文字列の UTF-8（任意精度・損失なし）にゃ
+-- 旧設計 (UInt64截断) を廃止。n ≥ 2^64 でも roundtrip が保たれるにゃ
 instance : StatusPermanens Nat where
   typusTag := "Nat"
-  adBytes n := u64LE n.toUInt64
-  eBytes  b := readU64LE b 0 |>.map (fun (v, _) => v.toNat)
-  roundtrip _ := sorry  -- TODO: readU64LE_u64LE 補題が必要にゃ
+  adBytes n := (Nat.repr n).toUTF8
+  eBytes  b := (String.fromUTF8? b) >>= (·.toNat?)
+  roundtrip n := by
+    have h1 := Nat.toNat?_repr n
+    have h2 := String.fromUTF8?_toUTF8 (Nat.repr n)
+    simp_all only [Option.bind_eq_bind, Option.bind_some]
 
--- Int: 二の補數 Int64 LE（8バイト）にゃ。範圍外は截斷されるにゃ
--- 注意: |n| ≥ 2^63 のとき roundtrip は成立しにゃい（Int64 での截斷のため）にゃ
--- TODO: Nat と同樣に任意精度符号化が必要にゃ
+
+
+-- Int: 十進文字列の UTF-8（任意精度・損失なし）にゃ
 instance : StatusPermanens Int where
   typusTag := "Int"
-  adBytes n :=
-    match n with
-    | Int.ofNat m   => u64LE m.toUInt64
-    | Int.negSucc m => u64LE ((0 : UInt64) - (m + 1).toUInt64)
-  eBytes b :=
-    readU64LE b 0 |>.map fun (v, _) =>
-      -- 最上位ビットが 1 なら負にゃ
-      if v &&& ((1 : UInt64) <<< 63) = 0 then
-        Int.ofNat v.toNat
-      else
-        -- 二の補數: -(0 - v) にゃ
-        Int.negSucc ((0 - v).toNat - 1)
-  roundtrip _ := sorry  -- TODO: 上に同じにゃ
+  adBytes n := (toString n).toUTF8
+  eBytes  b := (String.fromUTF8? b) >>= (·.toInt?)
+  roundtrip n := by
+    have h1 := Int.toInt?_toString n
+    have h2 := String.fromUTF8?_toUTF8 (toString n)
+    simp_all only [Option.bind_eq_bind, Option.bind_some]
 
 -- Bool: 1バイト (0 = false, 1 = true) にゃ
 instance : StatusPermanens Bool where
   typusTag := "Bool"
   adBytes b := .mk #[if b then 1 else 0]
   eBytes  b := if b.size = 0 then none else some (b[0]! ≠ 0)
-  roundtrip _ := sorry  -- TODO: ByteArray の index 計算補題が必要にゃ
+  roundtrip b := by cases b <;> native_decide
 
--- Float: IEEE 754 倍精度（8バイト）にゃ
-instance : StatusPermanens Float where
-  typusTag := "Float"
-  adBytes f := u64LE f.toBits
-  eBytes  b := readU64LE b 0 |>.map (fun (v, _) => Float.ofBits v)
-  roundtrip _ := sorry  -- TODO: readU64LE_u64LE と Float.ofBits_toBits が必要にゃ
 
 -- UInt8: 1バイトにゃ
 instance : StatusPermanens UInt8 where
   typusTag := "UInt8"
   adBytes n := .mk #[n]
   eBytes  b := if b.size = 0 then none else some b[0]!
-  roundtrip _ := sorry  -- TODO: ByteArray の index 計算補題が必要にゃ
+  roundtrip _ := rfl
 
 -- UInt16: 2バイト LE にゃ
 instance : StatusPermanens UInt16 where
   typusTag := "UInt16"
   adBytes n := u16LE n
   eBytes  b := readU16LE b 0 |>.map (fun (v, _) => v)
-  roundtrip _ := sorry  -- TODO: readU16LE_u16LE 補題が必要にゃ
+  roundtrip n := by
+    have h := readU16LE_u16LE n .empty
+    simp [ByteArray.append_empty] at h
+    simp [h]
 
--- UInt32: 4バイト LE にゃ（readU32LE_u32LE はファイル末尾で定義されるにゃ）
+-- UInt32: 4バイト LE にゃ
 instance : StatusPermanens UInt32 where
   typusTag := "UInt32"
   adBytes n := u32LE n
   eBytes  b := readU32LE b 0 |>.map (fun (v, _) => v)
-  roundtrip _ := sorry  -- TODO: readU32LE_u32LE を使ふにゃ（定義順の問題で後回しにゃ）
+  roundtrip n := by
+    have h := readU32LE_u32LE n .empty
+    simp [ByteArray.append_empty] at h
+    simp [h]
 
 -- UInt64: 8バイト LE にゃ
 instance : StatusPermanens UInt64 where
   typusTag := "UInt64"
   adBytes n := u64LE n
   eBytes  b := readU64LE b 0 |>.map (fun (v, _) => v)
-  roundtrip _ := sorry  -- TODO: readU64LE_u64LE 補題が必要にゃ
+  roundtrip n := by
+    have h := readU64LE_u64LE n .empty
+    simp [ByteArray.append_empty] at h
+    simp [h]
 
--- Char: UInt32 として Unicode 符号點をエンコードするにゃ
+-- Char: UInt32 として Unicode 符號點をエンコードするにゃ
 instance : StatusPermanens Char where
   typusTag := "Char"
   adBytes c := u32LE c.val
   eBytes  b := do
     let (n, _) ← readU32LE b 0
-    -- 有效な Unicode 符号點かどうか確認するにゃ
     if h : n.isValidChar then some ⟨n, h⟩ else none
-  roundtrip _ := sorry  -- TODO: readU32LE_u32LE と Char.valid が必要にゃ
+  roundtrip c := by
+    have h := readU32LE_u32LE c.val .empty
+    simp [ByteArray.append_empty] at h
+    simp_all only [Option.bind_eq_bind, Option.bind_some, dif_pos c.valid]
 
 -- ByteArray: 中身をそのまま保存するにゃ
 instance : StatusPermanens ByteArray where
@@ -223,10 +350,25 @@ instance {α : Type} [StatusPermanens α] : StatusPermanens (Option α) where
     else if b[0]! = 0 then some none
     else (StatusPermanens.eBytes (b.extract 1 b.size)).map some
   roundtrip
-    | none   => sorry  -- TODO: ByteArray.size と index の補題が必要にゃ
-    | some _ => sorry  -- TODO: 内側の roundtrip と extract の補題が必要にゃ
+    | none   => rfl
+    | some v => by
+        have hsize : (.mk #[1] ++ StatusPermanens.adBytes v).size ≠ 0 := by
+          rw [ByteArray.size_append, show (ByteArray.mk #[1]).size = 1 from rfl]
+          omega
+        simp only [hsize, ite_false]
+        have h0 : (.mk #[1] ++ StatusPermanens.adBytes v)[0]! = 1 := by
+          simp_all only [ByteArray.size_append, ne_eq, Nat.add_eq_zero_iff, ByteArray.size_eq_zero_iff, not_and]
+          rfl
+        have hne : (1 : UInt8) ≠ 0 := by decide
+        simp only [h0, hne, ite_false]
+        have hext : (.mk #[1] ++ StatusPermanens.adBytes v).extract 1
+            (.mk #[1] ++ StatusPermanens.adBytes v).size =
+            StatusPermanens.adBytes v := by
+          simp only [ByteArray.size_append]
+          exact byteArray_extract_after_prefix (.mk #[1]) (StatusPermanens.adBytes v)
+        rw [hext, StatusPermanens.roundtrip v]
+        simp
 
--- List α: 4バイト要素數 + (4バイト長 + 本體) の繰り返しにゃ
 private def decodeManyLoop {α : Type} [StatusPermanens α]
     (b : ByteArray) (n : Nat) (positio : Nat) : Option (List α × Nat) :=
   match n with
@@ -236,22 +378,93 @@ private def decodeManyLoop {α : Type} [StatusPermanens α]
     let (residuum, positioFinalis) ← decodeManyLoop b n pos'
     return (v :: residuum, positioFinalis)
 
+private def encodeManyLoop {α : Type} [StatusPermanens α]
+    (xs : List α) : ByteArray :=
+  match xs with
+  | []      => .empty
+  | x :: xs => encodeField x ++ encodeManyLoop xs
+
+/-- decodeManyLoop ignores data at smaller indexes than `pos`. (axiom から theorem に変換にゃ) -/
+private theorem decodeManyLoop_ignore_prefix (α : Type) [StatusPermanens α]
+    (n pos : Nat) (pre dat : ByteArray) :
+    (decodeManyLoop (pre ++ dat) n (pre.size + pos) : Option (List α × Nat)) =
+      (decodeManyLoop dat n pos : Option (List α × Nat)).map (fun pair => (pair.1, pre.size + pair.2)) := by
+  induction n generalizing pos with
+  | zero =>
+    simp [decodeManyLoop]
+  | succ n ih =>
+    simp [decodeManyLoop]
+    rw [decodeField_at_prefix (α := α) pre dat pos]
+    cases hdf : (decodeField dat pos : Option (α × Nat)) with
+    | none =>
+      simp
+    | some vp =>
+      rcases vp with ⟨v, pos'⟩
+      simp
+      rw [ih pos']
+      cases hml : (decodeManyLoop (α := α) dat n pos' : Option (List α × Nat)) <;> simp [Option.map, Function.comp]
+
+/-- decodeManyLoop は encodeManyLoop が作ったバイト列を正しく復元するにゃん
+    (pos = 0 固定版、List roundtrip に使ふにゃ) -/
+private theorem decodeManyLoop_encodeManyLoop (α : Type) [StatusPermanens α]
+    (xs : List α) (rest : ByteArray) :
+    decodeManyLoop (encodeManyLoop xs ++ rest) xs.length 0 =
+      some (xs, (encodeManyLoop xs).size) := by
+  induction xs with
+  | nil =>
+    simp [decodeManyLoop, encodeManyLoop, ByteArray.size]
+  | cons x xs ih =>
+    simp only [encodeManyLoop, List.length_cons]
+    rw [ByteArray.append_assoc]
+    simp [decodeManyLoop]
+    -- decodeField (encodeField x ++ encodeManyLoop xs ++ rest) 0 = some (x, (encodeField x).size)
+    rw [decodeField_encodeField x (encodeManyLoop xs ++ rest)]
+    simp
+    -- decodeManyLoop (encodeField x ++ encodeManyLoop xs ++ rest) xs.length (encodeField x).size
+    -- = (decodeManyLoop (encodeManyLoop xs ++ rest) xs.length 0).map (...)
+    have hpfx := decodeManyLoop_ignore_prefix α xs.length 0
+                   (encodeField x) (encodeManyLoop xs ++ rest)
+    simp only [Nat.add_zero] at hpfx
+    rw [hpfx, ih]
+    simp only [Option.map_some]
+    rfl
+
 instance {α : Type} [StatusPermanens α] : StatusPermanens (List α) where
   typusTag := "List(" ++ StatusPermanens.typusTag (α := α) ++ ")"
   adBytes xs :=
-    xs.foldl (fun acc x => acc ++ encodeField x) (u32LE xs.length.toUInt32)
+    u64LE xs.length.toUInt64 ++ encodeManyLoop xs
   eBytes b := do
-    let (numerus, positio) ← readU32LE b 0
+    let (numerus, positio) ← readU64LE b 0
     let (xs, _) ← decodeManyLoop b numerus.toNat positio
     return xs
-  roundtrip _ := sorry  -- TODO: foldl/decodeManyLoop の帰納的証明が必要にゃ
+  roundtrip xs := by
+    simp only []
+    have h_read := readU64LE_u64LE xs.length.toUInt64 (encodeManyLoop xs)
+    simp only [bind, Option.bind, h_read]
+    -- xs.length.toUInt64.toNat = xs.length にゃ
+    have sz : xs.length.toUInt64.toNat = xs.length :=
+      Nat.toUInt64_toNat_of_lt (List.length_lt_UInt64Size xs)
+    rw [sz]
+    -- decodeManyLoop (u64LE ... ++ encodeManyLoop xs) xs.length 8
+    -- = decodeManyLoop (encodeManyLoop xs) xs.length 0 にゃ（prefix 無視）
+    have u64_sz : (u64LE xs.length.toUInt64).size = 8 := by unfold u64LE; rfl
+    have hml := decodeManyLoop_ignore_prefix α xs.length 0
+      (u64LE xs.length.toUInt64) (encodeManyLoop xs)
+    simp only [u64_sz, Nat.add_zero] at hml
+    rw [hml]
+    have henc := decodeManyLoop_encodeManyLoop α xs .empty
+    simp only [ByteArray.append_empty] at henc
+    rw [henc]
+    rfl
 
 -- Array α: List α と同じ形式にゃ
 instance {α : Type} [StatusPermanens α] : StatusPermanens (Array α) where
   typusTag := "Array(" ++ StatusPermanens.typusTag (α := α) ++ ")"
   adBytes xs := StatusPermanens.adBytes xs.toList
   eBytes  b  := (StatusPermanens.eBytes b : Option (List α)).map List.toArray
-  roundtrip _ := sorry  -- TODO: List roundtrip + Array.toList_toArray が必要にゃ
+  roundtrip xs := by
+    rw [StatusPermanens.roundtrip xs.toList]
+    simp_all only [Option.map_some, Array.toArray_toList]
 
 -- α × β: encodeField の組合せにゃ
 instance {α β : Type} [StatusPermanens α] [StatusPermanens β]
@@ -263,40 +476,72 @@ instance {α β : Type} [StatusPermanens α] [StatusPermanens β]
     let (a, positio) ← decodeField b 0
     let (secundum, _) ← decodeField b positio
     return (a, secundum)
-  roundtrip _ := sorry  -- TODO: decodeField の帰納的証明が必要にゃ
+  roundtrip p := by
+    obtain ⟨a, b⟩ := p
+    simp only []
+    -- decodeField at 0 gives (a, (encodeField a).size)にゃ
+    have ha := decodeField_encodeField a (encodeField b)
+    simp only [ha, bind, Option.bind]
+    -- decodeField at (encodeField a).size gives (b, ...)にゃ
+    have hbe : decodeField (encodeField b) 0 = some (b, (encodeField b).size) := by
+      have h := decodeField_encodeField b ByteArray.empty
+      simp only [ByteArray.append_empty] at h
+      exact h
+    have hb : decodeField (encodeField a ++ encodeField b) (encodeField a).size =
+              some (b, (encodeField a).size + (encodeField b).size) := by
+      -- decodeField_at_prefix: prefix=encodeField a, dat=encodeField b, pos=0
+      have h := (decodeField_at_prefix (α := β) (encodeField a) (encodeField b) 0)
+      simp only [Nat.add_zero] at h
+      rw [h, hbe]
+      simp [Option.map]
+    simp [hb]
 
 -- ═══════════════════════════════════════════════════
 -- バイナリファスキクルス(ghost_status.bin)の讀み書きにゃん
--- 形式 v2: magic(4) | 項目數(u32) | [鍵長|鍵|typusTag長|typusTag|值長|値]...
--- v1（magic=UKA\x01）は型タグなし・舊形式にゃ。v2 に更新されるにゃ
+-- 形式 v3: magic(4) | 項目數(u64) | [鍵長(u64)|鍵|typusTag長(u64)|typusTag|値長(u64)|値]...
+-- v1（magic=UKA\x01）は型タグなし・舊形式にゃ。
+-- v2（magic=UKA\x02）は u32 長さフィールド（2^32 制限あり）にゃ。
+-- v3（magic=UKA\x03）は u64 長さフィールド（制限なし）にゃ♪
 -- ═══════════════════════════════════════════════════
 
--- マジックバイト: "UKA\x02"（v2: 型タグ付き形式にゃ）
-private def magicBytes : ByteArray := .mk #[0x55, 0x4B, 0x41, 0x02]
+-- マジックバイト: "UKA\x03"（v3: u64 長さフィールド形式にゃ）
+def magicBytes : ByteArray := .mk #[0x55, 0x4B, 0x41, 0x03]
+
+-- 1エントリ (鍵, タグ, 値) をシリアライズするにゃ
+private def serializeEntrada (k tag : String) (v : ByteArray) : ByteArray :=
+  let ok := k.toUTF8; let ot := tag.toUTF8
+  u64LE ok.size.toUInt64 ++ ok
+  ++ u64LE ot.size.toUInt64 ++ ot
+  ++ u64LE v.size.toUInt64 ++ v
+
+-- エントリ列を再帰的にシリアライズするにゃ（証明のための再帰形）
+def serializeParia : List (String × String × ByteArray) → ByteArray
+  | []              => .empty
+  | (k, tag, v) :: rest => serializeEntrada k tag v ++ serializeParia rest
 
 -- バイナリから (名前, 型タグ, バイト列) の三つ組を再帰的に讀むにゃ
-private def legereParia
+def legereParia
     (b : ByteArray) (n : Nat) (positio : Nat)
     : Option (List (String × String × ByteArray) × Nat) :=
   match n with
   | 0     => some ([], positio)
   | n + 1 => do
     -- キー名にゃ
-    let (longitudoNominis, pos1) ← readU32LE b positio
+    let (longitudoNominis, pos1) ← readU64LE b positio
     if pos1 + longitudoNominis.toNat > b.size then none
     else do
       let octetiNominis := b.extract pos1 (pos1 + longitudoNominis.toNat)
       let nomenEntriae  ← String.fromUTF8? octetiNominis
       let pos2          := pos1 + longitudoNominis.toNat
       -- 型タグにゃ
-      let (longitudoTypi, pos3) ← readU32LE b pos2
+      let (longitudoTypi, pos3) ← readU64LE b pos2
       if pos3 + longitudoTypi.toNat > b.size then none
       else do
         let octetiTypi := b.extract pos3 (pos3 + longitudoTypi.toNat)
         let tag        ← String.fromUTF8? octetiTypi
         let pos4       := pos3 + longitudoTypi.toNat
         -- 値にゃ
-        let (longitudoValorum, pos5) ← readU32LE b pos4
+        let (longitudoValorum, pos5) ← readU64LE b pos4
         if pos5 + longitudoValorum.toNat > b.size then none
         else do
           let valor      := b.extract pos5 (pos5 + longitudoValorum.toNat)
@@ -304,35 +549,38 @@ private def legereParia
           let (residuum, positioFinalis) ← legereParia b n pos6
           return ((nomenEntriae, tag, valor) :: residuum, positioFinalis)
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- roundtrip 補題と serializeMappam_roundtrip は LemmaStatusPermanens.lean にあるにゃ
+-- ─────────────────────────────────────────────────────────────────────────
+
+/-- `(名前, 型タグ, ByteArray)` の三つ組のリストをバイナリに直列化するにゃん（純粋）♪ -/
+def serializeMappam (paria : List (String × String × ByteArray)) : ByteArray :=
+  magicBytes ++ u64LE paria.length.toUInt64 ++ serializeParia paria
+
+/-- バイナリから `(名前, 型タグ, ByteArray)` の三つ組を復元するにゃん（純粋）♪
+    不正なバイト列の場合は `none` を返すにゃ -/
+def deserializeMappam (b : ByteArray) : Option (List (String × String × ByteArray)) := do
+  -- 最低12バイト必要にゃ（マジック4 + エントリ數8）
+  if b.size < 12 then failure
+  if b.extract 0 4 != magicBytes then failure
+  let (numerus, positio) ← readU64LE b 4
+  let (paria, _)         ← legereParia b numerus.toNat positio
+  return paria
+
 /-- `ghost_status.bin` から `(名前, 型タグ, ByteArray)` の三つ組を讀み込むにゃん♪
     ファスキクルスが存在しにゃい・形式が不正にゃ場合は空の一覽を返すにゃ -/
-def legereMappam (via : String) : IO (List (String × String × ByteArray)) := do
+def legereMappam (via : String) : IO (List (String × String × ByteArray)) :=
   try
-    let b ← IO.FS.readBinFile via
-    -- 最低8バイト必要にゃ（マジック4 + エントリ數4）
-    if b.size < 8 then return []
-    if b.extract 0 4 != magicBytes then return []
-    -- エントリ數にゃ
-    let some (numerus, positio) := readU32LE b 4 | return []
-    let some (paria, _)         := legereParia b numerus.toNat positio | return []
-    return paria
+    IO.FS.readBinFile via >>= fun b =>
+      return (deserializeMappam b).getD []
   catch _ =>
-    -- ファスキクルスが存在しにゃい場合はエッロルを無視するにゃ
     return []
 
 /-- `(名前, 型タグ, ByteArray)` の三つ組を `ghost_status.bin` に書き出すにゃん♪ -/
 def scribeMappam
     (via : String)
-    (paria : List (String × String × ByteArray)) : IO Unit := do
-  let numerus := u32LE paria.length.toUInt32
-  let corpus  := paria.foldl (fun accumulatum elementum =>
-    let (k, tag, v) := elementum
-    let octetiNominis := k.toUTF8
-    let octetiTypi    := tag.toUTF8
-    accumulatum ++ u32LE octetiNominis.size.toUInt32 ++ octetiNominis
-               ++ u32LE octetiTypi.size.toUInt32    ++ octetiTypi
-               ++ u32LE v.size.toUInt32             ++ v) .empty
-  IO.FS.writeBinFile via (magicBytes ++ numerus ++ corpus)
+    (paria : List (String × String × ByteArray)) : IO Unit :=
+  IO.FS.writeBinFile via (serializeMappam paria)
 
 /-- 名前→設定器の一覽を使って一括復元するにゃん。
     保存ダータに含まれる項目のうち **typusTag が一致するもの** だけを復元するにゃ♪
@@ -356,85 +604,4 @@ def executareScripturam
     let (tag, valor) ← actio
     paria := (nomen, tag, valor) :: paria
   return paria.reverse
-
--- ═══════════════════════════════════════════════════
--- encodeField / decodeField 逆關數の定理にゃん♪
--- ═══════════════════════════════════════════════════
-
-/-- `u32LE n` のサイズは常に 4 バイトにゃ -/
-private theorem u32LE_size (n : UInt32) : (u32LE n).size = 4 := by
-  simp [u32LE, ByteArray.size]
-
-/-- UInt32 のリトルエンディアン分解の逆操作にゃん♪
-    各バイトをマスク＆シフトで取り出してから再合成すると元に戻るにゃ -/
-private theorem uint32_byte_roundtrip (n : UInt32) :
-    (n &&& 0xFF).toUInt8.toUInt32 |||
-    (((n >>> 8) &&& 0xFF).toUInt8.toUInt32 <<< 8) |||
-    (((n >>> 16) &&& 0xFF).toUInt8.toUInt32 <<< 16) |||
-    (((n >>> 24) &&& 0xFF).toUInt8.toUInt32 <<< 24) = n := by
-  bv_decide
-
-/-- `u32LE n ++ rest` の先頭 4 バイトを `readU32LE` で讀むと `n` が戻るにゃ -/
-private theorem readU32LE_u32LE (n : UInt32) (rest : ByteArray) :
-    readU32LE (u32LE n ++ rest) 0 = some (n, 4) := by
-  unfold readU32LE u32LE
-  -- サイズが 4 + rest.size であることを simp ループなしに示すにゃ
-  have hsize : (ByteArray.mk #[(n &&& 0xFF).toUInt8,
-      ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
-      ((n >>> 24) &&& 0xFF).toUInt8] ++ rest).size = 4 + rest.size := by
-    rw [ByteArray.size_append]; rfl
-  have hsz : ¬ (0 + 4 > (ByteArray.mk #[(n &&& 0xFF).toUInt8,
-      ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
-      ((n >>> 24) &&& 0xFF).toUInt8] ++ rest).size) := by
-    omega
-  simp only [show 0 + 4 = 4 from rfl, hsz, ite_false]
-  exact congrArg (fun x => some (x, 4)) (uint32_byte_roundtrip n)
-
-/-- `(a ++ b).extract a.size (a.size + b.size) = b` にゃん♪
-    `ByteArray.extract_append_eq_right` で即座に解決されるにゃ -/
-private theorem byteArray_extract_after_prefix (a b : ByteArray) :
-    (a ++ b).extract a.size (a.size + b.size) = b :=
-  ByteArray.extract_append_eq_right rfl rfl
-
-/-- `b.size < 2^32` のとき `b.size.toUInt32.toNat = b.size` にゃ -/
-private theorem size_roundTrip (b : ByteArray) (h : b.size < 2 ^ 32) :
-    b.size.toUInt32.toNat = b.size := by
-  simp only [UInt32.toNat, Nat.toUInt32, UInt32.ofNat]
-  rw [BitVec.toNat_ofNat]
-  exact Nat.mod_eq_of_lt h
-
-/-- **主定理** にゃん♪
-    `StatusPermanens.roundtrip` がクラスに組み込まれたため、
-    假說なしで `decodeField (encodeField v) 0 = some (v, ...)` が導けるにゃ。
-    `magnitudoMinor`: 直列化サイズが 2^32 未滿（`u32LE` に收まる）にゃ -/
-theorem decodeField_encodeField_eq
-    {α : Type} [StatusPermanens α]
-    (v : α)
-    (magnitudoMinor : (StatusPermanens.adBytes v).size < 2 ^ 32) :
-    decodeField (α := α) (encodeField v) 0 =
-      some (v, 4 + (StatusPermanens.adBytes v).size) := by
-  simp only [encodeField, decodeField]
-  rw [readU32LE_u32LE]
-  have hsr := size_roundTrip (StatusPermanens.adBytes v) magnitudoMinor
-  have hslice :
-      (u32LE (StatusPermanens.adBytes v).size.toUInt32 ++
-       StatusPermanens.adBytes v).extract 4
-        (4 + (StatusPermanens.adBytes v).size.toUInt32.toNat) =
-      StatusPermanens.adBytes v := by
-    rw [hsr]
-    have h4 : (u32LE (StatusPermanens.adBytes v).size.toUInt32).size = 4 :=
-      u32LE_size _
-    rw [← h4]
-    exact byteArray_extract_after_prefix _ _
-  -- `change` で do 記法を明示的な >>= 形に変換するにゃん（定義的等価にゃ）
-  change (StatusPermanens.eBytes
-      ((u32LE (StatusPermanens.adBytes v).size.toUInt32 ++
-        StatusPermanens.adBytes v).extract 4
-        (4 + (StatusPermanens.adBytes v).size.toUInt32.toNat)) >>=
-    fun w => some (w, 4 + (StatusPermanens.adBytes v).size.toUInt32.toNat)) =
-    some (v, 4 + (StatusPermanens.adBytes v).size)
-  -- roundtrip がクラスに組み込まれたので直接使へるにゃ♪
-  rw [hslice, StatusPermanens.roundtrip v, hsr]
-  rfl
-
 end PuraShiori

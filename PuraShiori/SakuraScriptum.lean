@@ -32,24 +32,27 @@ def emitte {m : Type → Type} [Monad m] (s : String) : SakuraM m Unit :=
 def evadeTextus (s : String) : String :=
   s.foldl (fun acc c =>
     match c with
-    | '\\' => acc ++ "\\\\"
+    | '\\' => acc ++ "\\"
     | '%'  => acc ++ "\\%"
     | ']'  => acc ++ "\\]"
     | _    => acc.push c
   ) ""
 
-/-- タグ引數内の特殊文字（\\、%、]、,）を全て遁走するにゃん。
-    optio・excita・insere 等、\tag[arg1,arg2,...] の引數はこれを通すにゃ。
-    evadeTextus との違ひは `,` も遁走する點にゃ——引數の區切り文字と衝突を防ぐにゃ♪ -/
+/-- タグ引數内の特殊文字（\\、%、]）を遁走し、`,` や `"` を含む場合は `"..."` 括りにするにゃん。
+    ukadoc 仕樣: `"..."` 括りが公式。`\,` は未定義にゃ。
+    括り内では `"` → `""` に二重化するにゃ♪ -/
 def evadeArgumentum (s : String) : String :=
-  s.foldl (fun acc c =>
+  let s1 := s.foldl (fun acc c =>
     match c with
     | '\\' => acc ++ "\\\\"
     | '%'  => acc ++ "\\%"
     | ']'  => acc ++ "\\]"
-    | ','  => acc ++ "\\,"
     | _    => acc.push c
   ) ""
+  if s1.any (fun c => c == ',' || c == '"') then
+    "\"" ++ s1.replace "\"" "\"\"" ++ "\""
+  else
+    s1
 
 /-- 文字列を表示するにゃん。
     \\、%、] の特殊文字は自動的に遁走されるにゃ。

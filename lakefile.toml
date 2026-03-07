@@ -12,6 +12,13 @@ name = "batteries"
 scope = "leanprover-community"
 rev = "main"
 
+[[require]]
+name = "Repl"
+git = "https://github.com/leanprover-community/repl"
+
+[[require]]
+name = "Aesop"
+scope = "leanprover-community"
 # ライブラリ本體にゃん。Exemplum（使用例）は含めにゃいにゃ
 [[lean_lib]]
 name = "PuraShiori"
