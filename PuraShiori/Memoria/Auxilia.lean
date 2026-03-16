@@ -4,7 +4,6 @@
 
 import Std.Tactic.BVDecide
 import LemmaGeneralis
-import Aesop
 import PuraShiori.Memoria.StatusPermanens
 namespace PuraShiori
 

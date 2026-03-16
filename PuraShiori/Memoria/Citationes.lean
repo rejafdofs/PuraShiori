@@ -3,7 +3,6 @@
 -- fromRef (toRef a) = a がすべてのインスタンティアで保証されるにゃ
 
 import PuraShiori.Memoria.Citatio
-import Aesop
 namespace PuraShiori
 
 -- ═══════════════════════════════════════════════════
