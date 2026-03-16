@@ -1,64 +1,11 @@
--- PuraShiori.SakuraScriptum
--- ★ SakuraScript モナド DSL にゃん♪
--- do 記法で型安全に SakuraScript を組み立てられるにゃ
+-- PuraShiori.SakuraTextus
+-- テキスト表示・書体・選択肢・タイミング にゃん♪
+
+import PuraShiori.Sakura.Fundamentum
 
 namespace PuraShiori
 
-/-- SakuraScript 構築モナドにゃん。
-    文字列を蓄積する StateT で、基底モナド m を自由に選べるにゃ。
-    純粹にゃ構築には `SakuraPura`、IO が要る時は `SakuraIO` を使ふにゃん -/
-abbrev SakuraM (m : Type → Type) [Monad m] (α : Type) :=
-  StateT String m α
-
-/-- IO 附き SakuraScript モナドにゃん。お嬢樣の處理器はこれを使ふにゃ -/
-abbrev SakuraIO (α : Type) := SakuraM IO α
-
-/-- 純粹 SakuraScript モナドにゃん。副作用が要らにゃい時に使ふにゃ -/
-abbrev SakuraPura (α : Type) := SakuraM Id α
-
 namespace Sakura
-
--- ════════════════════════════════════════════════════
---  基底操作 (Operationes Fundamentales)
--- ════════════════════════════════════════════════════
-
-/-- SakuraScript の斷片を發出するにゃん。
-    これが全ての土臺にゃ -/
-def emitte {m : Type → Type} [Monad m] (s : String) : SakuraM m Unit :=
-  modify (· ++ s)
-
-/-- 文字列中の特殊文字（\\、%、]）を全て遁走して表示用に安全にゃ形にするにゃん。
-    loqui 等の表示系關數はこれを通すから、お嬢樣は氣にしにゃくていいにゃ♪ -/
-def evadeTextus (s : String) : String :=
-  s.foldl (fun acc c =>
-    match c with
-    | '\\' => acc ++ "\\"
-    | '%'  => acc ++ "\\%"
-    | ']'  => acc ++ "\\]"
-    | _    => acc.push c
-  ) ""
-
-/-- タグ引數内の特殊文字（\\、%、]）を遁走し、`,` や `"` を含む場合は `"..."` 括りにするにゃん。
-    ukadoc 仕樣: `"..."` 括りが公式。`\,` は未定義にゃ。
-    括り内では `"` → `""` に二重化するにゃ♪ -/
-def evadeArgumentum (s : String) : String :=
-  let s1 := s.foldl (fun acc c =>
-    match c with
-    | '\\' => acc ++ "\\\\"
-    | '%'  => acc ++ "\\%"
-    | ']'  => acc ++ "\\]"
-    | _    => acc.push c
-  ) ""
-  if s1.any (fun c => c == ',' || c == '"') then
-    "\"" ++ s1.replace "\"" "\"\"" ++ "\""
-  else
-    s1
-
-/-- 文字列を表示するにゃん。
-    \\、%、] の特殊文字は自動的に遁走されるにゃ。
-    生の SakuraScript を發出したい時は `crudus` を使ふにゃん -/
-def loqui {m : Type → Type} [Monad m] (s : String) : SakuraM m Unit :=
-  emitte (evadeTextus s)
 
 -- ════════════════════════════════════════════════════
 --  範圍制御 (Imperium Scopi) — 誰が喋るか
@@ -208,9 +155,10 @@ def sublinea {m : Type → Type} [Monad m] (b : Bool := true) : SakuraM m Unit :
 def deletura {m : Type → Type} [Monad m] (b : Bool := true) : SakuraM m Unit :=
   emitte s!"\\f[strike,{if b then "true" else "false"}]"
 
-/-- 文字色の設定（\\f[color,r,g,b]）にゃん -/
-def color {m : Type → Type} [Monad m] (r g b : Nat) : SakuraM m Unit :=
-  emitte s!"\\f[color,{r},{g},{b}]"
+/-- 文字色の設定（\\f[color,色]）にゃん。
+    `Coloris.rgb 255 0 0`、`Coloris.hex "#FF0000"`、`Coloris.nomen "red"` 全部使へるにゃ -/
+def color {m : Type → Type} [Monad m] (c : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[color,{c.toString}]"
 
 /-- 文字の大きさ（\\f[height,n]）にゃん -/
 def altitudoLitterarum {m : Type → Type} [Monad m] (n : Nat) : SakuraM m Unit :=
@@ -221,12 +169,175 @@ def nomenFontis {m : Type → Type} [Monad m] (nomen : String) : SakuraM m Unit 
   emitte s!"\\f[name,{evadeArgumentum nomen}]"
 
 /-- 文字揃へ（\\f[align,方向]）にゃん -/
-def allineatio {m : Type → Type} [Monad m] (directio : String) : SakuraM m Unit :=
-  emitte s!"\\f[align,{evadeArgumentum directio}]"
+def allineatio {m : Type → Type} [Monad m] (directio : DirectioAllineatio) : SakuraM m Unit :=
+  emitte s!"\\f[align,{directio.toString}]"
+
+/-- 縦方向文字揃へ（\\f[valign,方向]）にゃん -/
+def allineatioVerticalis {m : Type → Type} [Monad m] (directio : DirectioVerticalis) : SakuraM m Unit :=
+  emitte s!"\\f[valign,{directio.toString}]"
+
+/-- 文字影の色を設定するにゃん（\\f[shadowcolor,色]）。
+    "none" で影を無效にするにゃ -/
+def colorUmbrae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[shadowcolor,{coloris.toString}]"
+
+/-- 文字影のスタイルを設定するにゃん（\\f[shadowstyle,スタイル]）-/
+def stylumUmbrae {m : Type → Type} [Monad m] (stylus : String) : SakuraM m Unit :=
+  emitte s!"\\f[shadowstyle,{evadeArgumentum stylus}]"
+
+/-- 文字の輪郭を設定するにゃん（\\f[outline,パラメータ]）-/
+def contornus {m : Type → Type} [Monad m] (parametrum : String) : SakuraM m Unit :=
+  emitte s!"\\f[outline,{evadeArgumentum parametrum}]"
+
+/-- 下付き文字の切替にゃん（\\f[sub,true/false]）-/
+def subscriptus {m : Type → Type} [Monad m] (b : Bool := true) : SakuraM m Unit :=
+  emitte s!"\\f[sub,{if b then "true" else "false"}]"
+
+/-- 上付き文字の切替にゃん（\\f[sup,true/false]）-/
+def superscriptus {m : Type → Type} [Monad m] (b : Bool := true) : SakuraM m Unit :=
+  emitte s!"\\f[sup,{if b then "true" else "false"}]"
+
+/-- テキスト表示を無效にするにゃん（\\f[disable]）-/
+def formaInhabilis {m : Type → Type} [Monad m] : SakuraM m Unit :=
+  emitte "\\f[disable]"
 
 /-- 書式を既定に戾す（\\f[default]）にゃん -/
 def formaPraefinita {m : Type → Type} [Monad m] : SakuraM m Unit :=
   emitte "\\f[default]"
+
+-- カーソル（選擇中）スタイル
+
+/-- 選擇中カーソルの形状にゃん（\\f[cursorstyle,形状]）-/
+def stylumCursorisElecti {m : Type → Type} [Monad m] (forma : FormaMarci) : SakuraM m Unit :=
+  emitte s!"\\f[cursorstyle,{forma.toString}]"
+
+/-- 選擇中カーソルの色にゃん（\\f[cursorcolor,色]）-/
+def colorCursorisElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[cursorcolor,{coloris.toString}]"
+
+/-- 選擇中カーソルの塗り色にゃん（\\f[cursorbrushcolor,色]）-/
+def colorPenicilliCursorisElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[cursorbrushcolor,{coloris.toString}]"
+
+/-- 選擇中カーソルの縁色にゃん（\\f[cursorpencolor,色]）-/
+def colorCalamCursorisElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[cursorpencolor,{coloris.toString}]"
+
+/-- 選擇中カーソルの文字色にゃん（\\f[cursorfontcolor,色]）-/
+def colorFontisCursorisElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[cursorfontcolor,{coloris.toString}]"
+
+/-- 選擇中カーソルの描畫方法にゃん（\\f[cursormethod,方法]）-/
+def methodusCursorisElecti {m : Type → Type} [Monad m] (methodus : MethodusMarci) : SakuraM m Unit :=
+  emitte s!"\\f[cursormethod,{methodus.toString}]"
+
+-- カーソル（未選擇）スタイル
+
+/-- 未選擇カーソルの形状にゃん（\\f[cursornotselectstyle,形状]）-/
+def stylumCursorisNonElecti {m : Type → Type} [Monad m] (forma : FormaMarci) : SakuraM m Unit :=
+  emitte s!"\\f[cursornotselectstyle,{forma.toString}]"
+
+/-- 未選擇カーソルの色にゃん（\\f[cursornotselectcolor,色]）-/
+def colorCursorisNonElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[cursornotselectcolor,{coloris.toString}]"
+
+/-- 未選擇カーソルの塗り色にゃん（\\f[cursornotselectbrushcolor,色]）-/
+def colorPenicilliCursorisNonElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[cursornotselectbrushcolor,{coloris.toString}]"
+
+/-- 未選擇カーソルの縁色にゃん（\\f[cursornotselectpencolor,色]）-/
+def colorCalamCursorisNonElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[cursornotselectpencolor,{coloris.toString}]"
+
+/-- 未選擇カーソルの文字色にゃん（\\f[cursornotselectfontcolor,色]）-/
+def colorFontisCursorisNonElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[cursornotselectfontcolor,{coloris.toString}]"
+
+/-- 未選擇カーソルの描畫方法にゃん（\\f[cursornotselectmethod,方法]）-/
+def methodusCursorisNonElecti {m : Type → Type} [Monad m] (methodus : MethodusMarci) : SakuraM m Unit :=
+  emitte s!"\\f[cursornotselectmethod,{methodus.toString}]"
+
+-- 錨（選擇中）スタイル
+
+/-- 錨テクストゥス全體色（\\f[anchor.font.color,色]）にゃん -/
+def colorFontisAncorae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchor.font.color,{coloris.toString}]"
+
+/-- 選擇中の錨形状にゃん（\\f[anchorstyle,形状]）-/
+def stylumAncorae {m : Type → Type} [Monad m] (forma : FormaMarci) : SakuraM m Unit :=
+  emitte s!"\\f[anchorstyle,{forma.toString}]"
+
+/-- 選擇中の錨色にゃん（\\f[anchorcolor,色]）-/
+def colorAncorae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchorcolor,{coloris.toString}]"
+
+/-- 選擇中の錨塗り色にゃん（\\f[anchorbrushcolor,色]）-/
+def colorPenicilliAncorae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchorbrushcolor,{coloris.toString}]"
+
+/-- 選擇中の錨縁色にゃん（\\f[anchorpencolor,色]）-/
+def colorCalamAncorae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchorpencolor,{coloris.toString}]"
+
+/-- 選擇中の錨文字色にゃん（\\f[anchorfontcolor,色]）-/
+def colorFontisAncoraeTotae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchorfontcolor,{coloris.toString}]"
+
+/-- 選擇中の錨描畫方法にゃん（\\f[anchormethod,方法]）-/
+def methodusAncorae {m : Type → Type} [Monad m] (methodus : MethodusMarci) : SakuraM m Unit :=
+  emitte s!"\\f[anchormethod,{methodus.toString}]"
+
+-- 錨（未選擇）スタイル
+
+/-- 未選擇の錨形状にゃん（\\f[anchornotselectstyle,形状]）-/
+def stylumAncoraeNonElectae {m : Type → Type} [Monad m] (forma : FormaMarci) : SakuraM m Unit :=
+  emitte s!"\\f[anchornotselectstyle,{forma.toString}]"
+
+/-- 未選擇の錨色にゃん（\\f[anchornotselectcolor,色]）-/
+def colorAncoraeNonElectae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchornotselectcolor,{coloris.toString}]"
+
+/-- 未選擇の錨塗り色にゃん（\\f[anchornotselectbrushcolor,色]）-/
+def colorPenicilliAncoraeNonElectae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchornotselectbrushcolor,{coloris.toString}]"
+
+/-- 未選擇の錨縁色にゃん（\\f[anchornotselectpencolor,色]）-/
+def colorCalamAncoraeNonElectae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchornotselectpencolor,{coloris.toString}]"
+
+/-- 未選擇の錨文字色にゃん（\\f[anchornotselectfontcolor,色]）-/
+def colorFontisAncoraeNonElectae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchornotselectfontcolor,{coloris.toString}]"
+
+/-- 未選擇の錨描畫方法にゃん（\\f[anchornotselectmethod,方法]）-/
+def methodusAncoraeNonElectae {m : Type → Type} [Monad m] (methodus : MethodusMarci) : SakuraM m Unit :=
+  emitte s!"\\f[anchornotselectmethod,{methodus.toString}]"
+
+-- 錨（訪問済み）スタイル
+
+/-- 訪問済み錨形状にゃん（\\f[anchorvisitedstyle,形状]）-/
+def stylumAncoraeVisae {m : Type → Type} [Monad m] (forma : FormaMarci) : SakuraM m Unit :=
+  emitte s!"\\f[anchorvisitedstyle,{forma.toString}]"
+
+/-- 訪問済み錨色にゃん（\\f[anchorvisitedcolor,色]）-/
+def colorAncoraeVisae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchorvisitedcolor,{coloris.toString}]"
+
+/-- 訪問済み錨塗り色にゃん（\\f[anchorvisitedbrushcolor,色]）-/
+def colorPenicilliAncoraeVisae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchorvisitedbrushcolor,{coloris.toString}]"
+
+/-- 訪問済み錨縁色にゃん（\\f[anchorvisitedpencolor,色]）-/
+def colorCalamAncoraeVisae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchorvisitedpencolor,{coloris.toString}]"
+
+/-- 訪問済み錨文字色にゃん（\\f[anchorvisitedfontcolor,色]）-/
+def colorFontisAncoraeVisae {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
+  emitte s!"\\f[anchorvisitedfontcolor,{coloris.toString}]"
+
+/-- 訪問済み錨描畫方法にゃん（\\f[anchorvisitedmethod,方法]）-/
+def methodusAncoraeVisae {m : Type → Type} [Monad m] (methodus : MethodusMarci) : SakuraM m Unit :=
+  emitte s!"\\f[anchorvisitedmethod,{methodus.toString}]"
 
 -- ════════════════════════════════════════════════════
 --  吹出し (Bulla)
@@ -241,62 +352,8 @@ def imagoBullae {m : Type → Type} [Monad m]
     (via : String) (x y : Nat) : SakuraM m Unit :=
   emitte s!"\\_b[{evadeArgumentum via},{x},{y}]"
 
--- ════════════════════════════════════════════════════
---  音聲 (Sonus)
--- ════════════════════════════════════════════════════
-
-/-- 音聲を再生する（\\_v[file]）にゃん -/
-def sonus {m : Type → Type} [Monad m] (via : String) : SakuraM m Unit :=
-  emitte s!"\\_v[{evadeArgumentum via}]"
-
-/-- 音聲の終了を待つ（\\_V）にゃん -/
-def expectaSonum {m : Type → Type} [Monad m] : SakuraM m Unit :=
-  emitte "\\_V"
-
--- ════════════════════════════════════════════════════
---  事象 (Eventum)
--- ════════════════════════════════════════════════════
-
-/-- 事象を發生させる（\\![raise,event,r0,...]）にゃん -/
-def excita {m : Type → Type} [Monad m]
-    (eventum : String) (citationes : List String := []) : SakuraM m Unit :=
-  let catenaCitationis := match citationes with
-    | [] => ""
-    | res => "," ++ ",".intercalate (res.map evadeArgumentum)
-  emitte s!"\\![raise,{evadeArgumentum eventum}{catenaCitationis}]"
-
-/-- 事象の結果をその場に埋め込む（\\![embed,event,r0,...]）にゃん -/
-def insere {m : Type → Type} [Monad m]
-    (eventum : String) (citationes : List String := []) : SakuraM m Unit :=
-  let catenaCitationis := match citationes with
-    | [] => ""
-    | res => "," ++ ",".intercalate (res.map evadeArgumentum)
-  emitte s!"\\![embed,{evadeArgumentum eventum}{catenaCitationis}]"
-
-/-- 通知事象（\\![notify,event,r0,...]）にゃん -/
-def notifica {m : Type → Type} [Monad m]
-    (eventum : String) (citationes : List String := []) : SakuraM m Unit :=
-  let catenaCitationis := match citationes with
-    | [] => ""
-    | res => "," ++ ",".intercalate (res.map evadeArgumentum)
-  emitte s!"\\![notify,{evadeArgumentum eventum}{catenaCitationis}]"
-
--- ════════════════════════════════════════════════════
---  窓制御 (Imperium Fenestrae)
--- ════════════════════════════════════════════════════
-
-/-- 近づく（\\5）にゃん -/
-def accede {m : Type → Type} [Monad m] : SakuraM m Unit := emitte "\\5"
-
-/-- 離れる（\\4）にゃん -/
-def recede {m : Type → Type} [Monad m] : SakuraM m Unit := emitte "\\4"
-
--- ════════════════════════════════════════════════════
---  雜多 (Varia)
--- ════════════════════════════════════════════════════
-
-/-- URL やファスキクルスを開く（\\j[url]）にゃん -/
-def aperi {m : Type → Type} [Monad m] (nexus : String) : SakuraM m Unit :=
+/-- URL やファスキクルスへジャンプする（\\j[url]）にゃん -/
+def saltum {m : Type → Type} [Monad m] (nexus : String) : SakuraM m Unit :=
   emitte s!"\\j[{evadeArgumentum nexus}]"
 
 /-- 特殊文字の遁走(escape)にゃん -/
@@ -307,9 +364,14 @@ def evade {m : Type → Type} [Monad m] (c : Char) : SakuraM m Unit :=
   | ']'  => emitte "\\]"
   | _    => emitte (String.ofList [c])
 
-/-- 任意の SakuraScript 標籤を直接發出する（高度にゃ使用向け）にゃん -/
-def crudus {m : Type → Type} [Monad m] (signum : String) : SakuraM m Unit :=
-  emitte signum
+/-- Unicode コードポイントで文字を出力するにゃん（\\_u[0xXXXX]）。
+    code は "0041" のやうに 4 桁 16 進數で指定にゃ -/
+def characterUnicode {m : Type → Type} [Monad m] (code : String) : SakuraM m Unit :=
+  emitte s!"\\_u[{code}]"
+
+/-- メッセージコードで文字を出力するにゃん（\\_m[0xXX]）-/
+def characterMessage {m : Type → Type} [Monad m] (code : String) : SakuraM m Unit :=
+  emitte s!"\\_m[{code}]"
 
 -- ════════════════════════════════════════════════════
 --  便利にゃ組合せ (Combinationes Utiles)
@@ -333,7 +395,7 @@ def keroLoquitur {m : Type → Type} [Monad m]
 --  無作爲 (Fortuita) — ランダム選擇
 -- ════════════════════════════════════════════════════
 
-/-- 配列からランダムに1つ選ぶにゃん。空配列にゃら空文字列を返すにゃ。
+/-- 配列からランダムに1つ選ぶにゃん。空配列なら空文字列を返すにゃ。
     インデックスは `i % n` で計算するから、配列アクセスは常に安全にゃ♪ -/
 def elige (optiones : Array String) : IO String := do
   if optiones.isEmpty then return ""
@@ -355,7 +417,7 @@ def fortuito (optiones : Array String) : SakuraIO Unit := do
 --  實行 (Executio)
 -- ════════════════════════════════════════════════════
 
-/-- SakuraScript モナドを實行し、蓄積された SakuraScript 文字列を得るにゃん -/
+/-- サクラスクリプト・モナドを實行し、蓄積されたサクラスクリプト文字列を得るにゃん -/
 def currere {m : Type → Type} [Monad m]
     (scriptum : SakuraM m Unit) (initium : String := "") : m String := do
   let (_, resultatum) ← StateT.run scriptum initium
