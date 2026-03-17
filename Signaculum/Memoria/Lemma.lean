@@ -1,10 +1,10 @@
--- PuraShiori.LemmaStatusPermanens
+-- Signaculum.LemmaStatusPermanens
 -- StatusPermanens 型クラスの基本型インスタンティアと關連補題にゃん♪
 -- （旧 InstantiaStatusPermanens と旧 LemmaStatusPermanens を統合したものにゃ）
 
-import PuraShiori.Memoria.Auxilia
+import Signaculum.Memoria.Auxilia
 
-namespace PuraShiori
+namespace Signaculum
 
 -- ═══════════════════════════════════════════════════
 -- インスタンティア証明用の私的補題にゃん
@@ -530,4 +530,4 @@ theorem serializeMappam_roundtrip (paria : List (String × String × ByteArray))
   rw [if_neg hsize, hbne, if_neg (by decide)]
   simp [h_read, h_legere, h_sp, Option.map_some]
 
-end PuraShiori
+end Signaculum

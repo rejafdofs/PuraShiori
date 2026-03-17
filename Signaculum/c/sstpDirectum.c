@@ -1,4 +1,4 @@
-/* PuraShiori/c/sstpDirectum.c
+/* Signaculum/c/sstpDirectum.c
  * ディレクトゥム SSTP — WM_COPYDATA 経由で SSP にスクリプトゥムを送信するにゃん
  * lean/lean.h のインライン關數を使ふのでインクルードするにゃん
  * 標準ヘッダーは -nostdinc -isystem {sysroot}/include/clang で解決するにゃん */

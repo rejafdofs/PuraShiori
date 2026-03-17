@@ -1,11 +1,11 @@
--- PuraShiori.AuxiliaStatusPermanens
+-- Signaculum.AuxiliaStatusPermanens
 -- StatusPermanens クラスに關聯する補助關數・コーディフィカーティオー・シリアーリザーティオーにゃん♪
 -- LE/LEB128 エンコード、encodeField/decodeField、ビーナーリウム讀み書きを提供するにゃ
 
 import Std.Tactic.BVDecide
 import LemmaGeneralis
-import PuraShiori.Memoria.StatusPermanens
-namespace PuraShiori
+import Signaculum.Memoria.StatusPermanens
+namespace Signaculum
 
 -- ═══════════════════════════════════════════════════
 -- 内部補助: リトルエンディアン(LE)のコーディフィカーティオー/デコーディフィカーティオーにゃん
@@ -489,4 +489,4 @@ def executareScripturam
     paria := (nomen, tag, valor) :: paria
   return paria.reverse
 
-end PuraShiori
+end Signaculum

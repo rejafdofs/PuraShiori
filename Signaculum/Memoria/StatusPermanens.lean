@@ -1,9 +1,9 @@
--- PuraShiori.StatusPermanens
+-- Signaculum.StatusPermanens
 -- 永續化（persistentia）の型クラスにゃん♪
 -- インスタンティアと補助關數は AuxiliaStatusPermanens.lean にあるにゃ
 
 import LemmaGeneralis
-namespace PuraShiori
+namespace Signaculum
 
 /-- 永續化できる型の型クラスにゃん。
     `typusTag` で型の文字列識別子を提供するにゃ。
@@ -22,4 +22,4 @@ class StatusPermanens (α : Type) where
       eBytes (adBytes v) = some v が全 v で保証されるにゃ -/
   roundtrip : ∀ (v : α), eBytes (adBytes v) = some v
 
-end PuraShiori
+end Signaculum

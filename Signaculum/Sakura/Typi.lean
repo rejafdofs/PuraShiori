@@ -1,7 +1,7 @@
--- PuraShiori.SakuraTypi
--- 型定義専用ぢゃ。他の PuraShiori ファスキクルスへの インポルトなしにゃん♪
+-- Signaculum.SakuraTypi
+-- 型定義専用ぢゃ。他の Signaculum ファスキクルスへの インポルトなしにゃん♪
 
-namespace PuraShiori
+namespace Signaculum
 
 /-- サクラスクリプト構築モナドにゃん。
     文字列を蓄積する StateT で、基底モナド m を自由に選べるにゃ。
@@ -746,4 +746,4 @@ def ModusInputiNumeralis.toString : ModusInputiNumeralis → String
 
 end Sakura
 
-end PuraShiori
+end Signaculum

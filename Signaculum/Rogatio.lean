@@ -1,9 +1,9 @@
--- PuraShiori.Rogatio
+-- Signaculum.Rogatio
 -- SHIORI/3.0 要求の構文解析にゃん
 
-import PuraShiori.Protocollum
+import Signaculum.Protocollum
 
-namespace PuraShiori
+namespace Signaculum
 
 /-- SHIORI/3.0 要求を表す構造體にゃん -/
 structure Rogatio where
@@ -139,4 +139,4 @@ def interpreta (s : String) : Except String Rogatio := do
 
 end Rogatio
 
-end PuraShiori
+end Signaculum

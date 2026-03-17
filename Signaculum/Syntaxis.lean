@@ -1,18 +1,18 @@
--- PuraShiori.Syntaxis
+-- Signaculum.Syntaxis
 -- ゴーストDSL構文擴張にゃん♪
 -- varia / eventum / excita(ident形) / insere(ident形) / construe の構文擴張を提供するにゃ
 -- 環境拡張 GhostAccumulatio に variae・eventa・lazyEventa を累積するにゃ
 
 import Lean
-import PuraShiori.Memoria.Citationes
-import PuraShiori.Memoria.StatusPermanens
-import PuraShiori.Exporta
-import PuraShiori.Loop
-import PuraShiori.Sstp
+import Signaculum.Memoria.Citationes
+import Signaculum.Memoria.StatusPermanens
+import Signaculum.Exporta
+import Signaculum.Loop
+import Signaculum.Sstp
 
 open Lean Elab Command Term Meta
 
-namespace PuraShiori
+namespace Signaculum
 
 -- ═══════════════════════════════════════════════════
 -- 環境拡張の定義にゃん
@@ -94,7 +94,7 @@ elab "eventum" nomenEventi:str body:term : command => do
   let nomen := nomenEventi.getString
   let nomenBasisTractatorum := "_tractator_" ++ nomen
   let identTractatorum := mkIdent (Name.mkSimple nomenBasisTractatorum)
-  elabCommand (← `(def $identTractatorum : PuraShiori.Tractator := $body))
+  elabCommand (← `(def $identTractatorum : Signaculum.Tractator := $body))
   let ns ← getCurrNamespace
   let nomenPlenumTractatorum := ns ++ Name.mkSimple nomenBasisTractatorum
   modifyEnv fun env =>
@@ -144,9 +144,9 @@ private def registraLazium (f : Ident) : TermElabM String := do
     SSP 組み込み事象には `excita "OnBoot"` の文字列形を使ふにゃ -/
 elab "excita" f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(PuraShiori.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
   elabTerm
-    (← `(PuraShiori.Sakura.excita $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.excita $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 /-- `insere f arg1 arg2 ...` — def ベース事象を embed するにゃん♪
@@ -154,9 +154,9 @@ elab "excita" f:ident args:term* : term => do
     引數は Citatio.toRef で文字列に変換されて Reference に渡されるにゃ -/
 elab "insere" f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(PuraShiori.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
   elabTerm
-    (← `(PuraShiori.Sakura.insere $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.insere $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 -- ═══════════════════════════════════════════════════
@@ -168,35 +168,35 @@ elab "insere" f:ident args:term* : term => do
     引數は Citatio.toRef で文字列に変換されて Reference に渡されるにゃ -/
 elab "notifica" f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(PuraShiori.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
   elabTerm
-    (← `(PuraShiori.Sakura.notifica $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.notifica $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 /-- `excitaPostTempus ms repeat f arg1 arg2 ...` — def ベース事象を遅延発火させるにゃん♪
     ms はミリ秒、repeat は繰返し回數（0=無限）にゃ -/
 elab "excitaPostTempus" ms:term repetitio:term f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(PuraShiori.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
   elabTerm
-    (← `(PuraShiori.Sakura.excitaPostTempus $ms $repetitio $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.excitaPostTempus $ms $repetitio $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 /-- `notificaPostTempus ms repetitio f arg1 arg2 ...` — def ベース通知事象を遅延発火させるにゃん♪ -/
 elab "notificaPostTempus" ms:term repetitio:term f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(PuraShiori.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
   elabTerm
-    (← `(PuraShiori.Sakura.notificaPostTempus $ms $repetitio $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.notificaPostTempus $ms $repetitio $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 /-- `optioEventum titulus f arg1 arg2 ...` — def ベース事象附き選擇肢にゃん♪
     titulus は表示文字列にゃ。f は def で定義されたコールバックにゃ -/
 elab "optioEventum" titulus:term f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(PuraShiori.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
   elabTerm
-    (← `(PuraShiori.Sakura.optioEventum $titulus $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.optioEventum $titulus $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 -- ═══════════════════════════════════════════════════
@@ -208,7 +208,7 @@ elab "optioEventum" titulus:term f:ident args:term* : term => do
 elab "aperiInputum" modus:term f:ident titulus:term textus:term : term => do
   let nomenEventi ← registraLazium f
   elabTerm
-    (← `(PuraShiori.Sakura.aperiInputum $modus $(Syntax.mkStrLit nomenEventi) $titulus $textus))
+    (← `(Signaculum.Sakura.aperiInputum $modus $(Syntax.mkStrLit nomenEventi) $titulus $textus))
     none
 
 /-- `aperiInputumNumerale modus f titulus a b c` — def ベースの數値入力ボックスを開くにゃん♪
@@ -216,14 +216,14 @@ elab "aperiInputum" modus:term f:ident titulus:term textus:term : term => do
 elab "aperiInputumNumerale" modus:term f:ident titulus:term a:term b:term c:term : term => do
   let nomenEventi ← registraLazium f
   elabTerm
-    (← `(PuraShiori.Sakura.aperiInputumNumerale $modus $(Syntax.mkStrLit nomenEventi) $titulus $a $b $c))
+    (← `(Signaculum.Sakura.aperiInputumNumerale $modus $(Syntax.mkStrLit nomenEventi) $titulus $a $b $c))
     none
 
 /-- `aperiInputumIP f titulus ip1 ip2 ip3 ip4` — def ベースの IP アドレス入力ボックスを開くにゃん♪ -/
 elab "aperiInputumIP" f:ident titulus:term ip1:term ip2:term ip3:term ip4:term : term => do
   let nomenEventi ← registraLazium f
   elabTerm
-    (← `(PuraShiori.Sakura.aperiInputumIP $(Syntax.mkStrLit nomenEventi) $titulus $ip1 $ip2 $ip3 $ip4))
+    (← `(Signaculum.Sakura.aperiInputumIP $(Syntax.mkStrLit nomenEventi) $titulus $ip1 $ip2 $ip3 $ip4))
     none
 
 /-- `legeProprietatem f proprietates` — def ベースのプロパティ取得にゃん♪
@@ -231,7 +231,7 @@ elab "aperiInputumIP" f:ident titulus:term ip1:term ip2:term ip3:term ip4:term :
 elab "legeProprietatem" f:ident proprietates:term : term => do
   let nomenEventi ← registraLazium f
   elabTerm
-    (← `(PuraShiori.Sakura.legeProprietatem $(Syntax.mkStrLit nomenEventi) $proprietates))
+    (← `(Signaculum.Sakura.legeProprietatem $(Syntax.mkStrLit nomenEventi) $proprietates))
     none
 
 -- ═══════════════════════════════════════════════════
@@ -245,7 +245,7 @@ elab "legeProprietatem" f:ident proprietates:term : term => do
 elab "spawna" f:ident args:term* : term => do
   let callTerm ← `($f $args*)
   elabTerm
-    (← `(liftM (PuraShiori.spawnaMunitus $callTerm)))
+    (← `(liftM (Signaculum.spawnaMunitus $callTerm)))
     none
 
 /-- `spawnaScriptum f arg1 arg2 ...` — SakuraIO Unit アクシオーをバックグラウンドで起動するにゃん♪
@@ -254,9 +254,9 @@ elab "spawna" f:ident args:term* : term => do
 elab "spawnaScriptum" f:ident args:term* : term => do
   let callTerm ← `($f $args*)
   elabTerm
-    (← `(liftM (PuraShiori.spawnaMunitus do
-      let _s ← PuraShiori.Sakura.currere $callTerm
-      PuraShiori.Sstp.mitteSstpScriptum _s)))
+    (← `(liftM (Signaculum.spawnaMunitus do
+      let _s ← Signaculum.Sakura.currere $callTerm
+      Signaculum.Sstp.mitteSstpScriptum _s)))
     none
 
 -- ═══════════════════════════════════════════════════
@@ -292,10 +292,10 @@ elab "construe" : command => do
     --           (FromRef.fromRef ((req.referentiam 1).getD ""))
     let argExprs : Array (TSyntax `term) ← (Array.range e.paramCount).mapM fun i => do
       let idx := Syntax.mkNumLit (toString i)
-      `(PuraShiori.Citatio.fromRef ((req.referentiam $idx).getD ""))
+      `(Signaculum.Citatio.fromRef ((req.referentiam $idx).getD ""))
 
     elabCommand (← `(
-      def $tractorIdent : PuraShiori.Tractator := fun req => $declIdent $argExprs*))
+      def $tractorIdent : Signaculum.Tractator := fun req => $declIdent $argExprs*))
 
     let signumNominis : TSyntax `term := ⟨Syntax.mkStrLit e.nomenEventi⟩
     pariaTractatorum := pariaTractatorum.push (← `(($signumNominis, $tractorIdent)))
@@ -303,7 +303,7 @@ elab "construe" : command => do
   if variaePermanentes.isEmpty then
     elabCommand (← `(def servaStatum : IO Unit := pure ()))
     elabCommand (← `(
-      initialize (PuraShiori.registraShiori [$pariaTractatorum,*])
+      initialize (Signaculum.registraShiori [$pariaTractatorum,*])
     ))
   else
     let elementaOnerandi : Array (TSyntax `term) ← variaePermanentes.mapM fun v => do
@@ -311,9 +311,9 @@ elab "construe" : command => do
       let signumNominis : TSyntax `term := ⟨Syntax.mkStrLit v.nomen.toString⟩
       let syntaxisTypi : TSyntax `term := ⟨v.typusSyntax⟩
       `(($signumNominis, fun _tag _s => do
-          if _tag == PuraShiori.StatusPermanens.typusTag (α := $syntaxisTypi) then
+          if _tag == Signaculum.StatusPermanens.typusTag (α := $syntaxisTypi) then
             if let (some _v : Option $syntaxisTypi) :=
-                PuraShiori.StatusPermanens.eBytes _s then
+                Signaculum.StatusPermanens.eBytes _s then
               ($identVariae).set _v))
 
     let elementaServandi : Array (TSyntax `term) ← variaePermanentes.mapM fun v => do
@@ -322,8 +322,8 @@ elab "construe" : command => do
       let syntaxisTypi : TSyntax `term := ⟨v.typusSyntax⟩
       `(($signumNominis, do
           let _v ← ($identVariae).get
-          return (PuraShiori.StatusPermanens.typusTag (α := $syntaxisTypi),
-                  PuraShiori.StatusPermanens.adBytes _v)))
+          return (Signaculum.StatusPermanens.typusTag (α := $syntaxisTypi),
+                  Signaculum.StatusPermanens.adBytes _v)))
 
     let terminusTractatorum ← `([$pariaTractatorum,*])
     let terminusOnerandi    ← `([$elementaOnerandi,*])
@@ -331,21 +331,21 @@ elab "construe" : command => do
 
     elabCommand (← `(
       def servaStatum : IO Unit := do
-        let _domus ← PuraShiori.domusObtinere
+        let _domus ← Signaculum.domusObtinere
         let _via := _domus ++ "/ghost_status.bin"
-        let _paria ← PuraShiori.executareScripturam $terminusServandi
-        PuraShiori.scribeMappam _via _paria))
+        let _paria ← Signaculum.executareScripturam $terminusServandi
+        Signaculum.scribeMappam _via _paria))
 
     elabCommand (← `(
-      initialize (PuraShiori.registraShioriEx
+      initialize (Signaculum.registraShioriEx
         $terminusTractatorum
         (some (fun _domus => do
           let _via := _domus ++ "/ghost_status.bin"
           try
-            let _paria ← PuraShiori.legereMappam _via
-            PuraShiori.executareLecturam _paria $terminusOnerandi
+            let _paria ← Signaculum.legereMappam _via
+            Signaculum.executareLecturam _paria $terminusOnerandi
           catch _ => pure ()))
         (some servaStatum))
     ))
 
-end PuraShiori
+end Signaculum

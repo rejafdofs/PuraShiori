@@ -1,9 +1,9 @@
--- PuraShiori.Citationes
+-- Signaculum.Citationes
 -- Citatio 型クラスの各型へのインスタンティアにゃん♪
 -- fromRef (toRef a) = a がすべてのインスタンティアで保証されるにゃ
 
-import PuraShiori.Memoria.Citatio
-namespace PuraShiori
+import Signaculum.Memoria.Citatio
+namespace Signaculum
 
 -- ═══════════════════════════════════════════════════
 -- 基本型のインスタンティアにゃん
@@ -243,4 +243,4 @@ instance {α : Type} [inst : Citatio α] : Citatio (List α) where
     simp only [String.toList_ofList]
     exact decodeElems_eq l
 
-end PuraShiori
+end Signaculum

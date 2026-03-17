@@ -1,9 +1,9 @@
--- PuraShiori.SakuraTextus
+-- Signaculum.SakuraTextus
 -- テキスト表示・書体・選択肢・タイミング にゃん♪
 
-import PuraShiori.Sakura.Fundamentum
+import Signaculum.Sakura.Fundamentum
 
-namespace PuraShiori
+namespace Signaculum
 
 namespace Sakura
 
@@ -425,4 +425,4 @@ def currere {m : Type → Type} [Monad m]
 
 end Sakura
 
-end PuraShiori
+end Signaculum

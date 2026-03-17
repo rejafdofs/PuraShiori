@@ -1,9 +1,9 @@
--- PuraShiori.Responsum
+-- Signaculum.Responsum
 -- SHIORI/3.0 應答の構築にゃん
 
-import PuraShiori.Protocollum
+import Signaculum.Protocollum
 
-namespace PuraShiori
+namespace Signaculum
 
 /-- SHIORI/3.0 應答を表す構造體にゃん -/
 structure Responsum where
@@ -47,4 +47,4 @@ def adProtocollum (r : Responsum) : String :=
 
 end Responsum
 
-end PuraShiori
+end Signaculum

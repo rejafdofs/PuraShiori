@@ -1,9 +1,9 @@
--- PuraShiori.SakuraFundamentum
+-- Signaculum.SakuraFundamentum
 -- 基底発出プリミティウィ。emitte / evade* / loqui / crudus にゃん♪
 
-import PuraShiori.Sakura.Typi
+import Signaculum.Sakura.Typi
 
-namespace PuraShiori
+namespace Signaculum
 
 namespace Sakura
 
@@ -80,4 +80,4 @@ def crudus {m : Type → Type} [Monad m] (signum : String) : SakuraM m Unit :=
 
 end Sakura
 
-end PuraShiori
+end Signaculum

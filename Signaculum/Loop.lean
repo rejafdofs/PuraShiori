@@ -1,9 +1,9 @@
--- PuraShiori.Loop
+-- Signaculum.Loop
 -- ゴースト本體（ghost.exe）として標準入出力で中繼器と通信する小循環（loop）にゃん。
 
-import PuraShiori.Exporta
+import Signaculum.Exporta
 
-namespace PuraShiori
+namespace Signaculum
 
 /-- リトルエンディアン 4バイトを發信（出力）するにゃん -/
 def egressusU32 (rivusEgressus : IO.FS.Stream) (numerus : UInt32) : IO Unit := do
@@ -63,8 +63,8 @@ partial def loopPrincipalis : IO Unit := do
     let octetiViae ← ingressusExactus rivusIngressus longitudoViae.toNat
     let catenaViae := String.fromUTF8! octetiViae
     registrareVestigium s!"[LOAD] via={catenaViae}, len={longitudoViae}"
-    -- PuraShiori 全域側の Load 處理を喚ぶにゃ
-    let resSecunda ← PuraShiori.exportaLoad catenaViae
+    -- Signaculum 全域側の Load 處理を喚ぶにゃ
+    let resSecunda ← Signaculum.exportaLoad catenaViae
     rivusEgressus.write ⟨#[resSecunda.toUInt8]⟩
     rivusEgressus.flush
     loopPrincipalis
@@ -72,7 +72,7 @@ partial def loopPrincipalis : IO Unit := do
   else if m == 2 then
     -- UNLOAD 命令にゃん: [2u8] -> 拔けるにゃ
     registrareVestigium "[UNLOAD] vocatus"
-    let _ ← PuraShiori.exportaUnload
+    let _ ← Signaculum.exportaUnload
     registrareVestigium "[UNLOAD] perfectus"
     return ()
 
@@ -89,8 +89,8 @@ partial def loopPrincipalis : IO Unit := do
 
     let catenaRogationis := String.fromUTF8! octetiRogationis
 
-    -- PuraShiori 全域側の Request 處理を喚ぶにゃん♪
-    let catenaResponsi ← PuraShiori.exportaRequest catenaRogationis
+    -- Signaculum 全域側の Request 處理を喚ぶにゃん♪
+    let catenaResponsi ← Signaculum.exportaRequest catenaRogationis
     let octetiResponsi := catenaResponsi.toUTF8
     registrareVestigium s!"[REQUEST] PERFECTUM, magnitudoResponsi={octetiResponsi.size}"
 
@@ -104,4 +104,4 @@ partial def loopPrincipalis : IO Unit := do
     registrareVestigium s!"[IGNOTUM] mandatum: {m}"
     loopPrincipalis
 
-end PuraShiori
+end Signaculum

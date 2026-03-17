@@ -1,8 +1,8 @@
--- PuraShiori.Sstp
+-- Signaculum.Sstp
 -- ディレクトゥム SSTP — WM_COPYDATA ヴィアー SSP にスクリプトゥムをミッテレするにゃん
 -- ソケットゥムを使はずにウィンドウズ IPC を使ふにゃん
 
-namespace PuraShiori.Sstp
+namespace Signaculum.Sstp
 
 /-- FFI — sstpDirectum.c の sstp_directum_mittere を呼ぶにゃん -/
 @[extern "sstp_directum_mittere"]
@@ -25,4 +25,4 @@ def excitaEventum (nomenEventi : String) (citationes : List String := []) : IO U
       ++ purgaCrlf nomenEventi ++ "\r\n" ++ String.join refs ++ "\r\n"
   sstpDirectumMittere req
 
-end PuraShiori.Sstp
+end Signaculum.Sstp

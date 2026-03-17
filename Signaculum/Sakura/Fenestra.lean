@@ -1,9 +1,9 @@
--- PuraShiori.SakuraFenestra
+-- Signaculum.SakuraFenestra
 -- ウィンドウ・UI 管理・モード制御 にゃん♪
 
-import PuraShiori.Sakura.Fundamentum
+import Signaculum.Sakura.Fundamentum
 
-namespace PuraShiori
+namespace Signaculum
 
 namespace Sakura
 
@@ -390,4 +390,4 @@ def imagoBullaeInlineataOpaca {m : Type → Type} [Monad m] (via : String) : Sak
 
 end Sakura
 
-end PuraShiori
+end Signaculum

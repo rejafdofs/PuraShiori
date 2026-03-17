@@ -1,9 +1,9 @@
--- PuraShiori.SakuraSystema
+-- Signaculum.SakuraSystema
 -- イベント・音響・HTTP・プロパティ・ゴースト管理 にゃん♪
 
-import PuraShiori.Sakura.Fundamentum
+import Signaculum.Sakura.Fundamentum
 
-namespace PuraShiori
+namespace Signaculum
 
 namespace Sakura
 
@@ -567,4 +567,4 @@ def proprietasCitata {m : Type → Type} [Monad m] (proprietas : Proprietas) : S
 
 end Sakura
 
-end PuraShiori
+end Signaculum

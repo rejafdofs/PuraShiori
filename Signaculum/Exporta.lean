@@ -1,10 +1,10 @@
--- PuraShiori.Exporta
+-- Signaculum.Exporta
 -- @[export] を用ゐた FFI 輸出關數群にゃん
 -- C 包裝（ffi/shiori.c）からこれらの關數が呼ばれるにゃ
 
-import PuraShiori.Nuculum
+import Signaculum.Nuculum
 
-namespace PuraShiori
+namespace Signaculum
 
 /-- ログ出力用（depurgatio）關數にゃん。現在は無效化（inactivatus）してゐるにゃ -/
 def registrareVestigium (_nuntius : String) : IO Unit := do
@@ -109,4 +109,4 @@ def spawnaMunitus (actio : IO Unit) : IO Unit := do
     let arr' := arr.push task
     if arr'.size > 256 then arr'.extract 128 arr'.size else arr')
 
-end PuraShiori
+end Signaculum

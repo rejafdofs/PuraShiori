@@ -1,12 +1,12 @@
--- PuraShiori.Nuculum
+-- Signaculum.Nuculum
 -- 栞の核心骨格にゃん。處理器の登錄と事象のルーティングを擔ふにゃ
 
-import PuraShiori.Protocollum
-import PuraShiori.Sakura.Scriptum
-import PuraShiori.Rogatio
-import PuraShiori.Responsum
+import Signaculum.Protocollum
+import Signaculum.Sakura.Scriptum
+import Signaculum.Rogatio
+import Signaculum.Responsum
 
-namespace PuraShiori
+namespace Signaculum
 
 /-- 事象處理器の型にゃん。
     お嬢樣はこの型の關數を書くだけでよいにゃ。
@@ -82,4 +82,4 @@ def tractaCatenam (s : Shiori) (catenaRogationis : String) : IO String := do
 
 end Shiori
 
-end PuraShiori
+end Signaculum

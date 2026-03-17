@@ -32,7 +32,7 @@ version = "0.1.0"
 [[require]]
 git = "https://github.com/rejafdofs/uka-lean"
 rev = "main"
-name = "PuraShiori"
+name = "Signaculum"
 
 [[lean_lib]]
 name = "Ghost"
@@ -45,8 +45,8 @@ root = "Main"
 ### ③ `Main.lean` を書くにゃ
 
 ```lean
-import PuraShiori
-open PuraShiori Sakura
+import Signaculum
+open Signaculum Sakura
 
 varia perpetua   numerusSalutationum : Nat := 0
 varia temporaria nomina              : String := ""
@@ -70,7 +70,7 @@ eventum "OnClose" fun _ => do
 
 construe
 
-def main : IO Unit := PuraShiori.loopPrincipalis
+def main : IO Unit := Signaculum.loopPrincipalis
 ```
 
 ### ④ 構築するにゃ
@@ -220,8 +220,8 @@ legeProprietatem onPropResult [.ghostName, .shellName]
 結果の返却は `f` の中で `Sstp.mitteSstpScriptum` を呼ぶことで行うにゃ。
 
 ```lean
-import PuraShiori
-open PuraShiori Sakura
+import Signaculum
+open Signaculum Sakura
 
 -- バックグラウンドで動く IO 関数にゃ
 def downloadAndDisplay (url : String) : IO Unit := do
@@ -264,7 +264,7 @@ construe
 
 ### SSTP 直接送信 (`Sstp`)
 
-バックグラウンド外でも `PuraShiori.Sstp` を使へるにゃ。
+バックグラウンド外でも `Signaculum.Sstp` を使へるにゃ。
 
 ```lean
 -- SakuraScript を SSP に送信にゃ
@@ -278,7 +278,7 @@ Sstp.excitaEventum "OnSomeEvent" ["arg0", "arg1"]
 
 ## SakuraScriptum 命令一覧 (Mandata)
 
-`open PuraShiori Sakura` してから使ふにゃ。
+`open Signaculum Sakura` してから使ふにゃ。
 
 ### 人格・表情
 

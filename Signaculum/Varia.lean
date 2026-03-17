@@ -1,4 +1,4 @@
--- PuraShiori.Varia
+-- Signaculum.Varia
 -- varia 變數のためのアクセス關數（ラテン語名）にゃん♪
 
 namespace IO.Ref

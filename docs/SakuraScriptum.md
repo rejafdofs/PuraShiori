@@ -1,6 +1,6 @@
 # SakuraScriptum — 使い方ガイド
 
-`PuraShiori.Sakura` モジュールは、Lean 4 の do 記法でサクラスクリプトを型安全に組み立てるための DSL ライブラリです。
+`Signaculum.Sakura` モジュールは、Lean 4 の do 記法でサクラスクリプトを型安全に組み立てるための DSL ライブラリです。
 
 ---
 
@@ -17,7 +17,7 @@
 ## 基本パターン
 
 ```lean
-open PuraShiori.Sakura
+open Signaculum.Sakura
 
 -- 文字列に変換するには currere を使う
 def myScript : SakuraPura Unit := do
@@ -557,7 +557,7 @@ egredierePositionemDomesticam
 ## 最小のトーク例
 
 ```lean
-open PuraShiori.Sakura
+open Signaculum.Sakura
 
 def myTalk : SakuraPura Unit := do
   sakura
