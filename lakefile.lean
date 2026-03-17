@@ -22,9 +22,16 @@ extern_lib sstpDirectum pkg := do
   let libFile := pkg.buildDir / "lib" / nameToStaticLib "sstpDirectum"
   Job.async do
     buildFileUnlessUpToDate' oFile do
-      -- PuraShiori/c/include を先に置くことで stddef.h スタブが lean.h より優先されるにゃん
-      let stubInclude := pkg.dir / "PuraShiori" / "c" / "include"
-      compileO oFile srcFile #[s!"-I{stubInclude}", s!"-I{leanIncludeDir}"] lean.cc
+      -- Lean がモジュールのネイティヴコンパイルに使ふのと同じフラグにゃん
+      -- lean.sysroot/include/clang に stddef.h・stdbool.h 等が含まれるにゃ
+      let clangInclude := lean.sysroot / "include" / "clang"
+      compileO oFile srcFile
+        #[s!"-I{leanIncludeDir}",
+          s!"--sysroot={lean.sysroot}",
+          "-nostdinc",
+          s!"-isystem{clangInclude}",
+          "-DNDEBUG"]
+        lean.cc
     buildFileUnlessUpToDate' libFile do
       compileStaticLib libFile #[oFile]
     return libFile
