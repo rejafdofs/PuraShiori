@@ -1,4 +1,4 @@
-# uka.lean —  Lean 4 製 SHIORI
+# Signaculum —  Lean 4 製 SHIORI
 
  SHIORI ビブリオテーカにゃん♪
 
