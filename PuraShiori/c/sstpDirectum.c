@@ -1,15 +1,34 @@
 /* PuraShiori/c/sstpDirectum.c
  * ディレクトゥム SSTP — WM_COPYDATA 経由で SSP にスクリプトゥムを送信するにゃん
- * Lean 附属 clang は標準ヘッダを持たないので lean/lean.h のみ使ふにゃん */
+ * システムヘッダーを一切 include しないにゃん
+ * Lean ランタイム型と Win32 API は手動宣言するにゃ */
 
-#include <lean/lean.h>
+/* ═══════════════════════════════════════
+ * Lean ランタイム型の手動宣言にゃん
+ * lean/lean.h は stddef.h を要求するが
+ * Lean 附属 clang は標準ヘッダーを持たないからにゃん
+ * ═══════════════════════════════════════ */
+typedef struct lean_object lean_object;
+typedef lean_object* lean_obj_res;
+typedef lean_object* lean_obj_arg;
 
-/* Windows 型の手動宣言にゃん（64 ビット Windows 固定にゃ） */
+/* 静的ライブラリなので dllexport 不要にゃん */
+#define LEAN_EXPORT
+
+extern char const*   lean_string_cstr(lean_object* o);
+extern lean_object*  lean_box(unsigned long long n);
+extern lean_object*  lean_io_result_mk_ok(lean_object* v);
+
+/* ═══════════════════════════════════════
+ * Win32 API の手動宣言にゃん（Windows 専用にゃ）
+ * ═══════════════════════════════════════ */
+#ifdef _WIN32
+
 typedef void*              HWND;
 typedef void*              PVOID;
-typedef unsigned int       DWORD;       /* 32 ビット無符号整數にゃん */
-typedef unsigned long long WPARAM;      /* 64 ビット無符号ポインタ幅にゃん */
-typedef long long          LPARAM;      /* 64 ビット有符号ポインタ幅にゃん */
+typedef unsigned int       DWORD;
+typedef unsigned long long WPARAM;
+typedef long long          LPARAM;
 typedef long long          LRESULT;
 
 typedef struct {
@@ -20,20 +39,18 @@ typedef struct {
 
 #define WM_COPYDATA 0x004A
 
-/* Win32 API 宣言にゃん */
-extern HWND    __stdcall FindWindowExA(HWND, HWND, const char*, const char*);
+extern HWND    __stdcall FindWindowExA(HWND, HWND, char const*, char const*);
 extern LRESULT __stdcall SendMessageA(HWND, unsigned int, WPARAM, LPARAM);
 
 /* lean_string_byte_size はヌル終端文字を含むので自前で長さを數へるにゃん */
-static DWORD str_len(const char* s) {
+static DWORD str_len(char const* s) {
     DWORD n = 0;
     while (s[n]) n++;
     return n;
 }
 
-/* ディレクトゥム SSTP — dwData = 9801，lpData = SSTP/1.4 リクウェスティオ（UTF-8）にゃん */
-static void sstp_directum_mittere_raw(const char* data, DWORD size) {
-    HWND hwnd = FindWindowExA((HWND)0, (HWND)0, "SSP", (const char*)0);
+static void sstp_directum_mittere_raw(char const* data, DWORD size) {
+    HWND hwnd = FindWindowExA((HWND)0, (HWND)0, "SSP", (char const*)0);
     if (hwnd == (HWND)0) return;
     COPYDATASTRUCT cds;
     cds.dwData = 9801;
@@ -42,9 +59,17 @@ static void sstp_directum_mittere_raw(const char* data, DWORD size) {
     SendMessageA(hwnd, WM_COPYDATA, (WPARAM)0, (LPARAM)&cds);
 }
 
-/* Lean FFI エントリーポイントゥム — 文字列を受け取つて送信するにゃん */
 LEAN_EXPORT lean_obj_res sstp_directum_mittere(lean_obj_arg request, lean_obj_arg world) {
-    const char* str = lean_string_cstr(request);
+    char const* str = lean_string_cstr(request);
     sstp_directum_mittere_raw(str, str_len(str));
     return lean_io_result_mk_ok(lean_box(0));
 }
+
+#else /* _WIN32 でない環境ではにゃ何もしないスタブにゃん */
+
+LEAN_EXPORT lean_obj_res sstp_directum_mittere(lean_obj_arg request, lean_obj_arg world) {
+    (void)request; (void)world;
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
+#endif /* _WIN32 */
