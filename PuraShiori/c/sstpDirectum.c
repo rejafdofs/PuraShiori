@@ -30,8 +30,9 @@ typedef struct {
 
 #define WM_COPYDATA 0x004A
 
-extern HWND    __stdcall FindWindowExA(HWND, HWND, char const*, char const*);
-extern LRESULT __stdcall SendMessageA(HWND, unsigned int, WPARAM, LPARAM);
+/* x86_64 では呼出し規約は Microsoft x64 ABI に統一されるので __stdcall 不要にゃん */
+extern HWND    FindWindowExA(HWND, HWND, char const*, char const*);
+extern LRESULT SendMessageA(HWND, unsigned int, WPARAM, LPARAM);
 
 static void sstp_directum_mittere_raw(char const* data, DWORD size) {
     HWND hwnd = FindWindowExA((HWND)0, (HWND)0, "SSP", (char const*)0);
