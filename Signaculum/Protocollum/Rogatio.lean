@@ -1,4 +1,4 @@
--- Signaculum.Rogatio
+-- Signaculum.Protocollum.Rogatio
 -- SHIORI/3.0 要求の構文解析にゃん
 
 import Signaculum.Protocollum.Typi

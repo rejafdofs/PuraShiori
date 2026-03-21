@@ -1,4 +1,4 @@
--- Signaculum.Loop
+-- Signaculum.Nucleus.Loop
 -- ゴースト本體（ghost.exe）として標準入出力で中繼器と通信する小循環（loop）にゃん。
 
 import Signaculum.Nucleus.Exporta

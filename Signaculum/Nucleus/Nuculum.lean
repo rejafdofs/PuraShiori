@@ -1,4 +1,4 @@
--- Signaculum.Nuculum
+-- Signaculum.Nucleus.Nuculum
 -- 栞の核心骨格にゃん。處理器の登錄と事象のルーティングを擔ふにゃ
 
 import Signaculum.Protocollum.Typi
