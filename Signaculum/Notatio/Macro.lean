@@ -35,6 +35,13 @@ macro_rules | `(expandSignum $i:ident) => `(Signaculum.Sakura.loqui $(Lean.Synta
 instance (m : Type → Type) [Monad m] : Coe String (Signaculum.Sakura.SakuraM m Unit) where
   coe := Signaculum.Sakura.loqui
 
+-- IO.Ref α （ToString α をもつ全型）を SakuraM に強制型変換にゃん。{ref} でレフェレンティア値を直接表示できるにゃん
+instance {α : Type} {m : Type → Type} [Monad m] [MonadLiftT IO m] [ToString α] :
+    Coe (IO.Ref α) (Signaculum.Sakura.SakuraM m Unit) where
+  coe ref := do
+    let v ← liftM (ref.get : IO α)
+    Signaculum.Sakura.loqui (toString v)
+
 -- 中括弧で圍んだ Lean の式を直接埋め込むにゃん
 syntax (priority := 50) "{" term "}" : sakuraSignum
 macro_rules | `(expandSignum {$e}) => `($e)
