@@ -9,56 +9,62 @@ namespace Signaculum.Notatio
 open Lean Signaculum.Sakura
 
 -- 事象にゃん
--- Syntax には getAppFn/getAppArgs がないため node パターンで手動分解にゃん
-private partial def decompAppSyntax : Syntax → Syntax × Array Syntax
-  | .node _ `Lean.Parser.Term.app #[hd, tl] =>
-    let (f, prevArgs) := decompAppSyntax hd
-    (f, prevArgs.push tl)
-  | s => (s, #[])
+-- str 形: 文字列リテラルを直接 Sakura 關數に渡すにゃ
+-- ident 形: 構文を ident term* で受け取り term_elab ノードを直接構築して TermElabM に委ねるにゃん
 
--- ident形の raise/embed/notify/timerraise/timernotify は対應する term_elab ノードを直接構築にゃん
--- MacroM では toRef ラップや List.cons 構築が複雜なので TermElabM に委ねるにゃん
+-- term_elab ノードを直接組み立てるにゃん
+-- kind: ノードカインドにゃ、kw: キーワードアトムにゃ
+-- extraArgs: ms/rep 等の追加引數にゃ、ident: 關數識別子にゃ、argRaws: 引數配列にゃ
 private def mkSignalNode (kind : SyntaxNodeKind) (kw : String)
-    (extraArgs : Array Syntax) (ident : Syntax) (appArgs : Array Syntax) : Syntax :=
+    (extraArgs : Array Syntax) (identStx : Syntax) (argRaws : Array Syntax) : Syntax :=
   Lean.Syntax.node .none kind
     (#[Lean.Syntax.atom .none kw] ++ extraArgs ++
-     #[ident, Lean.Syntax.node .none nullKind appArgs])
+     #[identStx, Lean.Syntax.node .none nullKind argRaws])
 
-syntax "\\!" "[raise," term "]" : sakuraSignum
-macro_rules
-| `(expandSignum \![raise, $e:str]) => `(Signaculum.Sakura.excita $e)
-| `(expandSignum \![raise, $app:term]) =>
-  let (hd, appArgs) := decompAppSyntax app.raw
-  return mkSignalNode `excitaSyntax "excita" #[] hd appArgs
+syntax "\\!" "[raise," str "]" : sakuraSignum
+macro_rules | `(expandSignum \![raise, $e:str]) => `(Signaculum.Sakura.excita $e)
 
-syntax "\\!" "[embed," term "]" : sakuraSignum
+syntax "\\!" "[raise," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![embed, $e:str]) => `(Signaculum.Sakura.insere $e)
-| `(expandSignum \![embed, $app:term]) =>
-  let (hd, appArgs) := decompAppSyntax app.raw
-  return mkSignalNode `insereSyntax "insere" #[] hd appArgs
+| `(expandSignum \![raise, $f:ident $args:term*]) =>
+  return mkSignalNode `excitaSyntax "excita" #[] f.raw (args.map (·.raw))
 
-syntax "\\!" "[notify," term "]" : sakuraSignum
+syntax "\\!" "[embed," str "]" : sakuraSignum
+macro_rules | `(expandSignum \![embed, $e:str]) => `(Signaculum.Sakura.insere $e)
+
+syntax "\\!" "[embed," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![notify, $e:str]) => `(Signaculum.Sakura.notifica $e)
-| `(expandSignum \![notify, $app:term]) =>
-  let (hd, appArgs) := decompAppSyntax app.raw
-  return mkSignalNode `notificaSyntax "notifica" #[] hd appArgs
+| `(expandSignum \![embed, $f:ident $args:term*]) =>
+  return mkSignalNode `insereSyntax "insere" #[] f.raw (args.map (·.raw))
+
+syntax "\\!" "[notify," str "]" : sakuraSignum
+macro_rules | `(expandSignum \![notify, $e:str]) => `(Signaculum.Sakura.notifica $e)
+
+syntax "\\!" "[notify," ident term* "]" : sakuraSignum
+macro_rules
+| `(expandSignum \![notify, $f:ident $args:term*]) =>
+  return mkSignalNode `notificaSyntax "notifica" #[] f.raw (args.map (·.raw))
 
 -- タイマーにゃん
-syntax "\\!" "[timerraise," term "," term "," term "]" : sakuraSignum
-macro_rules
-| `(expandSignum \![timerraise, $ms, $rep, $e:str]) => `(Signaculum.Sakura.excitaPostTempus $ms $rep $e)
-| `(expandSignum \![timerraise, $ms, $rep, $app:term]) =>
-  let (hd, appArgs) := decompAppSyntax app.raw
-  return mkSignalNode `excitaPostTempusSyntax "excitaPostTempus" #[ms.raw, rep.raw] hd appArgs
+syntax "\\!" "[timerraise," term "," term "," str "]" : sakuraSignum
+macro_rules | `(expandSignum \![timerraise, $ms, $rep, $e:str]) =>
+  `(Signaculum.Sakura.excitaPostTempus $ms $rep $e)
 
-syntax "\\!" "[timernotify," term "," term "," term "]" : sakuraSignum
+syntax "\\!" "[timerraise," term "," term "," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![timernotify, $ms, $rep, $e:str]) => `(Signaculum.Sakura.notificaPostTempus $ms $rep $e)
-| `(expandSignum \![timernotify, $ms, $rep, $app:term]) =>
-  let (hd, appArgs) := decompAppSyntax app.raw
-  return mkSignalNode `notificaPostTempusSyntax "notificaPostTempus" #[ms.raw, rep.raw] hd appArgs
+| `(expandSignum \![timerraise, $ms, $rep, $f:ident $args:term*]) =>
+  return mkSignalNode `excitaPostTempusSyntax "excitaPostTempus"
+    #[ms.raw, rep.raw] f.raw (args.map (·.raw))
+
+syntax "\\!" "[timernotify," term "," term "," str "]" : sakuraSignum
+macro_rules | `(expandSignum \![timernotify, $ms, $rep, $e:str]) =>
+  `(Signaculum.Sakura.notificaPostTempus $ms $rep $e)
+
+syntax "\\!" "[timernotify," term "," term "," ident term* "]" : sakuraSignum
+macro_rules
+| `(expandSignum \![timernotify, $ms, $rep, $f:ident $args:term*]) =>
+  return mkSignalNode `notificaPostTempusSyntax "notificaPostTempus"
+    #[ms.raw, rep.raw] f.raw (args.map (·.raw))
 
 
 
