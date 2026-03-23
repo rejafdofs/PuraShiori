@@ -47,7 +47,8 @@ macro_rules
 
 -- タイマーにゃん
 syntax "\\!" "[timerraise," term "," term "," str "]" : sakuraSignum
-macro_rules | `(expandSignum \![timerraise, $ms, $rep, $e:str]) =>
+macro_rules
+| `(expandSignum \![timerraise, $ms, $rep, $e:str]) =>
   `(Signaculum.Sakura.excitaPostTempus $ms $rep $e)
 
 syntax "\\!" "[timerraise," term "," term "," ident (term:max)* "]" : sakuraSignum
@@ -57,7 +58,8 @@ macro_rules
     #[ms.raw, rep.raw] f.raw (args.map (·.raw))
 
 syntax "\\!" "[timernotify," term "," term "," str "]" : sakuraSignum
-macro_rules | `(expandSignum \![timernotify, $ms, $rep, $e:str]) =>
+macro_rules
+| `(expandSignum \![timernotify, $ms, $rep, $e:str]) =>
   `(Signaculum.Sakura.notificaPostTempus $ms $rep $e)
 
 syntax "\\!" "[timernotify," term "," term "," ident (term:max)* "]" : sakuraSignum
