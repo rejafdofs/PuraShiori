@@ -12,7 +12,7 @@ require "leanprover-community" / batteries @ git "main"
 
 require LemmaGeneralis from git "https://github.com/rejafdofs/LemmaGeneralis"@"main"
 
-lean_lib Signaculum where globs := #[.submodules `Signaculum]
+lean_lib Signaculum where globs := #[.one `Signaculum, .submodules `Signaculum]
 
 lean_exe testGhost where
   root := `TestGhost
