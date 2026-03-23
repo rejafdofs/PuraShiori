@@ -20,6 +20,10 @@ private partial def decompAppSyntax : Syntax → Syntax × Array Syntax
 private def toRefIdTerm : TSyntax `term :=
   ⟨(mkIdent `Signaculum.Memoria.Citatio.toRef).raw⟩
 
+-- MacroM では [$arr,*] が null ノードになるため List.cons/List.nil で明示構築にゃん
+private def makeListTerm (elems : Array (TSyntax `term)) : MacroM (TSyntax `term) :=
+  elems.foldrM (fun hd tl => `(List.cons $hd $tl)) (← `(List.nil))
+
 syntax "\\!" "[raise," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![raise, $e:str]) => `(Signaculum.Sakura.excita $e)
@@ -30,7 +34,8 @@ macro_rules
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
     `($toRef $t)
-  `(Signaculum.Sakura.excita $nameStr [$wrappedArgs,*])
+  let listTerm ← makeListTerm wrappedArgs
+  `(Signaculum.Sakura.excita $nameStr $listTerm)
 
 syntax "\\!" "[embed," term "]" : sakuraSignum
 macro_rules
@@ -42,7 +47,8 @@ macro_rules
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
     `($toRef $t)
-  `(Signaculum.Sakura.insere $nameStr [$wrappedArgs,*])
+  let listTerm ← makeListTerm wrappedArgs
+  `(Signaculum.Sakura.insere $nameStr $listTerm)
 
 syntax "\\!" "[notify," term "]" : sakuraSignum
 macro_rules
@@ -54,7 +60,8 @@ macro_rules
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
     `($toRef $t)
-  `(Signaculum.Sakura.notifica $nameStr [$wrappedArgs,*])
+  let listTerm ← makeListTerm wrappedArgs
+  `(Signaculum.Sakura.notifica $nameStr $listTerm)
 
 -- タイマーにゃん
 syntax "\\!" "[timerraise," term "," term "," term "]" : sakuraSignum
@@ -67,7 +74,8 @@ macro_rules
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
     `($toRef $t)
-  `(Signaculum.Sakura.excitaPostTempus $ms $rep $nameStr [$wrappedArgs,*])
+  let listTerm ← makeListTerm wrappedArgs
+  `(Signaculum.Sakura.excitaPostTempus $ms $rep $nameStr $listTerm)
 
 syntax "\\!" "[timernotify," term "," term "," term "]" : sakuraSignum
 macro_rules
@@ -79,7 +87,8 @@ macro_rules
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
     `($toRef $t)
-  `(Signaculum.Sakura.notificaPostTempus $ms $rep $nameStr [$wrappedArgs,*])
+  let listTerm ← makeListTerm wrappedArgs
+  `(Signaculum.Sakura.notificaPostTempus $ms $rep $nameStr $listTerm)
 
 
 
