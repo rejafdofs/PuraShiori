@@ -145,15 +145,24 @@ private def scriptumParserCore (kw : String) : Lean.Parser.Parser :=
 
 -- scriptumMacro ノードを展開するエラボレーターにゃん（カインドは flat `scriptumMacro にゃ）
 -- stx[1] が sakuraSignum* の null ノードにゃ
+-- rawTextusFn が積んだ生 ident ノード（isIdent = true）は直接 loqui に変換にゃ
+-- sakuraSignum ラッパーを持つ正規ノードは expandSignum 経由にゃ
 @[term_elab scriptumMacro]
 def elabScriptum : TermElab := fun stx expectedType? => do
   let ss := stx[1].getArgs
-  if h : 0 < ss.size then
-    let s0 : TSyntax `sakuraSignum := ⟨ss[0]'h⟩
-    let mut body ← `(expandSignum $s0)
-    for s in ss[1:] do
+  -- 各シグナムノードを term に変換するにゃ
+  let genTerm (s : Lean.Syntax) : Lean.Elab.Term.TermElabM (TSyntax `term) := do
+    if s.isIdent then
+      -- rawTextusFn 由来の裸 ident にゃ → 識別子名をテクストゥスとして直接 loqui にくるむにゃ
+      `(Signaculum.Sakura.loqui $(Lean.Syntax.mkStrLit s.getId.toString))
+    else
       let ts : TSyntax `sakuraSignum := ⟨s⟩
-      body ← `(Bind.bind $body fun () => expandSignum $ts)
+      `(expandSignum $ts)
+  if h : 0 < ss.size then
+    let mut body ← genTerm (ss[0]'h)
+    for s in ss[1:] do
+      let next ← genTerm s
+      body ← `(Bind.bind $body fun () => $next)
     elabTerm body expectedType?
   else
     elabTerm (← `(pure ())) expectedType?
