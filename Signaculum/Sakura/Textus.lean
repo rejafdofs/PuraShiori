@@ -1,11 +1,9 @@
--- Signaculum.SakuraTextus
+-- Signaculum.Sakura.Textus
 -- テキスト表示・書体・選択肢・タイミング にゃん♪
 
 import Signaculum.Sakura.Fundamentum
 
-namespace Signaculum
-
-namespace Sakura
+namespace Signaculum.Sakura
 
 -- ════════════════════════════════════════════════════
 --  範圍制御 (Imperium Scopi) — 誰が喋るか
@@ -423,6 +421,4 @@ def currere {m : Type → Type} [Monad m]
   let (_, resultatum) ← StateT.run scriptum initium
   return resultatum
 
-end Sakura
-
-end Signaculum
+end Signaculum.Sakura

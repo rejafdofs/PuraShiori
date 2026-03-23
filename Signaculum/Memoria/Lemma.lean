@@ -1,10 +1,10 @@
--- Signaculum.LemmaStatusPermanens
+-- Signaculum.Memoria.Lemma
 -- StatusPermanens 型クラスの基本型インスタンティアと關連補題にゃん♪
 -- （旧 InstantiaStatusPermanens と旧 LemmaStatusPermanens を統合したものにゃ）
 
 import Signaculum.Memoria.Auxilia
 
-namespace Signaculum
+namespace Signaculum.Memoria
 
 -- ═══════════════════════════════════════════════════
 -- インスタンティア証明用の私的補題にゃん
@@ -530,4 +530,4 @@ theorem serializeMappam_roundtrip (paria : List (String × String × ByteArray))
   rw [if_neg hsize, hbne, if_neg (by decide)]
   simp [h_read, h_legere, h_sp, Option.map_some]
 
-end Signaculum
+end Signaculum.Memoria

@@ -1,11 +1,9 @@
--- Signaculum.SakuraFundamentum
+-- Signaculum.Sakura.Fundamentum
 -- 基底発出プリミティウィ。emitte / evade* / loqui / crudus にゃん♪
 
 import Signaculum.Sakura.Typi
 
-namespace Signaculum
-
-namespace Sakura
+namespace Signaculum.Sakura
 
 /-- サクラスクリプトの斷片を發出するにゃん。
     これが全ての土臺にゃ -/
@@ -78,6 +76,4 @@ def loqui {m : Type → Type} [Monad m] (s : String) : SakuraM m Unit :=
 def crudus {m : Type → Type} [Monad m] (signum : String) : SakuraM m Unit :=
   emitte signum
 
-end Sakura
-
-end Signaculum
+end Signaculum.Sakura

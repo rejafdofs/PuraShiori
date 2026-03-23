@@ -1,9 +1,9 @@
--- Signaculum.Citatio
+-- Signaculum.Memoria.Citatio
 -- SHIORI リフェレンスの型安全な相互變換クラスにゃん♪
 -- fromRef (toRef a) = a が型クラスの法則として保証されるにゃ
 
 import LemmaGeneralis
-namespace Signaculum
+namespace Signaculum.Memoria
 
 /-- 値を SHIORI リフェレンス文字列に變換し、逆變換も保証される型クラスにゃん。
     `toRef` でセリアーリザーティオー・`fromRef` で復元するにゃ。
@@ -14,4 +14,4 @@ class Citatio (α : Type) where
   fromRef   : String → α
   roundtrip : ∀ (a : α), fromRef (toRef a) = a
 
-end Signaculum
+end Signaculum.Memoria

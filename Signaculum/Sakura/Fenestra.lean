@@ -1,11 +1,9 @@
--- Signaculum.SakuraFenestra
+-- Signaculum.Sakura.Fenestra
 -- ウィンドウ・UI 管理・モード制御 にゃん♪
 
 import Signaculum.Sakura.Fundamentum
 
-namespace Signaculum
-
-namespace Sakura
+namespace Signaculum.Sakura
 
 -- ════════════════════════════════════════════════════
 --  窓制御 (Imperium Fenestrae)
@@ -414,6 +412,4 @@ def imagoBullaeInlineata {m : Type → Type} [Monad m] (via : String) : SakuraM 
 def imagoBullaeInlineataOpaca {m : Type → Type} [Monad m] (via : String) : SakuraM m Unit :=
   emitte s!"\\_b[{evadeArgumentum via},inline,opaque]"
 
-end Sakura
-
-end Signaculum
+end Signaculum.Sakura

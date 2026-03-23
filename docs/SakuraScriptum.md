@@ -238,11 +238,13 @@ claudeDialogum "myDialogId"
 
 ### テキスト入力
 
+以下は文字列形（イベント名を文字列で指定）です。def ベース形（`aperiInputum .simplex onTextEntered ...` のように def を直接渡す形式）については README.md の「def 関數と excita / insere」を参照してください。
+
 ```lean
--- 通常（inputbox）
+-- 通常（inputbox）— 文字列形
 aperiInputum .simplex "OnInput" "タイトル" "初期テキスト"
 
--- パスワード（passwordinput）
+-- パスワード（passwordinput）— 文字列形
 aperiInputum .sigillum "OnPassInput" "パスワード" ""
 
 -- オプション付き

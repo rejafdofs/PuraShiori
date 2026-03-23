@@ -10,14 +10,12 @@ package Signaculum where
 
 require "leanprover-community" / batteries @ git "main"
 
-require Repl from git "https://github.com/leanprover-community/repl"
-
 require LemmaGeneralis from git "https://github.com/rejafdofs/LemmaGeneralis"@"main"
 
 lean_lib Signaculum where globs := #[.submodules `Signaculum]
 
-lean_lib TestGhost where
-  globs := #[`TestGhost]
+lean_exe testGhost where
+  root := `TestGhost
 
 lean_exe ghost where
   root := `Main

@@ -71,23 +71,3 @@ def testPuraSakura : String := Id.run do
     loqui "テスト完了にゃ。"
     finis
 
--- コンパイル時チェック
-#eval! do
-  let sakura := testPuraSakura
-  IO.println s!"=== SakuraScript 生成テスト ==="
-  IO.println sakura
-  IO.println ""
-  IO.println s!"=== Responsum フォーマットテスト ==="
-  let resp := Responsum.ok "\\h\\s[0]テストにゃ\\e"
-  IO.println resp.adProtocollum
-  IO.println s!"=== Rogatio パーステスト ==="
-  let reqStr := "GET SHIORI/3.0\r\nID: OnBoot\r\nReference0: installed\r\nCharset: UTF-8\r\n\r\n"
-  match Rogatio.interpreta reqStr with
-  | .ok r =>
-    IO.println s!"methodus: {r.methodus.adCatenam}"
-    IO.println s!"nomen: {r.nomen}"
-    IO.println s!"ref0: {r.referentiam 0}"
-    IO.println s!"charset: {r.forma}"
-  | .error e => IO.println s!"Parse error: {e}"
-  IO.println ""
-  IO.println s!"=== 全テスト完了 ==="

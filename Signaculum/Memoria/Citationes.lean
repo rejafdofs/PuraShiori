@@ -1,9 +1,9 @@
--- Signaculum.Citationes
+-- Signaculum.Memoria.Citationes
 -- Citatio 型クラスの各型へのインスタンティアにゃん♪
 -- fromRef (toRef a) = a がすべてのインスタンティアで保証されるにゃ
 
 import Signaculum.Memoria.Citatio
-namespace Signaculum
+namespace Signaculum.Memoria
 
 -- ═══════════════════════════════════════════════════
 -- 基本型のインスタンティアにゃん
@@ -243,4 +243,4 @@ instance {α : Type} [inst : Citatio α] : Citatio (List α) where
     simp only [String.toList_ofList]
     exact decodeElems_eq l
 
-end Signaculum
+end Signaculum.Memoria

@@ -1,6 +1,6 @@
 # 變更記錄 (Mutationum Registrum)
 
-## v0.3.0 — パラメータ境界検証 & scriptum! マクロ DSL
+## v0.3.0 (2026-03-23) — パラメータ境界検証 & scriptum! マクロ DSL
 
 ### コンパイル時パラメータ境界検証
 
@@ -39,7 +39,7 @@ SakuraScript を原形タグ記法で書ける `scriptum!` マクロを追加。
 
 ---
 
-## v0.2.0 — Pure Lean TCP SSTP & 品質改善
+## v0.2.0 (2026-02-01) — Pure Lean TCP SSTP & 品質改善
 
 ### C コード排除 — Pure Lean TCP SSTP
 
@@ -91,7 +91,7 @@ SakuraScript を原形タグ記法で書ける `scriptum!` マクロを追加。
 
 ---
 
-## 最適化 (Optimizatio)
+## 最適化 (Optimizatio) (2026-01-01)
 
 ### `evadeTextus` の文字列構築改善 (`SakuraScriptum.lean`)
 SakuraScriptum の特殊文字遁走處理で、通常文字の追加を `String.ofList [c]`（毎囘リスト生成 + 文字列變換）から `acc.push c`（1文字直接追加）に變更したにゃ。文字列が長いほど效果が出るにゃん♪

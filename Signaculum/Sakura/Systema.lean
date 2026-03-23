@@ -1,11 +1,9 @@
--- Signaculum.SakuraSystema
+-- Signaculum.Sakura.Systema
 -- イベント・音響・HTTP・プロパティ・ゴースト管理 にゃん♪
 
 import Signaculum.Sakura.Fundamentum
 
-namespace Signaculum
-
-namespace Sakura
+namespace Signaculum.Sakura
 
 -- プロパティ名中の ] を遁走するにゃん（%property[...] の括弧を壞さにゃいためにゃ）
 private def escapePropNomen (s : String) : String := s.replace "]" "\\]"
@@ -565,6 +563,4 @@ def legeProprietatem {m : Type → Type} [Monad m]
 def proprietasCitata {m : Type → Type} [Monad m] (proprietas : Proprietas) : SakuraM m Unit :=
   emitte s!"%property[{escapePropNomen proprietas.toString}]"
 
-end Sakura
-
-end Signaculum
+end Signaculum.Sakura

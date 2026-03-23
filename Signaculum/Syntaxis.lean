@@ -144,7 +144,7 @@ private def registraLazium (f : Ident) : TermElabM String := do
     SSP 組み込み事象には `excita "OnBoot"` の文字列形を使ふにゃ -/
 elab "excita" f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   elabTerm
     (← `(Signaculum.Sakura.excita $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -154,7 +154,7 @@ elab "excita" f:ident args:term* : term => do
     引數は Citatio.toRef で文字列に変換されて Reference に渡されるにゃ -/
 elab "insere" f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   elabTerm
     (← `(Signaculum.Sakura.insere $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -168,7 +168,7 @@ elab "insere" f:ident args:term* : term => do
     引數は Citatio.toRef で文字列に変換されて Reference に渡されるにゃ -/
 elab "notifica" f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   elabTerm
     (← `(Signaculum.Sakura.notifica $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -177,7 +177,7 @@ elab "notifica" f:ident args:term* : term => do
     ms はミリ秒、repeat は繰返し回數（0=無限）にゃ -/
 elab "excitaPostTempus" ms:term repetitio:term f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   elabTerm
     (← `(Signaculum.Sakura.excitaPostTempus $ms $repetitio $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -185,7 +185,7 @@ elab "excitaPostTempus" ms:term repetitio:term f:ident args:term* : term => do
 /-- `notificaPostTempus ms repetitio f arg1 arg2 ...` — def ベース通知事象を遅延発火させるにゃん♪ -/
 elab "notificaPostTempus" ms:term repetitio:term f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   elabTerm
     (← `(Signaculum.Sakura.notificaPostTempus $ms $repetitio $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -194,7 +194,7 @@ elab "notificaPostTempus" ms:term repetitio:term f:ident args:term* : term => do
     titulus は表示文字列にゃ。f は def で定義されたコールバックにゃ -/
 elab "optioEventum" titulus:term f:ident args:term* : term => do
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a => `(Signaculum.Citatio.toRef $a)
+  let argTerms ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   elabTerm
     (← `(Signaculum.Sakura.optioEventum $titulus $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -307,7 +307,7 @@ elab "construe" : command => do
     --           (FromRef.fromRef ((req.referentiam 1).getD ""))
     let argExprs : Array (TSyntax `term) ← (Array.range e.paramCount).mapM fun i => do
       let idx := Syntax.mkNumLit (toString i)
-      `(Signaculum.Citatio.fromRef ((req.referentiam $idx).getD ""))
+      `(Signaculum.Memoria.Citatio.fromRef ((req.referentiam $idx).getD ""))
 
     elabCommand (← `(
       def $tractorIdent : Signaculum.Tractator := fun req => $declIdent $argExprs*))
@@ -326,9 +326,9 @@ elab "construe" : command => do
       let signumNominis : TSyntax `term := ⟨Syntax.mkStrLit v.nomen.toString⟩
       let syntaxisTypi : TSyntax `term := ⟨v.typusSyntax⟩
       `(($signumNominis, fun _tag _s => do
-          if _tag == Signaculum.StatusPermanens.typusTag (α := $syntaxisTypi) then
+          if _tag == Signaculum.Memoria.StatusPermanens.typusTag (α := $syntaxisTypi) then
             if let (some _v : Option $syntaxisTypi) :=
-                Signaculum.StatusPermanens.eBytes _s then
+                Signaculum.Memoria.StatusPermanens.eBytes _s then
               ($identVariae).set _v))
 
     let elementaServandi : Array (TSyntax `term) ← variaePermanentes.mapM fun v => do
@@ -337,8 +337,8 @@ elab "construe" : command => do
       let syntaxisTypi : TSyntax `term := ⟨v.typusSyntax⟩
       `(($signumNominis, do
           let _v ← ($identVariae).get
-          return (Signaculum.StatusPermanens.typusTag (α := $syntaxisTypi),
-                  Signaculum.StatusPermanens.adBytes _v)))
+          return (Signaculum.Memoria.StatusPermanens.typusTag (α := $syntaxisTypi),
+                  Signaculum.Memoria.StatusPermanens.adBytes _v)))
 
     let terminusTractatorum ← `([$pariaTractatorum,*])
     let terminusOnerandi    ← `([$elementaOnerandi,*])
@@ -348,8 +348,8 @@ elab "construe" : command => do
       def servaStatum : IO Unit := do
         let _domus ← Signaculum.domusObtinere
         let _via := _domus ++ "/ghost_status.bin"
-        let _paria ← Signaculum.executareScripturam $terminusServandi
-        Signaculum.scribeMappam _via _paria))
+        let _paria ← Signaculum.Memoria.executareScripturam $terminusServandi
+        Signaculum.Memoria.scribeMappam _via _paria))
 
     elabCommand (← `(
       initialize (Signaculum.registraShioriEx
@@ -357,8 +357,8 @@ elab "construe" : command => do
         (some (fun _domus => do
           let _via := _domus ++ "/ghost_status.bin"
           try
-            let _paria ← Signaculum.legereMappam _via
-            Signaculum.executareLecturam _paria $terminusOnerandi
+            let _paria ← Signaculum.Memoria.legereMappam _via
+            Signaculum.Memoria.executareLecturam _paria $terminusOnerandi
           catch _ => pure ()))
         (some servaStatum))
     ))

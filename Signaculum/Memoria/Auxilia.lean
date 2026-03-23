@@ -1,11 +1,11 @@
--- Signaculum.AuxiliaStatusPermanens
+-- Signaculum.Memoria.Auxilia
 -- StatusPermanens クラスに關聯する補助關數・コーディフィカーティオー・シリアーリザーティオーにゃん♪
 -- LE/LEB128 エンコード、encodeField/decodeField、ビーナーリウム讀み書きを提供するにゃ
 
 import Std.Tactic.BVDecide
 import LemmaGeneralis
 import Signaculum.Memoria.StatusPermanens
-namespace Signaculum
+namespace Signaculum.Memoria
 
 -- ═══════════════════════════════════════════════════
 -- 内部補助: リトルエンディアン(LE)のコーディフィカーティオー/デコーディフィカーティオーにゃん
@@ -33,33 +33,33 @@ def u64LE (n : UInt64) : ByteArray :=
 
 -- (値, 次の位置) を返すにゃ
 def readU16LE (b : ByteArray) (positio : Nat) : Option (UInt16 × Nat) :=
-  if positio + 2 > b.size then none
-  else some (
-    b[positio]!.toUInt16 |||
-    (b[positio+1]!.toUInt16 <<< 8),
+  if h : positio + 2 ≤ b.size then some (
+    (b[positio]'(by omega)).toUInt16 |||
+    ((b[positio+1]'(by omega)).toUInt16 <<< 8),
     positio + 2)
+  else none
 
 def readU32LE (b : ByteArray) (positio : Nat) : Option (UInt32 × Nat) :=
-  if positio + 4 > b.size then none
-  else some (
-    b[positio]!.toUInt32 |||
-    (b[positio+1]!.toUInt32 <<< 8)  |||
-    (b[positio+2]!.toUInt32 <<< 16) |||
-    (b[positio+3]!.toUInt32 <<< 24),
+  if h : positio + 4 ≤ b.size then some (
+    (b[positio]'(by omega)).toUInt32 |||
+    ((b[positio+1]'(by omega)).toUInt32 <<< 8)  |||
+    ((b[positio+2]'(by omega)).toUInt32 <<< 16) |||
+    ((b[positio+3]'(by omega)).toUInt32 <<< 24),
     positio + 4)
+  else none
 
 def readU64LE (b : ByteArray) (positio : Nat) : Option (UInt64 × Nat) :=
-  if positio + 8 > b.size then none
-  else some (
-    b[positio]!.toUInt64 |||
-    (b[positio+1]!.toUInt64 <<< 8)  |||
-    (b[positio+2]!.toUInt64 <<< 16) |||
-    (b[positio+3]!.toUInt64 <<< 24) |||
-    (b[positio+4]!.toUInt64 <<< 32) |||
-    (b[positio+5]!.toUInt64 <<< 40) |||
-    (b[positio+6]!.toUInt64 <<< 48) |||
-    (b[positio+7]!.toUInt64 <<< 56),
+  if h : positio + 8 ≤ b.size then some (
+    (b[positio]'(by omega)).toUInt64 |||
+    ((b[positio+1]'(by omega)).toUInt64 <<< 8)  |||
+    ((b[positio+2]'(by omega)).toUInt64 <<< 16) |||
+    ((b[positio+3]'(by omega)).toUInt64 <<< 24) |||
+    ((b[positio+4]'(by omega)).toUInt64 <<< 32) |||
+    ((b[positio+5]'(by omega)).toUInt64 <<< 40) |||
+    ((b[positio+6]'(by omega)).toUInt64 <<< 48) |||
+    ((b[positio+7]'(by omega)).toUInt64 <<< 56),
     positio + 8)
+  else none
 
 -- ═══════════════════════════════════════════════════
 -- LEB128: 任意精度 Nat のオクテートゥス列コーディフィカーティオーにゃん
@@ -322,10 +322,10 @@ theorem legereU16LERecursus (n : UInt16) (rest : ByteArray) :
   have hsize : (ByteArray.mk #[(n &&& 0xFF).toUInt8,
       ((n >>> 8) &&& 0xFF).toUInt8] ++ rest).size = 2 + rest.size := by
     rw [ByteArray.size_append]; rfl
-  have hsz : ¬ (0 + 2 > (ByteArray.mk #[(n &&& 0xFF).toUInt8,
-      ((n >>> 8) &&& 0xFF).toUInt8] ++ rest).size) := by
+  have hsz : 0 + 2 ≤ (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+      ((n >>> 8) &&& 0xFF).toUInt8] ++ rest).size := by
     omega
-  simp only [show 0 + 2 = 2 from rfl, hsz, ite_false]
+  simp only [show 0 + 2 = 2 from rfl, dif_pos hsz]
   exact congrArg (fun x => some (x, 2)) (uint16OctetiRecursus n)
 
 -- UInt32 ──────────────────────────────────────────
@@ -344,11 +344,11 @@ theorem legereU32LERecursus (n : UInt32) (rest : ByteArray) :
       ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
       ((n >>> 24) &&& 0xFF).toUInt8] ++ rest).size = 4 + rest.size := by
     rw [ByteArray.size_append]; rfl
-  have hsz : ¬ (0 + 4 > (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+  have hsz : 0 + 4 ≤ (ByteArray.mk #[(n &&& 0xFF).toUInt8,
       ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
-      ((n >>> 24) &&& 0xFF).toUInt8] ++ rest).size) := by
+      ((n >>> 24) &&& 0xFF).toUInt8] ++ rest).size := by
     omega
-  simp only [show 0 + 4 = 4 from rfl, hsz, ite_false]
+  simp only [show 0 + 4 = 4 from rfl, dif_pos hsz]
   exact congrArg (fun x => some (x, 4)) (uint32OctetiRecursus n)
 
 -- UInt64 ──────────────────────────────────────────
@@ -373,13 +373,13 @@ theorem legereU64LERecursus (n : UInt64) (rest : ByteArray) :
       ((n >>> 40) &&& 0xFF).toUInt8, ((n >>> 48) &&& 0xFF).toUInt8,
       ((n >>> 56) &&& 0xFF).toUInt8] ++ rest).size = 8 + rest.size := by
     rw [ByteArray.size_append]; rfl
-  have hsz : ¬ (0 + 8 > (ByteArray.mk #[(n &&& 0xFF).toUInt8,
+  have hsz : 0 + 8 ≤ (ByteArray.mk #[(n &&& 0xFF).toUInt8,
       ((n >>> 8) &&& 0xFF).toUInt8, ((n >>> 16) &&& 0xFF).toUInt8,
       ((n >>> 24) &&& 0xFF).toUInt8, ((n >>> 32) &&& 0xFF).toUInt8,
       ((n >>> 40) &&& 0xFF).toUInt8, ((n >>> 48) &&& 0xFF).toUInt8,
-      ((n >>> 56) &&& 0xFF).toUInt8] ++ rest).size) := by
+      ((n >>> 56) &&& 0xFF).toUInt8] ++ rest).size := by
     omega
-  simp only [show 0 + 8 = 8 from rfl, hsz, ite_false]
+  simp only [show 0 + 8 = 8 from rfl, dif_pos hsz]
   exact congrArg (fun x => some (x, 8)) (uint64OctetiRecursus n)
 
 
@@ -489,4 +489,4 @@ def executareScripturam
     paria := (nomen, tag, valor) :: paria
   return paria.reverse
 
-end Signaculum
+end Signaculum.Memoria

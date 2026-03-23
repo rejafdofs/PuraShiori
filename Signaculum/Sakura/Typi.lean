@@ -1,7 +1,7 @@
--- Signaculum.SakuraTypi
+-- Signaculum.Sakura.Typi
 -- 型定義専用ぢゃ。他の Signaculum ファスキクルスへの インポルトなしにゃん♪
 
-namespace Signaculum
+namespace Signaculum.Sakura
 
 /-- サクラスクリプト構築モナドにゃん。
     文字列を蓄積する StateT で、基底モナド m を自由に選べるにゃ。
@@ -14,8 +14,6 @@ abbrev SakuraIO (α : Type) := SakuraM IO α
 
 /-- 純粹サクラスクリプト・モナドにゃん。副作用が要らにゃい時に使ふにゃ -/
 abbrev SakuraPura (α : Type) := SakuraM Id α
-
-namespace Sakura
 
 -- ════════════════════════════════════════════════════
 --  列挙型 (Typi Enumerati)
@@ -756,6 +754,4 @@ def diesInMense (annus mensis : Nat) : Nat :=
   | 7 => 31 | 8 => 31 | 9 => 30 | 10 => 31
   | 11 => 30 | 12 => 31 | _ => 0
 
-end Sakura
-
-end Signaculum
+end Signaculum.Sakura

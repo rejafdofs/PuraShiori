@@ -1,7 +1,4 @@
 /.lake
-/.claude
-/LemmaGeneralis
-
 # サブプロヱクトゥムの構築物も除外にゃん
 **/.lake/
 # Rust 構築物にゃ

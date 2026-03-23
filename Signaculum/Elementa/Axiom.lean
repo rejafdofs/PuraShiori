@@ -1,5 +1,8 @@
 -- Signaculum.Elementa.Axiom
--- 理論上証明できない Signaculum 固有の公理置き場にゃん♪
--- 既存型の公理（String.Internal.append_eq_append 等）は LemmaGeneralis に移動してゐるにゃ
--- 将来ここに追加する候補:
---   axiom Float.ofBits_toBits (f : Float) : Float.ofBits f.toBits = f  -- opaque なので証明不能
+-- 理論上證明できにゃい シグナークルム固有の公理置き場にゃん♪
+-- Float のバイナリ安全性みたいに原理的に證明不可能なものを此處に置くにゃ
+-- 公理の追加にはユーザーの許可が必要にゃん
+
+namespace Signaculum.Elementa
+
+end Signaculum.Elementa

@@ -8,6 +8,7 @@ import Signaculum.Protocollum.Responsum
 import Std.Data.HashMap
 
 namespace Signaculum
+open Signaculum.Sakura
 
 /-- 事象處理器の型にゃん。
     お嬢樣はこの型の關數を書くだけでよいにゃ。

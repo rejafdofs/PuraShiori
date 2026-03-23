@@ -31,7 +31,7 @@ name = "my-ghost"
 version = "0.1.0"
 
 [[require]]
-git = "https://github.com/rejafdofs/Signaculum
+git = "https://github.com/rejafdofs/Signaculum"
 rev = "main"
 name = "Signaculum"
 
@@ -145,7 +145,7 @@ eventum "事象名" fun rogatio => do
 construe
 ```
 
-主ファスキクルスの末尾に一度書くにゃ。`eventum` と `excita`/`insere` 識別子形で宣言した全ての処理器を自動収集して登録するにゃ♪
+主ファスキクルスの末尾に一度書くにゃ。`eventum` と `excita`/`insere` 識別子形で宣言した全ての処理器を、コンパイル時に環境拡張を介して収集し登録するにゃ♪
 
 ---
 
@@ -165,7 +165,7 @@ def onGreet (nomen : String) (kai : Nat) : SakuraIO Unit := do
 eventum "OnGreet" fun rogatio => do
   let nomen := (rogatio.referentiam 0).getD "ゲスト"
   let kai   := (rogatio.referentiam 1).getD "0"
-  onGreet nomen kai.toNat!   -- 直接呼ぶ（インライン展開）にゃ
+  onGreet nomen kai.toNat   -- 直接呼ぶ（インライン展開）にゃ
   finis
 
 eventum "OnBoot" fun _ => do

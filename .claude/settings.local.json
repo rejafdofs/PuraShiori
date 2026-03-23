@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:ssp.shillest.net)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:leanprover-community.github.io)",
+      "WebFetch(domain:loogle.lean-lang.org)",
+      "mcp__lean-lsp__lean_diagnostic_messages",
+      "mcp__lean-lsp__lean_local_search",
+      "mcp__lean-lsp__lean_hover_info",
+      "mcp__lean-lsp__lean_goal",
+      "mcp__lean-lsp__lean_run_code",
+      "mcp__lean-mcp-server__lean_diagnostic_messages",
+      "mcp__lean-mcp-server__lean_goal",
+      "mcp__lean-mcp-server__lean_loogle",
+      "mcp__lean-mcp-server__lean_leansearch",
+      "mcp__lean-mcp-server__lean_local_search",
+      "mcp__lean-mcp-server__lean_multi_attempt",
+      "mcp__lean-mcp-server__lean_run_code",
+      "Bash(find:*)",
+      "Bash(cd:*)",
+      "Bash(echo:*)",
+      "WebFetch(domain:lean-lang.org)",
+      "Bash(curl:*)",
+      "Bash(c:/Users/a/.elan/toolchains/leanprover--lean4---v4.29.0-rc6/bin/clang.exe \\\\\n  -x c /dev/null -dM -E \\\\\n  --sysroot=\"C:/Users/a/.elan/toolchains/leanprover--lean4---v4.29.0-rc6\" \\\\\n  -nostdinc \\\\\n  -isystem \"C:/Users/a/.elan/toolchains/leanprover--lean4---v4.29.0-rc6/include/clang\" \\\\\n  -DNDEBUG 2>/dev/null | grep \"_WIN32\\\\|__MINGW\")",
+      "Bash(cp -r PuraShiori Signaculum)",
+      "Bash(cp PuraShiori.lean Signaculum.lean)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "ssp-mcp-server"
+  ],
+  "prefersReducedMotion": false
+}

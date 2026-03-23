@@ -38,12 +38,12 @@ syntax (name := scriptumMacro) withPosition("scriptum!" (colGt sakuraSignum)*) :
 
 macro_rules
   | `(scriptum! $[$ss:sakuraSignum]*) => do
-    if ss.isEmpty then
-      `(pure ())
-    else
-      let mut body ← `(expandSignum $(ss[0]!))
+    if h : 0 < ss.size then
+      let mut body ← `(expandSignum $(ss[0]'h))
       for s in ss[1:] do
         body ← `(Bind.bind $body fun () => expandSignum $s)
       return body
+    else
+      `(pure ())
 
 end Signaculum.Notatio
