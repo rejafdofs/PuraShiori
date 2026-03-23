@@ -11,42 +11,49 @@ open Lean Signaculum.Sakura
 -- 事象にゃん
 -- Syntax には getAppFn/getAppArgs がないため node パターンで手動分解にゃん
 private partial def decompAppSyntax : Syntax → Syntax × Array Syntax
-  | .node _ `Lean.Parser.Term.app #[fn, arg] =>
-    let (f, prevArgs) := decompAppSyntax fn
-    (f, prevArgs.push arg)
+  | .node _ `Lean.Parser.Term.app #[hd, tl] =>
+    let (f, prevArgs) := decompAppSyntax hd
+    (f, prevArgs.push tl)
   | s => (s, #[])
+
+-- macro_rules のハイジーン機構を避けるため mkIdent で識別子を直接生成するにゃん
+private def toRefIdTerm : TSyntax `term :=
+  ⟨(mkIdent `Signaculum.Memoria.Citatio.toRef).raw⟩
 
 syntax "\\!" "[raise," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![raise, $e:str]) => `(Signaculum.Sakura.excita $e)
 | `(expandSignum \![raise, $app:term]) => do
-  let (fn, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit fn.getId.toString
+  let (hd, appArgs) := decompAppSyntax app.raw
+  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
+  let toRef := toRefIdTerm
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
-    `(Signaculum.Memoria.Citatio.toRef $t)
+    `($toRef $t)
   `(Signaculum.Sakura.excita $nameStr [$wrappedArgs,*])
 
 syntax "\\!" "[embed," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![embed, $e:str]) => `(Signaculum.Sakura.insere $e)
 | `(expandSignum \![embed, $app:term]) => do
-  let (fn, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit fn.getId.toString
+  let (hd, appArgs) := decompAppSyntax app.raw
+  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
+  let toRef := toRefIdTerm
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
-    `(Signaculum.Memoria.Citatio.toRef $t)
+    `($toRef $t)
   `(Signaculum.Sakura.insere $nameStr [$wrappedArgs,*])
 
 syntax "\\!" "[notify," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![notify, $e:str]) => `(Signaculum.Sakura.notifica $e)
 | `(expandSignum \![notify, $app:term]) => do
-  let (fn, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit fn.getId.toString
+  let (hd, appArgs) := decompAppSyntax app.raw
+  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
+  let toRef := toRefIdTerm
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
-    `(Signaculum.Memoria.Citatio.toRef $t)
+    `($toRef $t)
   `(Signaculum.Sakura.notifica $nameStr [$wrappedArgs,*])
 
 -- タイマーにゃん
@@ -54,22 +61,24 @@ syntax "\\!" "[timerraise," term "," term "," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![timerraise, $ms, $rep, $e:str]) => `(Signaculum.Sakura.excitaPostTempus $ms $rep $e)
 | `(expandSignum \![timerraise, $ms, $rep, $app:term]) => do
-  let (fn, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit fn.getId.toString
+  let (hd, appArgs) := decompAppSyntax app.raw
+  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
+  let toRef := toRefIdTerm
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
-    `(Signaculum.Memoria.Citatio.toRef $t)
+    `($toRef $t)
   `(Signaculum.Sakura.excitaPostTempus $ms $rep $nameStr [$wrappedArgs,*])
 
 syntax "\\!" "[timernotify," term "," term "," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![timernotify, $ms, $rep, $e:str]) => `(Signaculum.Sakura.notificaPostTempus $ms $rep $e)
 | `(expandSignum \![timernotify, $ms, $rep, $app:term]) => do
-  let (fn, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit fn.getId.toString
+  let (hd, appArgs) := decompAppSyntax app.raw
+  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
+  let toRef := toRefIdTerm
   let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
-    `(Signaculum.Memoria.Citatio.toRef $t)
+    `($toRef $t)
   `(Signaculum.Sakura.notificaPostTempus $ms $rep $nameStr [$wrappedArgs,*])
 
 
