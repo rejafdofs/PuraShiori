@@ -16,79 +16,49 @@ private partial def decompAppSyntax : Syntax → Syntax × Array Syntax
     (f, prevArgs.push tl)
   | s => (s, #[])
 
--- macro_rules のハイジーン機構を避けるため mkIdent で識別子を直接生成するにゃん
-private def toRefIdTerm : TSyntax `term :=
-  ⟨(mkIdent `Signaculum.Memoria.Citatio.toRef).raw⟩
-
--- MacroM では [$arr,*] が null ノードになるため List.cons/List.nil で明示構築にゃん
-private def makeListTerm (elems : Array (TSyntax `term)) : MacroM (TSyntax `term) := do
-  elems.foldrM (fun hd tl => `(List.cons $hd $tl)) (← `(List.nil))
+-- ident形の raise/embed/notify/timerraise/timernotify は対應する term_elab ノードを直接構築にゃん
+-- MacroM では toRef ラップや List.cons 構築が複雜なので TermElabM に委ねるにゃん
+private def mkSignalNode (kind : SyntaxNodeKind) (kw : String)
+    (extraArgs : Array Syntax) (ident : Syntax) (appArgs : Array Syntax) : Syntax :=
+  Lean.Syntax.node .none kind
+    (#[Lean.Syntax.atom .none kw] ++ extraArgs ++
+     #[ident, Lean.Syntax.node .none nullKind appArgs])
 
 syntax "\\!" "[raise," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![raise, $e:str]) => `(Signaculum.Sakura.excita $e)
-| `(expandSignum \![raise, $app:term]) => do
+| `(expandSignum \![raise, $app:term]) =>
   let (hd, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
-  let toRef := toRefIdTerm
-  let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
-    let t : TSyntax `term := ⟨a⟩
-    `($toRef $t)
-  let listTerm ← makeListTerm wrappedArgs
-  `(Signaculum.Sakura.excita $nameStr $listTerm)
+  return mkSignalNode `excitaSyntax "excita" #[] hd appArgs
 
 syntax "\\!" "[embed," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![embed, $e:str]) => `(Signaculum.Sakura.insere $e)
-| `(expandSignum \![embed, $app:term]) => do
+| `(expandSignum \![embed, $app:term]) =>
   let (hd, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
-  let toRef := toRefIdTerm
-  let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
-    let t : TSyntax `term := ⟨a⟩
-    `($toRef $t)
-  let listTerm ← makeListTerm wrappedArgs
-  `(Signaculum.Sakura.insere $nameStr $listTerm)
+  return mkSignalNode `insereSyntax "insere" #[] hd appArgs
 
 syntax "\\!" "[notify," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![notify, $e:str]) => `(Signaculum.Sakura.notifica $e)
-| `(expandSignum \![notify, $app:term]) => do
+| `(expandSignum \![notify, $app:term]) =>
   let (hd, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
-  let toRef := toRefIdTerm
-  let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
-    let t : TSyntax `term := ⟨a⟩
-    `($toRef $t)
-  let listTerm ← makeListTerm wrappedArgs
-  `(Signaculum.Sakura.notifica $nameStr $listTerm)
+  return mkSignalNode `notificaSyntax "notifica" #[] hd appArgs
 
 -- タイマーにゃん
 syntax "\\!" "[timerraise," term "," term "," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![timerraise, $ms, $rep, $e:str]) => `(Signaculum.Sakura.excitaPostTempus $ms $rep $e)
-| `(expandSignum \![timerraise, $ms, $rep, $app:term]) => do
+| `(expandSignum \![timerraise, $ms, $rep, $app:term]) =>
   let (hd, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
-  let toRef := toRefIdTerm
-  let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
-    let t : TSyntax `term := ⟨a⟩
-    `($toRef $t)
-  let listTerm ← makeListTerm wrappedArgs
-  `(Signaculum.Sakura.excitaPostTempus $ms $rep $nameStr $listTerm)
+  return mkSignalNode `excitaPostTempusSyntax "excitaPostTempus" #[ms.raw, rep.raw] hd appArgs
 
 syntax "\\!" "[timernotify," term "," term "," term "]" : sakuraSignum
 macro_rules
 | `(expandSignum \![timernotify, $ms, $rep, $e:str]) => `(Signaculum.Sakura.notificaPostTempus $ms $rep $e)
-| `(expandSignum \![timernotify, $ms, $rep, $app:term]) => do
+| `(expandSignum \![timernotify, $ms, $rep, $app:term]) =>
   let (hd, appArgs) := decompAppSyntax app.raw
-  let nameStr := Lean.Syntax.mkStrLit hd.getId.toString
-  let toRef := toRefIdTerm
-  let wrappedArgs : Array (TSyntax `term) ← appArgs.mapM fun a => do
-    let t : TSyntax `term := ⟨a⟩
-    `($toRef $t)
-  let listTerm ← makeListTerm wrappedArgs
-  `(Signaculum.Sakura.notificaPostTempus $ms $rep $nameStr $listTerm)
+  return mkSignalNode `notificaPostTempusSyntax "notificaPostTempus" #[ms.raw, rep.raw] hd appArgs
 
 
 
