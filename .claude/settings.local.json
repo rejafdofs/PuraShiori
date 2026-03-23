@@ -31,7 +31,9 @@
       "mcp__lean-mcp-server__lean_build",
       "Read(//d/anything/リリフェエ伺󠄀かプロジェクト/ghost/master/**)",
       "Bash(/tmp/check_prec.lean:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(xargs cat:*)",
+      "mcp__lean-mcp-server__lean_term_goal"
     ]
   },
   "enableAllProjectMcpServers": true,
