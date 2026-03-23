@@ -306,11 +306,16 @@ notificaAlium "SomeGhost" "OnNotify"
 
 ```lean
 -- A 形式: def ベース事象（型付き引数あり）
-excita onGreet "れゃ" 42             -- \![raise,Ns.onGreet,...]
-notifica onGreet "れゃ" 42           -- \![notify,...]
+excita onGreet "れゃ" 42                    -- \![raise,Ns.onGreet,...]
+notifica onGreet "れゃ" 42                  -- \![notify,...]
 excitaPostTempus 5000 1 onGreet "れゃ" 42   -- \![timerraise,...]
 notificaPostTempus 1000 0 onGreet "れゃ" 42 -- \![timernotify,...]
 optioEventum "詳しく" onChosen "topic1"     -- \q[...]
+
+-- 非同期 SSTP 送信（SakuraIO Unit を返す def）
+spawnaScriptum onLongTask arg1             -- do 記法
+-- scriptum! 記法でも同様：
+-- \![async, onLongTask arg1]
 
 -- B 形式: コールバック登録のみ（SSP がランタイムで refs を渡す）
 aperiInputum .simplex onTextEntered "名前を入力" ""
@@ -650,8 +655,17 @@ def talkScriptum : SakuraPura Unit := scriptum!
 | `\![leave,passivemode]` | `egrediereModumPassivum` | パッシブモード解除 |
 | `\![set,autoscroll, b]` | `configuraAutoScroll b` | 自動スクロール |
 | `\![set,windowstate, s]` | `configuraStatusFenestrae s` | ウィンドウ状態 |
-| `\![raise, "event"]` | `excita "event"` | イベント発生 |
-| `\![notify, "event"]` | `notifica "event"` | 通知 |
+| `\![raise, "event"]` | `excita "event"` | イベント発生（文字列形） |
+| `\![raise, ident args*]` | `excita ident args*` | イベント発生（def 識別子形） |
+| `\![embed, "event"]` | `insere "event"` | イベント埋込（文字列形） |
+| `\![embed, ident args*]` | `insere ident args*` | イベント埋込（def 識別子形） |
+| `\![notify, "event"]` | `notifica "event"` | 通知（文字列形） |
+| `\![notify, ident args*]` | `notifica ident args*` | 通知（def 識別子形） |
+| `\![timerraise, t, r, "event"]` | `excitaPostTempus t r "event"` | 遅延発火（文字列形） |
+| `\![timerraise, t, r, ident args*]` | `excitaPostTempus t r ident args*` | 遅延発火（def 識別子形） |
+| `\![timernotify, t, r, "event"]` | `notificaPostTempus t r "event"` | 遅延通知（文字列形） |
+| `\![timernotify, t, r, ident args*]` | `notificaPostTempus t r ident args*` | 遅延通知（def 識別子形） |
+| `\![async, ident args*]` | `spawnaScriptum ident args*` | 非同期 SSTP 送信 |
 | `\![anim,start, s, i]` | `animaIncepit s i` | アニメーション開始 |
 | `\![change,ghost, "name"]` | `mutaGhostNomen "name"` | ゴースト変更 |
 | `\q["text","id"]` | `optio "text" "id"` | 選択肢 |

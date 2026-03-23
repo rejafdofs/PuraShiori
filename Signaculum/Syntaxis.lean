@@ -164,8 +164,9 @@ def elabExcitaTerm : TermElab := fun stx _ => do
   let f : Ident := ⟨stx[1]⟩
   let args := stx[2].getArgs
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a =>
-    `(Signaculum.Memoria.Citatio.toRef ($(⟨a⟩ : TSyntax `term)))
+  let argTerms ← args.mapM fun a => do
+    let t : TSyntax `term := ⟨a⟩
+    `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
     (← `(Signaculum.Sakura.excita $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -183,8 +184,9 @@ def elabInsereTerm : TermElab := fun stx _ => do
   let f : Ident := ⟨stx[1]⟩
   let args := stx[2].getArgs
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a =>
-    `(Signaculum.Memoria.Citatio.toRef ($(⟨a⟩ : TSyntax `term)))
+  let argTerms ← args.mapM fun a => do
+    let t : TSyntax `term := ⟨a⟩
+    `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
     (← `(Signaculum.Sakura.insere $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -206,8 +208,9 @@ def elabNotificaTerm : TermElab := fun stx _ => do
   let f : Ident := ⟨stx[1]⟩
   let args := stx[2].getArgs
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a =>
-    `(Signaculum.Memoria.Citatio.toRef ($(⟨a⟩ : TSyntax `term)))
+  let argTerms ← args.mapM fun a => do
+    let t : TSyntax `term := ⟨a⟩
+    `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
     (← `(Signaculum.Sakura.notifica $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -229,8 +232,9 @@ def elabExcitaPostTempusTerm : TermElab := fun stx _ => do
   let f : Ident := ⟨stx[3]⟩
   let args := stx[4].getArgs
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a =>
-    `(Signaculum.Memoria.Citatio.toRef ($(⟨a⟩ : TSyntax `term)))
+  let argTerms ← args.mapM fun a => do
+    let t : TSyntax `term := ⟨a⟩
+    `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
     (← `(Signaculum.Sakura.excitaPostTempus $ms $repetitio $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -251,8 +255,9 @@ def elabNotificaPostTempusTerm : TermElab := fun stx _ => do
   let f : Ident := ⟨stx[3]⟩
   let args := stx[4].getArgs
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a =>
-    `(Signaculum.Memoria.Citatio.toRef ($(⟨a⟩ : TSyntax `term)))
+  let argTerms ← args.mapM fun a => do
+    let t : TSyntax `term := ⟨a⟩
+    `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
     (← `(Signaculum.Sakura.notificaPostTempus $ms $repetitio $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
@@ -272,8 +277,9 @@ def elabOptioEventumTerm : TermElab := fun stx _ => do
   let f : Ident := ⟨stx[2]⟩
   let args := stx[3].getArgs
   let nomenEventi ← registraLazium f
-  let argTerms ← args.mapM fun a =>
-    `(Signaculum.Memoria.Citatio.toRef ($(⟨a⟩ : TSyntax `term)))
+  let argTerms ← args.mapM fun a => do
+    let t : TSyntax `term := ⟨a⟩
+    `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
     (← `(Signaculum.Sakura.optioEventum $titulus $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none

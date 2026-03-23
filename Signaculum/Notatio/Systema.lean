@@ -15,7 +15,7 @@ macro_rules | `(expandSignum \![raise, $e]) => `(Signaculum.Sakura.excita $e)
 -- ident + term*（引數なし・あり共通）にゃ
 syntax "\\!" "[raise," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![raise, $f:ident $args:term*]) => do
+| `(expandSignum \![raise, $f $args*]) => do
   let nameStr := Lean.Syntax.mkStrLit f.getId.toString
   let wrappedArgs ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   `(Signaculum.Sakura.excita $nameStr [$wrappedArgs,*])
@@ -25,7 +25,7 @@ macro_rules | `(expandSignum \![embed, $e]) => `(Signaculum.Sakura.insere $e)
 
 syntax "\\!" "[embed," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![embed, $f:ident $args:term*]) => do
+| `(expandSignum \![embed, $f $args*]) => do
   let nameStr := Lean.Syntax.mkStrLit f.getId.toString
   let wrappedArgs ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   `(Signaculum.Sakura.insere $nameStr [$wrappedArgs,*])
@@ -35,7 +35,7 @@ macro_rules | `(expandSignum \![notify, $e]) => `(Signaculum.Sakura.notifica $e)
 
 syntax "\\!" "[notify," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![notify, $f:ident $args:term*]) => do
+| `(expandSignum \![notify, $f $args*]) => do
   let nameStr := Lean.Syntax.mkStrLit f.getId.toString
   let wrappedArgs ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   `(Signaculum.Sakura.notifica $nameStr [$wrappedArgs,*])
@@ -47,7 +47,7 @@ macro_rules | `(expandSignum \![timerraise, $t, $r, $e]) => `(Signaculum.Sakura.
 -- ident + term*（引數なし・あり共通）にゃ
 syntax "\\!" "[timerraise," term "," term "," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![timerraise, $t, $r, $f:ident $args:term*]) => do
+| `(expandSignum \![timerraise, $t, $r, $f $args*]) => do
   let nameStr := Lean.Syntax.mkStrLit f.getId.toString
   let wrappedArgs ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   `(Signaculum.Sakura.excitaPostTempus $t $r $nameStr [$wrappedArgs,*])
@@ -58,7 +58,7 @@ macro_rules | `(expandSignum \![timernotify, $t, $r, $e]) => `(Signaculum.Sakura
 -- ident + term*（引數なし・あり共通）にゃ
 syntax "\\!" "[timernotify," term "," term "," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![timernotify, $t, $r, $f:ident $args:term*]) => do
+| `(expandSignum \![timernotify, $t, $r, $f $args*]) => do
   let nameStr := Lean.Syntax.mkStrLit f.getId.toString
   let wrappedArgs ← args.mapM fun a => `(Signaculum.Memoria.Citatio.toRef $a)
   `(Signaculum.Sakura.notificaPostTempus $t $r $nameStr [$wrappedArgs,*])
@@ -109,7 +109,7 @@ macro_rules | `(expandSignum \![anim,clear, $s, $i]) => `(Signaculum.Sakura.anim
 -- 非同期起動にゃん
 syntax "\\!" "[async," ident term* "]" : sakuraSignum
 macro_rules
-| `(expandSignum \![async, $f:ident $args:term*]) => do
+| `(expandSignum \![async, $f $args*]) => do
   let callTerm ← `($f $args*)
   `(liftM (Signaculum.spawnaMunitus do
       let _s ← Signaculum.Sakura.currere $callTerm
