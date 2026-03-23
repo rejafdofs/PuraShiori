@@ -106,6 +106,15 @@ macro_rules | `(expandSignum \![anim,resume, $s, $i]) => `(Signaculum.Sakura.ani
 syntax "\\!" "[anim,clear," term "," term "]" : sakuraSignum
 macro_rules | `(expandSignum \![anim,clear, $s, $i]) => `(Signaculum.Sakura.animaPurgat $s $i)
 
+-- 非同期起動にゃん
+syntax "\\!" "[async," ident term* "]" : sakuraSignum
+macro_rules
+| `(expandSignum \![async, $f:ident $args:term*]) => do
+  let callTerm ← `($f $args*)
+  `(liftM (Signaculum.spawnaMunitus do
+      let _s ← Signaculum.Sakura.currere $callTerm
+      Signaculum.Sstp.mitteSstpScriptum _s))
+
 -- 呼出にゃん
 syntax "\\!" "[call,shiori," str "]" : sakuraSignum
 macro_rules | `(expandSignum \![call,shiori, $e]) => `(Signaculum.Sakura.vocaShiori $e)
