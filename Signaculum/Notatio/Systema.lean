@@ -17,7 +17,8 @@ open Lean Signaculum.Sakura
 -- extraArgs: ms/rep 等の追加引數にゃ、ident: 關數識別子にゃ、argRaws: 引數配列にゃ
 private def mkSignalNode (kind : SyntaxNodeKind) (kw : String)
     (extraArgs : Array Syntax) (identStx : Syntax) (argRaws : Array Syntax) : Syntax :=
-  Lean.Syntax.node .none kind
+  -- identStx の位置情報を外側ノードに継承してエラー位置をタグ行に帰着させるにゃん
+  Lean.Syntax.node identStx.getHeadInfo kind
     (#[Lean.Syntax.atom .none kw] ++ extraArgs ++
      #[identStx, Lean.Syntax.node .none nullKind argRaws])
 
