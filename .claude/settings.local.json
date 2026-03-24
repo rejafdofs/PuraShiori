@@ -35,7 +35,10 @@
       "Bash(xargs cat:*)",
       "mcp__lean-mcp-server__lean_term_goal",
       "Bash(/c/Users/a/.elan/bin/lake.exe build:*)",
-      "Bash(/c/Users/a/.elan/bin/lake.exe update:*)"
+      "Bash(/c/Users/a/.elan/bin/lake.exe update:*)",
+      "Bash(cmd.exe /c \"cd /d D:\\\\anything && for /d %d in \\(*リリ*\\) do echo %d\")",
+      "Bash(cmd.exe /c \"cd /d \\\\\"D:\\\\anything\\\\リリフェエ伺かプロジェクト\\\\ghost\\\\master\\\\\" && lake build ghost 2>&1\")",
+      "Bash(powershell.exe -Command \"Set-Location 'D:\\\\anything\\\\リリフェエ伺かプロジェクト\\\\ghost\\\\master'; lake build ghost 2>&1\")"
     ]
   },
   "enableAllProjectMcpServers": true,

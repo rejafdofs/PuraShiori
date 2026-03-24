@@ -253,6 +253,7 @@ def onTextEntered (text : String) : SakuraIO Unit := do
 aperiInputum .simplex onTextEntered "名前を入力" ""
 
 -- ラムダ形（インラインで書けるにゃ）
+-- text には SSP が返す Reference[0]（ユーザー入力文字列）が自動的に渡される
 aperiInputum .simplex (fun text => scriptum こんにちは\、{text}さん) "名前を入力"
 
 -- オプション付き
@@ -314,6 +315,7 @@ notificaAlium "SomeGhost" "OnNotify"
 
 ```lean
 -- A 形式: def ベース事象（型付き引数あり）
+-- 引数は Reference 経由で渡される（Reference[0], Reference[1], ...）
 excita onGreet "れゃ" 42                    -- \![raise,Ns.onGreet,...]
 notifica onGreet "れゃ" 42                  -- \![notify,...]
 excitaPostTempus 5000 1 onGreet "れゃ" 42   -- \![timerraise,...]
@@ -334,6 +336,29 @@ legeProprietatem onPropResult [.ghostName, .shellName]
 -- 他ゴースト・プラグイン宛ては文字列形のまま
 excitaAlium "AnotherGhost" "OnSomeEvent" ["arg"]
 notificaPlugin "MyPlugin" "OnNotify"
+```
+
+### ラムダ形（インラインコールバック）
+
+ラムダ形は `(fun ...)` でコールバックをインラインに書ける。
+引数なしの場合ラムダは `Rogatio → SakuraIO Unit` 型（`Tractator`）として直接登録される。
+引数ありの場合は **Reference 経由で渡され**、ラムダのパラメータ型に応じて自動変換される。
+
+```lean
+-- 引数なし: ラムダは Tractator として直接登録
+excita (fun _ => scriptum こんにちは)
+
+-- 引数あり: Reference[0] が String として s に渡される
+excita (fun s : String => scriptum {s}さん、こんにちは) "名前"
+
+-- 複数引数
+excita (fun name : String => fun n : Nat => scriptum {name}は{n}回目) "れゃ" 3
+
+-- PostTempus ラムダ形
+excitaPostTempus 5000 1 (fun s : String => scriptum {s}) "text"
+
+-- aperiInputum ラムダ形（Reference[0] = 入力テキスト）
+aperiInputum .simplex (fun text => scriptum こんにちは\、{text}さん) "名前を入力"
 ```
 
 ---
