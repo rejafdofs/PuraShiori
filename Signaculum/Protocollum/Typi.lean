@@ -32,6 +32,8 @@ def shioriVersio : String := "SHIORI/3.0"
 inductive StatusCodis where
   | ok             -- 200 OK
   | inanis         -- 204 No Content（空の應答にゃ）
+  | pluribusDatis  -- 311 OnTeach で追加情報が必要にゃ
+  | rescribeInput  -- 312 OnTeach で最新入力を破棄して再試行にゃ
   | malaRogatio    -- 400 Bad Request（不正要求にゃ）
   | errorInternus  -- 500 Internal Server Error（内部異常にゃ）
   deriving Repr, BEq
@@ -41,12 +43,16 @@ namespace StatusCodis
 def adNumerum : StatusCodis → Nat
   | .ok            => 200
   | .inanis        => 204
+  | .pluribusDatis => 311
+  | .rescribeInput => 312
   | .malaRogatio   => 400
   | .errorInternus => 500
 
 def adCatenam : StatusCodis → String
   | .ok            => "OK"
   | .inanis        => "No Content"
+  | .pluribusDatis => "Need More Information"
+  | .rescribeInput => "Advice"
   | .malaRogatio   => "Bad Request"
   | .errorInternus => "Internal Server Error"
 

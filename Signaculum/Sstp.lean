@@ -32,16 +32,19 @@ def sstpDirectumMittere (request : String) : IO Unit := do
 private def purgaCrlf (s : String) : String :=
   s.foldl (fun acc c => if c != '\r' && c != '\n' then acc.push c else acc) ""
 
+/-- SSTP のデフォルト送信者名にゃん。ゴースト名等で上書きできるにゃ -/
+def mittensDefectus : String := "uka-lean"
+
 /-- SakuraScript を SSTP/1.4 Execute で SSP に送信するにゃん -/
-def mitteSstpScriptum (scriptum : String) : IO Unit :=
-  let req := s!"EXECUTE SSTP/1.4\r\nCharset: UTF-8\r\nSender: uka-lean\r\nScript: {purgaCrlf scriptum}\r\n\r\n"
+def mitteSstpScriptum (scriptum : String) (mittens : String := mittensDefectus) : IO Unit :=
+  let req := s!"EXECUTE SSTP/1.4\r\nCharset: UTF-8\r\nSender: {purgaCrlf mittens}\r\nScript: {purgaCrlf scriptum}\r\n\r\n"
   sstpDirectumMittere req
 
 /-- SHIORI イヴェントゥムを SSTP/1.4 Notify で SSP に送信するにゃん -/
-def excitaEventum (nomenEventi : String) (citationes : List String := []) : IO Unit :=
+def excitaEventum (nomenEventi : String) (citationes : List String := []) (mittens : String := mittensDefectus) : IO Unit :=
   let refs := citationes.mapIdx fun i v =>
     s!"Reference{i}: {purgaCrlf v}\r\n"
-  let req := "NOTIFY SSTP/1.4\r\nCharset: UTF-8\r\nSender: uka-lean\r\nEvent: "
+  let req := s!"NOTIFY SSTP/1.4\r\nCharset: UTF-8\r\nSender: {purgaCrlf mittens}\r\nEvent: "
       ++ purgaCrlf nomenEventi ++ "\r\n" ++ String.join refs ++ "\r\n"
   sstpDirectumMittere req
 

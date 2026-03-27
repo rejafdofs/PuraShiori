@@ -626,7 +626,8 @@ inductive Proprietas where
   deriving Repr
 
 -- プロパティ名中の ] を遁走するにゃん（%property[...] の括弧を壞さにゃいためにゃ）
-private def escapePropNomen (s : String) : String := s.replace "]" "\\]"
+/-- プロプリエタース名中の ] を遁走するにゃん（%property[...] の括弧を壞さにゃいためにゃ） -/
+def escapePropNomen (s : String) : String := s.replace "]" "\\]"
 
 def Proprietas.toString : Proprietas → String
   -- system time
