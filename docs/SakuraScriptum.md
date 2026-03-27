@@ -736,6 +736,7 @@ def talkScriptum : SakuraPura Unit := scriptum!
 |---|---|---|
 | `String` | `loqui s` として表示 | 100 |
 | `Array α` / `List α` | ランダムに1要素選んで `exhibe` で表示（`SakuraIO` 文脈のみ） | 95 |
+| `Option α` | `some a` → `exhibe a`、`none` → 無出力（非正格評價） | 92 |
 | `m String` | モナドを実行して `loqui` で表示 | 90 |
 | `IO.Ref α` | 値を読み取って `toString` + `loqui`（`SakuraIO` 文脈のみ） | 85 |
 | `m α` (`ToString α`) | モナドを実行して `toString` + `loqui` | 80 |
