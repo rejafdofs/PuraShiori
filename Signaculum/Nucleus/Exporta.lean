@@ -88,9 +88,13 @@ def exportaRequest (catenaRogationis : @& String) : IO String := do
     | some shiori =>
       shiori.tractaCatenam catenaRogationis
     | none =>
-      return Responsum.errorInternus.adProtocollum
-  catch _ =>
-    return Responsum.errorInternus.adProtocollum
+      return ({ Responsum.errorInternus with
+        errorLevel := some "critical"
+        errorDescription := some "SHIORI non est registrata" }).adProtocollum
+  catch e =>
+    return ({ Responsum.errorInternus with
+      errorLevel := some "critical"
+      errorDescription := some (toString e) }).adProtocollum
 
 -- ═══════════════════════════════════════════════════
 -- 非同期タスク管理（GC 對策）にゃん
@@ -98,6 +102,9 @@ def exportaRequest (catenaRogationis : @& String) : IO String := do
 
 /-- タスク保管庫にゃん（GC 對策）。完了待ちの IO タスクをここに保持するにゃ -/
 initialize taskusCustodia : IO.Ref (Array (Task (Except IO.Error Unit))) ← IO.mkRef #[]
+
+/-- タスクゥス保管庫の最大容量にゃん -/
+def maximumMunera : Nat := 256
 
 /-- IO アクシオー（Actio）をバックグラウンドで起動して GC から保護するにゃん♪
     例外は registrareVestigium に流れるのでゴーストがクラッシュしにゃいにゃ -/
@@ -112,8 +119,8 @@ def spawnaMunitus (actio : IO Unit) : IO Unit := do
     let finitus ← IO.hasFinished t
     unless finitus do arr' := arr'.push t
   arr' := arr'.push task
-  -- 萬が一完了しにゃいタスクが溜まつても上限 256 で切るにゃ
-  if arr'.size > 256 then arr' := arr'.extract 128 arr'.size
+  -- 萬が一完了しにゃいタスクが溜まつても上限で切るにゃ
+  if arr'.size > maximumMunera then arr' := arr'.extract (maximumMunera / 2) arr'.size
   taskusCustodia.set arr'
 
 end Signaculum

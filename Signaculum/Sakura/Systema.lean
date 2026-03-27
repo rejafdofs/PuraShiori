@@ -5,9 +5,6 @@ import Signaculum.Sakura.Fundamentum
 
 namespace Signaculum.Sakura
 
--- プロパティ名中の ] を遁走するにゃん（%property[...] の括弧を壞さにゃいためにゃ）
-private def escapePropNomen (s : String) : String := s.replace "]" "\\]"
-
 -- ════════════════════════════════════════════════════
 --  音聲 (Sonus)
 -- ════════════════════════════════════════════════════
@@ -442,7 +439,19 @@ def configuraShioriDebug {m : Type → Type} [Monad m] : SakuraM m Unit :=
 --  HTTP 拡張 (Extensio HTTP)
 -- ════════════════════════════════════════════════════
 
-/-- HTTP HEAD リクエストを實行するにゃん（\\![execute,http-head,URL,options]）-/
+/-- HTTP GET リクエストゥムを實行するにゃん（\\![execute,http-get,URL,options]）-/
+def executaHttpGet {m : Type → Type} [Monad m]
+    (nexus : String) (optiones : String := "") : SakuraM m Unit :=
+  if optiones.isEmpty then emitte s!"\\![execute,http-get,{evadeArgumentum nexus}]"
+  else emitte s!"\\![execute,http-get,{evadeArgumentum nexus},{evadeArgumentum optiones}]"
+
+/-- HTTP POST リクエストゥムを實行するにゃん（\\![execute,http-post,URL,options]）-/
+def executaHttpPost {m : Type → Type} [Monad m]
+    (nexus : String) (optiones : String := "") : SakuraM m Unit :=
+  if optiones.isEmpty then emitte s!"\\![execute,http-post,{evadeArgumentum nexus}]"
+  else emitte s!"\\![execute,http-post,{evadeArgumentum nexus},{evadeArgumentum optiones}]"
+
+/-- HTTP HEAD リクエストゥムを實行するにゃん（\\![execute,http-head,URL,options]）-/
 def executaHttpHead {m : Type → Type} [Monad m]
     (nexus : String) (optiones : String := "") : SakuraM m Unit :=
   if optiones.isEmpty then emitte s!"\\![execute,http-head,{evadeArgumentum nexus}]"

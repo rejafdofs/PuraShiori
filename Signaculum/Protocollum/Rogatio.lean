@@ -21,6 +21,12 @@ structure Rogatio where
   securitas   : Option String
   /-- 基底事象名（BaseID 頭部）-/
   nomenBasis  : Option String
+  /-- 送信者の種類（SenderType 頭部、SSP 2.5.05+）にゃ -/
+  typusMittentis : Option String
+  /-- ゴーストの狀態フラグ（Status 頭部）にゃ -/
+  status      : Option String
+  /-- 安全起源（SecurityOrigin 頭部）にゃ -/
+  securitasOrigo : Option String
   /-- 全頭部の生ダータ(data)にゃん -/
   cappitta    : List (String × String)
   deriving Repr, Inhabited
@@ -90,25 +96,28 @@ def interpreta (s : String) : Except String Rogatio := do
     -- 第1行を解析
     let methodus ← parseLineaPrima (trimma prima)
 
-    -- 頭部を解析するにゃん
-    let mut cappitta : List (String × String) := []
+    -- 頭部を解析するにゃん（直接 Array に push して reverse 不要にゃ）
+    let mut cappittaArr : Array (String × String) := #[]
     for l in cetera do
       let linea := trimma l
       if linea.isEmpty then break  -- 空行で終了にゃ
       match parseCastellum linea with
-      | some parElementum => cappitta := parElementum :: cappitta
+      | some parElementum => cappittaArr := cappittaArr.push parElementum
       | none => pure ()  -- 解析できにゃい行は無視にゃ
-    cappitta := cappitta.reverse
+    let cappitta := cappittaArr.toList
 
     -- 既知の頭部を抽出するにゃん
     let nomen := match cappitta.lookup "ID" with
       | some v => v
       | none => ""
 
-    let forma      := (cappitta.lookup "Charset").getD "UTF-8"
-    let mittens    := cappitta.lookup "Sender"
-    let securitas  := cappitta.lookup "SecurityLevel"
-    let nomenBasis := cappitta.lookup "BaseID"
+    let forma          := (cappitta.lookup "Charset").getD "UTF-8"
+    let mittens        := cappitta.lookup "Sender"
+    let securitas      := cappitta.lookup "SecurityLevel"
+    let nomenBasis     := cappitta.lookup "BaseID"
+    let typusMittentis := cappitta.lookup "SenderType"
+    let status         := cappitta.lookup "Status"
+    let securitasOrigo := cappitta.lookup "SecurityOrigin"
 
     -- Reference 頭部を收集するにゃん
     let mut maximumIndex : Nat := 0
@@ -134,6 +143,9 @@ def interpreta (s : String) : Except String Rogatio := do
       mittens
       securitas
       nomenBasis
+      typusMittentis
+      status
+      securitasOrigo
       cappitta
     }
 
