@@ -86,6 +86,23 @@ instance (priority := 95) {α : Type u} [Exhibibilis α IO] : Exhibibilis (List 
       let i : Fin n := ⟨idx % n, Nat.mod_lt idx (by omega)⟩
       Exhibibilis.exhibe (m := IO) a[i]
 
+-- Option α → some なら exhibe、none なら無出力にゃん（非正格評價）
+universe u in
+instance (priority := 92) {α : Type u} {m : Type → Type} [Monad m] [Exhibibilis α m] : Exhibibilis (Option α) m where
+  exhibe
+    | some a => Exhibibilis.exhibe (m := m) a
+    | none   => pure ()
+
+-- some のとき内側の exhibe に委譲するにゃん♪ 定義から自明にゃ
+universe u in
+theorem exhibeOptionSome_eq {α : Type u} {m : Type → Type} [Monad m] [Exhibibilis α m]
+    (a : α) : Exhibibilis.exhibe (m := m) (some a : Option α) = Exhibibilis.exhibe (m := m) a := rfl
+
+-- none のとき無出力にゃん♪ これも定義から自明にゃ
+universe u in
+theorem exhibeOptionNullus_eq {m : Type → Type} [Monad m] {α : Type} [Exhibibilis α m] :
+    Exhibibilis.exhibe (m := m) (none : Option α) = pure () := rfl
+
 -- Exhibibilis 經由の CoeDep にゃん。{expr} の型強制はぜんぶこゝを通るにゃ
 universe u in
 instance {α : Type u} {m : Type → Type} [Monad m] [Exhibibilis α m] (a : α) :
