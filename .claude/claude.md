@@ -10,6 +10,11 @@ pythonは使わないで下さい
 ・これをビルドするときは　lake build Signaculumでビルドして
 ・プラン作成後の実装中にプランから逸脱した変更（設計変更、追加、省略、回避策等）を独断で行った場合は、コミット前に必ずユーザーにその内容と理由を報告し確認を取ること
 
+## 参照ドキュメント
+
+- ukadoc sakurascript 一覧: https://ssp.shillest.net/ukadoc/manual/list_sakura_script.html
+- ukadoc トップ: https://ssp.shillest.net/ukadoc/manual/index.html
+
 ## sakurascriptum マクロの三原則
 
 sakurascriptum マクロ (`scriptum!`) は以下の三要件を常に満たすこと:
