@@ -1,28 +1,28 @@
 -- Signaculum.Sakura.Signum.Soni
--- 音聲シグヌムにゃん♪ 音聲の再生や停止、讀込等を制御するにゃ
+-- 音聲シグヌムにゃん♪ 音の再生や停止、CD トラック等を制御するにゃ
 
 import Signaculum.Sakura.Typi
 
 namespace Signaculum.Sakura
 
-/-- 音聲制御のシグヌムにゃん。\\_v / \\8 / \\![sound,...] / \\__v に對應するにゃ -/
+/-- 音聲制御のシグヌムにゃん。\_v / \8 / \![sound,...] / \__v に對應するにゃ -/
 inductive SignumSoni where
-  | sonus (via : String)                                   -- \\_v[via]（音聲再生にゃ）
-  | expectaSonum                                           -- \\_V（音聲完了待ちにゃ）
-  | sonus8 (via : String)                                  -- \\8[via]（簡易波形再生にゃ）
-  | sonusPulsus (via : String) (optiones : OptionesSoni)   -- \\![sound,play,via,opts]（音聲パルスス再生にゃ）
-  | sonusOrbitans (via : String)                           -- \\![sound,loop,via]（ループ再生にゃ）
-  | sonusInterrumpit (via : String)                        -- \\![sound,stop,via]（停止にゃ）
-  | sonusPausat (via : String)                             -- \\![sound,pause,via]（一時停止にゃ）
-  | sonusContinuat (via : String)                          -- \\![sound,resume,via]（再開にゃ）
-  | sonusOneratur (via : String) (optiones : OptionesSoni) -- \\![sound,load,via,opts]（事前讀込にゃ）
-  | expectaSonumPulsus                                     -- \\![sound,wait]（パルスス完了待ちにゃ）
-  | sonusCD (track : Nat)                                  -- \\![sound,cdplay,track]（CDトラック再生にゃ）
-  | sonusOptio (via : String) (optiones : OptionesSoni)    -- \\![sound,option,via,opts]（オプション變更にゃ）
-  | synthesisVocis (optiones : String)                     -- \\__v[opts]（音聲合成にゃ）
+  | sonus (via : String)                                    -- \_v[via]（音聲再生にゃ）
+  | expectaSonum                                            -- \_V（音聲完了待ちにゃ）
+  | sonus8 (via : String)                                   -- \8[via]（波形簡易再生にゃ）
+  | sonusPulsus (via : String) (optiones : OptionesSoni)    -- \![sound,play,via,opts]（音聲パルススにゃ）
+  | sonusOrbitans (via : String)                            -- \![sound,loop,via]（ループ再生にゃ）
+  | sonusInterrumpit (via : String)                         -- \![sound,stop,via]（停止にゃ）
+  | sonusPausat (via : String)                              -- \![sound,pause,via]（一時停止にゃ）
+  | sonusContinuat (via : String)                           -- \![sound,resume,via]（再開にゃ）
+  | sonusOneratur (via : String) (optiones : OptionesSoni)  -- \![sound,load,via,opts]（事前讀込にゃ）
+  | expectaSonumPulsus                                      -- \![sound,wait]（パルスス完了待ちにゃ）
+  | sonusCD (track : Nat)                                   -- \![sound,cdplay,track]（CD トラック再生にゃ）
+  | sonusOptio (via : String) (optiones : OptionesSoni)     -- \![sound,option,via,opts]（オプション變更にゃ）
+  | synthesisVocis (optiones : String)                      -- \__v[opts]（音聲合成にゃ）
   deriving Repr
 
-/-- 音聲シグヌムをさくらスクリプトゥム文字列に變換するにゃん -/
+/-- シグヌム・ソーニーをさくらスクリプトゥム文字列に變換するにゃん -/
 def SignumSoni.adCatenam : SignumSoni → String
   | .sonus via              => s!"\\_v[{evadeArgumentum via}]"
   | .expectaSonum           => "\\_V"
