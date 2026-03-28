@@ -4,6 +4,7 @@
 
 import Lean
 import Signaculum.Sakura.Scriptum
+import Signaculum.Sakura.Literalis
 
 namespace Signaculum.Notatio.Expande
 
@@ -109,9 +110,9 @@ private def interpretaColoris (valores : Array Lean.Syntax) (stx : Lean.Syntax)
       return ← `(Signaculum.Sakura.Coloris.hex $s)
     -- 識別子にゃん
     match extractIdentVal v with
-    | some "none"                  => return ← `(Signaculum.Sakura.Coloris.nullus)
-    | some "default"               => return ← `(Signaculum.Sakura.Coloris.praefinitus)
-    | some "disable"               => return ← `(Signaculum.Sakura.Coloris.inhabilis)
+    | some "none"                  => return ← `(Signaculum.Sakura.SakuraNullus.nullus)
+    | some "default"               => return ← `(Signaculum.Sakura.SakuraPraefinitus.praefinitus)
+    | some "disable"               => return ← `(Signaculum.Sakura.SakuraInhabilis.inhabilis)
     | some "default.anchor"        => return ← `(Signaculum.Sakura.Coloris.praefinitusAncorae)
     | some "default.anchornotselect" => return ← `(Signaculum.Sakura.Coloris.praefinitusAncoraeNonElectae)
     | some "default.anchorvisited" => return ← `(Signaculum.Sakura.Coloris.praefinitusAncoraeVisae)
@@ -157,7 +158,7 @@ private def interpretaMagnitudinem (valores : Array Lean.Syntax) (stx : Lean.Syn
     | none   => pure ()
     -- default にゃん
     match extractIdentVal v with
-    | some "default" => return ← `(Signaculum.Sakura.MagnitudoLitterarum.praefinita)
+    | some "default" => return ← `(Signaculum.Sakura.SakuraPraefinitus.praefinitus)
     | _ => pure ()
     -- 數値（絕對）にゃん
     if v.isNatLit?.isSome then
@@ -175,9 +176,9 @@ private def interpretaStylusUmbrae (valores : Array Lean.Syntax) (stx : Lean.Syn
     | some e => return ⟨e⟩
     | none   => pure ()
     match extractIdentVal v with
-    | some "offset"  => return ← `(Signaculum.Sakura.StylusUmbrae.offset)
-    | some "outline" => return ← `(Signaculum.Sakura.StylusUmbrae.contornus)
-    | some "default" => return ← `(Signaculum.Sakura.StylusUmbrae.praefinitus)
+    | some "offset"  => return ← `(Signaculum.Sakura.SakuraOffset.offset)
+    | some "outline" => return ← `(Signaculum.Sakura.SakuraContornus.contornus)
+    | some "default" => return ← `(Signaculum.Sakura.SakuraPraefinitus.praefinitus)
     | _              => pure ()
   throwErrorAt stx "\\f[shadowstyle]: offset/outline/default が期待されてゐますにゃ"
 
@@ -191,10 +192,10 @@ private def interpretaStatusContorni (valores : Array Lean.Syntax) (stx : Lean.S
     | some e => return ⟨e⟩
     | none   => pure ()
     match extractIdentVal v with
-    | some "true"    => return ← `(Signaculum.Sakura.StatusContorni.activus)
-    | some "false"   => return ← `(Signaculum.Sakura.StatusContorni.inactivus)
-    | some "default" => return ← `(Signaculum.Sakura.StatusContorni.praefinitus)
-    | some "disable" => return ← `(Signaculum.Sakura.StatusContorni.inhabilis)
+    | some "true"    => return ← `(Signaculum.Sakura.SakuraActivus.activus)
+    | some "false"   => return ← `(Signaculum.Sakura.SakuraInactivus.inactivus)
+    | some "default" => return ← `(Signaculum.Sakura.SakuraPraefinitus.praefinitus)
+    | some "disable" => return ← `(Signaculum.Sakura.SakuraInhabilis.inhabilis)
     | _              => pure ()
   throwErrorAt stx "\\f[outline]: true/false/default/disable が期待されてゐますにゃ"
 
@@ -208,10 +209,10 @@ private def interpretaDirectioAllineatio (valores : Array Lean.Syntax) (stx : Le
     | some e => return ⟨e⟩
     | none   => pure ()
     match extractIdentVal v with
-    | some "left"    => return ← `(Signaculum.Sakura.DirectioAllineatio.sinistrum)
-    | some "right"   => return ← `(Signaculum.Sakura.DirectioAllineatio.dextrum)
-    | some "center"  => return ← `(Signaculum.Sakura.DirectioAllineatio.centrum)
-    | some "justify" => return ← `(Signaculum.Sakura.DirectioAllineatio.contentum)
+    | some "left"    => return ← `(Signaculum.Sakura.SakuraSinistrum.sinistrum)
+    | some "right"   => return ← `(Signaculum.Sakura.SakuraDextrum.dextrum)
+    | some "center"  => return ← `(Signaculum.Sakura.SakuraCentrum.centrum)
+    | some "justify" => return ← `(Signaculum.Sakura.SakuraContentum.contentum)
     | _              => pure ()
   throwErrorAt stx "\\f[align]: left/right/center/justify が期待されてゐますにゃ"
 
@@ -225,9 +226,9 @@ private def interpretaDirectioVerticalis (valores : Array Lean.Syntax) (stx : Le
     | some e => return ⟨e⟩
     | none   => pure ()
     match extractIdentVal v with
-    | some "top"    => return ← `(Signaculum.Sakura.DirectioVerticalis.summum)
-    | some "middle" => return ← `(Signaculum.Sakura.DirectioVerticalis.medium)
-    | some "bottom" => return ← `(Signaculum.Sakura.DirectioVerticalis.imum)
+    | some "top"    => return ← `(Signaculum.Sakura.SakuraSummum.summum)
+    | some "middle" => return ← `(Signaculum.Sakura.SakuraMedium.medium)
+    | some "bottom" => return ← `(Signaculum.Sakura.SakuraImum.imum)
     | _             => pure ()
   throwErrorAt stx "\\f[valign]: top/middle/bottom が期待されてゐますにゃ"
 
@@ -249,10 +250,10 @@ private def interpretaFormamMarci (valores : Array Lean.Syntax) (stx : Lean.Synt
     | some e => return ⟨e⟩
     | none   => pure ()
     match extractIdentVal v with
-    | some "square"    => return ← `(Signaculum.Sakura.FormaMarci.quadratum)
-    | some "underline" => return ← `(Signaculum.Sakura.FormaMarci.sublineaForma)
-    | some "none"      => return ← `(Signaculum.Sakura.FormaMarci.nullus)
-    | some "default"   => return ← `(Signaculum.Sakura.FormaMarci.praefinitus)
+    | some "square"    => return ← `(Signaculum.Sakura.SakuraQuadratum.quadratum)
+    | some "underline" => return ← `(Signaculum.Sakura.SakuraSublinea.sublinea)
+    | some "none"      => return ← `(Signaculum.Sakura.SakuraNullus.nullus)
+    | some "default"   => return ← `(Signaculum.Sakura.SakuraPraefinitus.praefinitus)
     | _                => pure ()
   throwErrorAt stx "\\f[...style]: square/underline/square+underline/none/default が期待されてゐますにゃ"
 
@@ -287,7 +288,7 @@ private def interpretaMethodumMarci (valores : Array Lean.Syntax) (stx : Lean.Sy
     | some "xor"         => return ← `(Signaculum.Sakura.MethodusMarci.xor)
     | some "alpha"       => return ← `(Signaculum.Sakura.MethodusMarci.alpha)
     | some "normal"      => return ← `(Signaculum.Sakura.MethodusMarci.normal)
-    | some "default"     => return ← `(Signaculum.Sakura.MethodusMarci.praefinitus)
+    | some "default"     => return ← `(Signaculum.Sakura.SakuraPraefinitus.praefinitus)
     | _                  => pure ()
   throwErrorAt stx "\\f[...method]: 描畫方法の指定が不正にゃ"
 

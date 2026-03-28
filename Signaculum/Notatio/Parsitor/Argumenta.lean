@@ -37,7 +37,7 @@ private def legeIdentFn (c : ParserContext) (s : ParserState) : ParserState :=
     let mut p := startPos
     while p.byteIdx < input.utf8ByteSize do
       let ch := p.get input
-      if ch.isAlphanum || ch == '.' || ch == '-' || ch == '_' || ch == ':' then
+      if ch.isAlphanum || ch == '.' || ch == '-' || ch == '_' then
         p := p.next input
       else break
     return p
@@ -59,6 +59,7 @@ private def legeParenTermFn (c : ParserContext) (s : ParserState) : ParserState 
   -- '(' を消費にゃ（atom は積まない — term の中に含まれるにゃ）
   let s := { s with pos := s.pos.next input }
   let s := skipWsFn c s
+  -- prec 0 で任意の Lean 式を許容するにゃ（舊 syntax "(" term ")" と同等）
   let s := (termParser 0).fn c s
   if s.hasError then s
   else

@@ -5,6 +5,7 @@
 
 import Lean
 import Signaculum.Sakura.Scriptum
+import Signaculum.Sakura.Literalis
 
 namespace Signaculum.Notatio.Expande
 
@@ -44,12 +45,12 @@ private def resolveBalloonAlign (arg : Syntax) (stx : Syntax)
     `(Signaculum.Sakura.allineatioBullae $(⟨inner⟩))
   else
     match argAdNomenC arg with
-    | some "left"   => `(Signaculum.Sakura.allineatioBullae .sinistrum)
-    | some "center" => `(Signaculum.Sakura.allineatioBullae .centrum)
-    | some "top"    => `(Signaculum.Sakura.allineatioBullae .summum)
-    | some "right"  => `(Signaculum.Sakura.allineatioBullae .dextrum)
-    | some "bottom" => `(Signaculum.Sakura.allineatioBullae .imum)
-    | some "none"   => `(Signaculum.Sakura.allineatioBullae .nullus)
+    | some "left"   => `(Signaculum.Sakura.allineatioBullae Signaculum.Sakura.SakuraSinistrum.sinistrum)
+    | some "center" => `(Signaculum.Sakura.allineatioBullae Signaculum.Sakura.SakuraCentrum.centrum)
+    | some "top"    => `(Signaculum.Sakura.allineatioBullae Signaculum.Sakura.SakuraSummum.summum)
+    | some "right"  => `(Signaculum.Sakura.allineatioBullae Signaculum.Sakura.SakuraDextrum.dextrum)
+    | some "bottom" => `(Signaculum.Sakura.allineatioBullae Signaculum.Sakura.SakuraImum.imum)
+    | some "none"   => `(Signaculum.Sakura.allineatioBullae Signaculum.Sakura.SakuraNullus.nullus)
     | some other    => throwErrorAt stx s!"\\![set,balloonalign,...] の值 '{other}' は未知にゃ。left/center/top/right/bottom/none か (式) を使ふにゃ"
     | none          =>
       -- 式として渡されたかもしれにゃいにゃん
@@ -67,12 +68,12 @@ private def resolveWallpaperMode (modeArg : Syntax) (viaArg : Syntax) (stx : Syn
     `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some $(⟨inner⟩)))
   else
     match argAdNomenC modeArg with
-    | some "center"    => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .centrum))
-    | some "tile"      => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .tessella))
-    | some "stretch"   => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .extende))
+    | some "center"    => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraCentrum.centrum))
+    | some "tile"      => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraTessella.tessella))
+    | some "stretch"   => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraExtende.extende))
     | some "stretch-x" => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .extendeX))
     | some "stretch-y" => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .extendeY))
-    | some "span"      => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .spatium))
+    | some "span"      => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraSpatium.spatium))
     | some other       => throwErrorAt stx s!"\\![set,wallpaper,...] のモード '{other}' は未知にゃ。center/tile/stretch/stretch-x/stretch-y/span か (式) を使ふにゃ"
     | none             =>
       `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some $(⟨modeArg⟩)))
