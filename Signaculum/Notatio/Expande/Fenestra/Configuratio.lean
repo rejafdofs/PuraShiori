@@ -138,13 +138,13 @@ private def resolveSet (subCmd : String) (rest : Array Syntax) (stx : Syntax)
   | "balloonpadding" =>
     if rest.size == 4 then
       let l := rest[0]!; let t := rest[1]!; let r := rest[2]!; let b := rest[3]!
-      some <$> `(Signaculum.Sakura.margosBullae $l $t $r $b)
+      some <$> `(Signaculum.Sakura.margosBullae $(⟨l⟩) $(⟨t⟩) $(⟨r⟩) $(⟨b⟩))
     else throwErrorAt stx "\\![set,balloonpadding,...] は引數4つ (l,t,r,b) にゃ"
   -- position — 3引數にゃん
   | "position" =>
     if rest.size == 3 then
       let x := rest[0]!; let y := rest[1]!; let s := rest[2]!
-      some <$> `(Signaculum.Sakura.configuraPositionem $x $y $s)
+      some <$> `(Signaculum.Sakura.configuraPositionem $(⟨x⟩) $(⟨y⟩) $(⟨s⟩))
     else throwErrorAt stx "\\![set,position,...] は引數3つ (x,y,scope) にゃ"
   -- balloonmarker — str 引數にゃん
   | "balloonmarker" =>
@@ -154,7 +154,7 @@ private def resolveSet (subCmd : String) (rest : Array Syntax) (stx : Syntax)
   | "tasktrayicon" =>
     if rest.size == 3 then
       let v := rest[0]!; let t := rest[1]!; let o := rest[2]!
-      some <$> `(Signaculum.Sakura.configuraTascamIcon $v $t $o)
+      some <$> `(Signaculum.Sakura.configuraTascamIcon $(⟨v⟩) $(⟨t⟩) $(⟨o⟩))
     else throwErrorAt stx "\\![set,tasktrayicon,...] は引數3つ (file,text,options) にゃ"
   -- trayballoon — str にゃん
   | "trayballoon" =>
@@ -166,7 +166,7 @@ private def resolveSet (subCmd : String) (rest : Array Syntax) (stx : Syntax)
     | 1 =>
       -- \![set,wallpaper, v] — モード無しにゃん
       let v := rest[0]!
-      some <$> `(Signaculum.Sakura.configuraTapete $v Option.none)
+      some <$> `(Signaculum.Sakura.configuraTapete $(⟨v⟩) Option.none)
     | 2 =>
       -- \![set,wallpaper, v, mode] — キーワードかもにゃん
       let v := rest[0]!
