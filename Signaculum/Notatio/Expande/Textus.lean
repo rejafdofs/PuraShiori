@@ -24,36 +24,29 @@ private def extractIdentVal (s : Lean.Syntax) : Option String :=
 /-- 數値リテラルかどうか確認して取り出すにゃん -/
 private def expectaNatLit (s : Lean.Syntax) (nomenSigni : String)
     : TermElabM (Lean.TSyntax `num) := do
-  if s.isNatLit? then
-    pure ⟨s⟩
-  else
-    throwErrorAt s s!"{nomenSigni}: []の中には数字が期待されてゐますにゃ"
+  match s.isNatLit? with
+  | some _ => pure ⟨s⟩
+  | none   => throwErrorAt s s!"{nomenSigni}: []の中には数字が期待されてゐますにゃ"
 
 /-- 文字列リテラルかどうか確認して取り出すにゃん -/
 private def expectaStrLit (s : Lean.Syntax) (nomenSigni : String)
     : TermElabM (Lean.TSyntax `str) := do
-  if s.isStrLit? then
-    pure ⟨s⟩
-  else
-    throwErrorAt s s!"{nomenSigni}: []の中には文字列が期待されてゐますにゃ"
+  match s.isStrLit? with
+  | some _ => pure ⟨s⟩
+  | none   => throwErrorAt s s!"{nomenSigni}: []の中には文字列が期待されてゐますにゃ"
 
 /-- -1 パターンを檢出するにゃん。ident "-1" またはアトム "-" + numLit "1" の兩方に對應にゃ -/
 private def estNegativusUnus (args : Array Lean.Syntax) : Bool :=
-  -- パターン1: 單一の ident/atom "-1"
   if args.size == 1 then
     match extractIdentVal args[0]! with
     | some s => s == "-1"
     | none   => false
-  -- パターン2: atom "-" に續いて numLit "1"
   else if args.size == 2 then
     match extractIdentVal args[0]! with
     | some "-" =>
       match args[1]!.isNatLit? with
-      | true  =>
-        match args[1]!.isNatLit?, args[1]!.raw.isLit `num with
-        | true, true => args[1]!.raw.getAtomVal == "1"
-        | _, _       => false
-      | false => false
+      | some 1 => true
+      | _      => false
     | _ => false
   else false
 
