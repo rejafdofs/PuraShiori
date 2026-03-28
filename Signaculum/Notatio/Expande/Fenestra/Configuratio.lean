@@ -16,7 +16,7 @@ private def argAdNomenC (arg : Syntax) : Option String :=
     some (arg.getId.toString false)
   else match arg with
   | Syntax.node _ ``Lean.Parser.Term.str #[Syntax.atom _ v] =>
-    let s := v.drop 1 |>.dropRight 1
+    let s := (v.drop 1 |>.dropEnd 1).toString
     some s
   | _ => none
 
@@ -41,7 +41,7 @@ private def resolveBalloonAlign (arg : Syntax) (stx : Syntax)
     : TermElabM (TSyntax `term) := do
   -- まづ括弧式を確認するにゃ
   if let some inner := estParenthesisatum arg then
-    `(Signaculum.Sakura.allineatioBullae $inner)
+    `(Signaculum.Sakura.allineatioBullae $(⟨inner⟩))
   else
     match argAdNomenC arg with
     | some "left"   => `(Signaculum.Sakura.allineatioBullae .sinistrum)
@@ -53,7 +53,7 @@ private def resolveBalloonAlign (arg : Syntax) (stx : Syntax)
     | some other    => throwErrorAt stx s!"\\![set,balloonalign,...] の值 '{other}' は未知にゃ。left/center/top/right/bottom/none か (式) を使ふにゃ"
     | none          =>
       -- 式として渡されたかもしれにゃいにゃん
-      `(Signaculum.Sakura.allineatioBullae $arg)
+      `(Signaculum.Sakura.allineatioBullae $(⟨arg⟩))
 
 -- ════════════════════════════════════════════════════
 --  wallpaper にゃん♪ モードキーワード
@@ -64,18 +64,18 @@ private def resolveWallpaperMode (modeArg : Syntax) (viaArg : Syntax) (stx : Syn
     : TermElabM (TSyntax `term) := do
   -- 括弧式にゃん
   if let some inner := estParenthesisatum modeArg then
-    `(Signaculum.Sakura.configuraTapete $viaArg (Option.some $inner))
+    `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some $(⟨inner⟩)))
   else
     match argAdNomenC modeArg with
-    | some "center"    => `(Signaculum.Sakura.configuraTapete $viaArg (Option.some .centrum))
-    | some "tile"      => `(Signaculum.Sakura.configuraTapete $viaArg (Option.some .tessella))
-    | some "stretch"   => `(Signaculum.Sakura.configuraTapete $viaArg (Option.some .extende))
-    | some "stretch-x" => `(Signaculum.Sakura.configuraTapete $viaArg (Option.some .extendeX))
-    | some "stretch-y" => `(Signaculum.Sakura.configuraTapete $viaArg (Option.some .extendeY))
-    | some "span"      => `(Signaculum.Sakura.configuraTapete $viaArg (Option.some .spatium))
+    | some "center"    => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .centrum))
+    | some "tile"      => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .tessella))
+    | some "stretch"   => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .extende))
+    | some "stretch-x" => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .extendeX))
+    | some "stretch-y" => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .extendeY))
+    | some "span"      => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .spatium))
     | some other       => throwErrorAt stx s!"\\![set,wallpaper,...] のモード '{other}' は未知にゃ。center/tile/stretch/stretch-x/stretch-y/span か (式) を使ふにゃ"
     | none             =>
-      `(Signaculum.Sakura.configuraTapete $viaArg (Option.some $modeArg))
+      `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some $(⟨modeArg⟩)))
 
 -- ════════════════════════════════════════════════════
 --  set サブコマンドにゃん♪ (Subimperium Configurationis)
@@ -87,40 +87,40 @@ private def resolveSet (subCmd : String) (rest : Array Syntax) (stx : Syntax)
   match subCmd with
   -- 1引數の set にゃん
   | "autoscroll" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuraAutoScroll $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuraAutoScroll $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,autoscroll,...] は引數1つにゃ"
   | "windowstate" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuraStatusFenestrae $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuraStatusFenestrae $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,windowstate,...] は引數1つにゃ"
   | "alignmentondesktop" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.allineatioDesktop $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.allineatioDesktop $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,alignmentondesktop,...] は引數1つにゃ"
   | "balloontimeout" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.tempusBullae $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.tempusBullae $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,balloontimeout,...] は引數1つにゃ"
   | "balloonwait" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.moraTextus $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.moraTextus $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,balloonwait,...] は引數1つにゃ"
   | "serikotalk" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuraSerikoOs $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuraSerikoOs $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,serikotalk,...] は引數1つにゃ"
   | "blink" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.nictatus $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.nictatus $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,blink,...] は引數1つにゃ"
   | "alwaysontop" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.semperSupra $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.semperSupra $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,alwaysontop,...] は引數1つにゃ"
   | "taskbar" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.tabellaTascae $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.tabellaTascae $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,taskbar,...] は引數1つにゃ"
   | "windowdragging" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.tractusWindowae $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.tractusWindowae $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,windowdragging,...] は引數1つにゃ"
   | "scaling" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuratioScalae $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuratioScalae $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,scaling,...] は引數1つにゃ"
   | "alpha" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuratioAlphae $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuratioAlphae $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,alpha,...] は引數1つにゃ"
   -- balloonalign — キーワード派遣にゃん♪
   | "balloonalign" =>
@@ -132,7 +132,7 @@ private def resolveSet (subCmd : String) (rest : Array Syntax) (stx : Syntax)
   | "balloonoffset" =>
     if rest.size == 3 then
       let s := rest[0]!; let x := rest[1]!; let y := rest[2]!
-      some <$> `(Signaculum.Sakura.configuraBullaeOffset $s $x $y)
+      some <$> `(Signaculum.Sakura.configuraBullaeOffset $(⟨s⟩) $(⟨x⟩) $(⟨y⟩))
     else throwErrorAt stx "\\![set,balloonoffset,...] は引數3つ (scope,x,y) にゃ"
   -- balloonpadding — 4引數にゃん
   | "balloonpadding" =>
@@ -148,7 +148,7 @@ private def resolveSet (subCmd : String) (rest : Array Syntax) (stx : Syntax)
     else throwErrorAt stx "\\![set,position,...] は引數3つ (x,y,scope) にゃ"
   -- balloonmarker — str 引數にゃん
   | "balloonmarker" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.signatumBullae $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.signatumBullae $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,balloonmarker,...] は引數1つにゃ"
   -- tasktrayicon — str 3つにゃん
   | "tasktrayicon" =>
@@ -158,7 +158,7 @@ private def resolveSet (subCmd : String) (rest : Array Syntax) (stx : Syntax)
     else throwErrorAt stx "\\![set,tasktrayicon,...] は引數3つ (file,text,options) にゃ"
   -- trayballoon — str にゃん
   | "trayballoon" =>
-    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuraTascamBullam $(rest[0]!))
+    if rest.size == 1 then some <$> `(Signaculum.Sakura.configuraTascamBullam $(⟨rest[0]!⟩))
     else throwErrorAt stx "\\![set,trayballoon,...] は引數1つにゃ"
   -- wallpaper — キーワード派遣にゃん♪
   | "wallpaper" =>
