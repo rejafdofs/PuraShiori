@@ -115,9 +115,7 @@ def aperiInputumGradus {m : Type → Type} [Monad m]
     (eventum titulus : String) (minimum maximum initium : Nat)
     (_h : minimum ≤ initium ∧ initium ≤ maximum := by omega)
     (optiones : OptionesInputi := {}) : SakuraM m Unit :=
-  let opt := optiones.toString
-  let opt := if opt.isEmpty then "" else s!",{opt}"
-  emitte s!"\\![open,sliderinput,{evadeArgumentum eventum},{evadeArgumentum titulus},{minimum},{maximum},{initium}{opt}]"
+  emitte (.inputi (.aperiInputumGradus eventum titulus minimum maximum initium _h optiones))
 
 -- ════════════════════════════════════════════════════
 --  擴張 (Extensio) — SSP 固有
@@ -126,7 +124,7 @@ def aperiInputumGradus {m : Type → Type} [Monad m]
 /-- ゴーストの表示倍率を設定するにゃん（\\z[n]）。
     n は整數パーセント（100 = 等倍）にゃ。SSP 固有にゃ♪ -/
 def zoom {m : Type → Type} [Monad m] (n : Nat) : SakuraM m Unit :=
-  emitte s!"\\z[{n}]"
+  emitte (.fenestrae (.zoom n))
 
 -- ════════════════════════════════════════════════════
 --  吹出し拡張 (Extensio Bullae)

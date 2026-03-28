@@ -54,11 +54,11 @@ def animaContinuat {m : Type → Type} [Monad m] (scopus animId : Nat) : SakuraM
 
 /-- 指定スコープのアニメーションパターンを消去するにゃん（\\![anim,clear,scopus,id]）-/
 def animaPurgat {m : Type → Type} [Monad m] (scopus animId : Nat) : SakuraM m Unit :=
-  emitte s!"\\![anim,clear,{scopus},{animId}]"
+  emitte (.animationis (.animaPurgat scopus animId))
 
 /-- 指定スコープのアニメーション位置をオフセットするにゃん（\\![anim,offset,scopus,id,x,y]）-/
 def animaTranslatio {m : Type → Type} [Monad m] (scopus animId : Nat) (x y : Int) : SakuraM m Unit :=
-  emitte s!"\\![anim,offset,{scopus},{animId},{x},{y}]"
+  emitte (.animationis (.animaTranslatio scopus animId x y))
 
 /-- 着せ替えパーツを切り替へるにゃん（\\![bind,category,part,value]）。
     valor: `some true`=着衣(1)、`some false`=脱衣(0)、`none`=トグル（省略）にゃ -/

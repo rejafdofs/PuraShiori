@@ -207,27 +207,27 @@ def formaPraefinita {m : Type → Type} [Monad m] : SakuraM m Unit :=
 
 /-- 選擇中カーソルの形状にゃん（\\f[cursorstyle,形状]）-/
 def stylumCursorisElecti {m : Type → Type} [Monad m] (forma : FormaMarci) : SakuraM m Unit :=
-  emitte s!"\\f[cursorstyle,{forma.toString}]"
+  emitte (.formae (.stylumCursorisElecti forma))
 
 /-- 選擇中カーソルの色にゃん（\\f[cursorcolor,色]）-/
 def colorCursorisElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
-  emitte s!"\\f[cursorcolor,{coloris.toString}]"
+  emitte (.formae (.colorCursorisElecti coloris))
 
 /-- 選擇中カーソルの塗り色にゃん（\\f[cursorbrushcolor,色]）-/
 def colorPenicilliCursorisElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
-  emitte s!"\\f[cursorbrushcolor,{coloris.toString}]"
+  emitte (.formae (.colorPenicilliCursorisElecti coloris))
 
 /-- 選擇中カーソルの縁色にゃん（\\f[cursorpencolor,色]）-/
 def colorCalamCursorisElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
-  emitte s!"\\f[cursorpencolor,{coloris.toString}]"
+  emitte (.formae (.colorCalamCursorisElecti coloris))
 
 /-- 選擇中カーソルの文字色にゃん（\\f[cursorfontcolor,色]）-/
 def colorFontisCursorisElecti {m : Type → Type} [Monad m] (coloris : Coloris) : SakuraM m Unit :=
-  emitte s!"\\f[cursorfontcolor,{coloris.toString}]"
+  emitte (.formae (.colorFontisCursorisElecti coloris))
 
 /-- 選擇中カーソルの描畫方法にゃん（\\f[cursormethod,方法]）-/
 def methodusCursorisElecti {m : Type → Type} [Monad m] (methodus : MethodusMarci) : SakuraM m Unit :=
-  emitte s!"\\f[cursormethod,{methodus.toString}]"
+  emitte (.formae (.methodusCursorisElecti methodus))
 
 -- カーソル（未選擇）スタイル
 
