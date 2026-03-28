@@ -340,10 +340,10 @@ def sectionCeler {m : Type → Type} [Monad m] (b : Bool) : SakuraM m Unit :=
   emitte s!"\\![quicksection,{if b then "true" else "false"}]"
 
 /-- 次のゴーストに順番に切り替へるにゃん（\\_+）-/
-def mutaGhostSequens {m : Type → Type} [Monad m] : SakuraM m Unit := emitte "\\_+"
+def mutaGhostSequens {m : Type → Type} [Monad m] : SakuraM m Unit := emitte (.imperii .mutaGhostSequens)
 
 /-- 常に最前面トグル（\\v）にゃん -/
-def togglaSupra {m : Type → Type} [Monad m] : SakuraM m Unit := emitte "\\v"
+def togglaSupra {m : Type → Type} [Monad m] : SakuraM m Unit := emitte (.imperii .togglaSupra)
 
 -- ════════════════════════════════════════════════════
 --  動畫追加 (Additio Animationis) — anim add 系
@@ -351,23 +351,23 @@ def togglaSupra {m : Type → Type} [Monad m] : SakuraM m Unit := emitte "\\v"
 
 /-- アニメーションにオーバーレイを追加するにゃん（\\![anim,add,overlay,id]）-/
 def animaAddOverlay {m : Type → Type} [Monad m] (animId : Nat) : SakuraM m Unit :=
-  emitte s!"\\![anim,add,overlay,{animId}]"
+  emitte (.imperii (.animaAddOverlay animId))
 
 /-- アニメーションにオーバーレイを座標指定で追加するにゃん（\\![anim,add,overlay,id,x,y]）-/
 def animaAddOverlayPos {m : Type → Type} [Monad m] (animId : Nat) (x y : Int) : SakuraM m Unit :=
-  emitte s!"\\![anim,add,overlay,{animId},{x},{y}]"
+  emitte (.imperii (.animaAddOverlayPos animId x y))
 
 /-- アニメーションのベース表面を変更するにゃん（\\![anim,add,base,id]）-/
 def animaAddBase {m : Type → Type} [Monad m] (animId : Nat) : SakuraM m Unit :=
-  emitte s!"\\![anim,add,base,{animId}]"
+  emitte (.imperii (.animaAddBase animId))
 
 /-- アニメーションを移動するにゃん（\\![anim,add,move,x,y]）-/
 def animaAddMove {m : Type → Type} [Monad m] (x y : Int) : SakuraM m Unit :=
-  emitte s!"\\![anim,add,move,{x},{y}]"
+  emitte (.imperii (.animaAddMove x y))
 
 /-- 高速オーバーレイを追加するにゃん（\\![anim,add,overlayfast,id]）-/
 def animaAddOverlayFast {m : Type → Type} [Monad m] (animId : Nat) : SakuraM m Unit :=
-  emitte s!"\\![anim,add,overlayfast,{animId}]"
+  emitte (.imperii (.animaAddOverlayFast animId))
 
 -- ════════════════════════════════════════════════════
 --  他ゴースト設定 (Configuratio Aliorum)
@@ -376,19 +376,17 @@ def animaAddOverlayFast {m : Type → Type} [Monad m] (animId : Nat) : SakuraM m
 /-- 他ゴーストのトーク連携を設定するにゃん（\\![set,otherghosttalk,false/before/after]）。
     `ModusGhostAlieni.inactivus/ante/post` で指定するにゃ -/
 def configuraAliosGhostes {m : Type → Type} [Monad m] (modus : ModusGhostAlieni) : SakuraM m Unit :=
-  emitte s!"\\![set,otherghosttalk,{modus.toString}]"
+  emitte (.proprietatis (.configuraAliosGhostes modus))
 
 /-- 他ゴーストの表面変更連携を設定するにゃん（\\![set,othersurfacechange,true/false]）-/
 def configuraAliasSuperficies {m : Type → Type} [Monad m] (b : Bool) : SakuraM m Unit :=
-  emitte s!"\\![set,othersurfacechange,{if b then "true" else "false"}]"
+  emitte (.proprietatis (.configuraAliasSuperficies b))
 
 /-- 壁紙を設定するにゃん（\\![set,wallpaper,file,option]）。
     optio: `center`/`tile`/`stretch`/`stretch-x`/`stretch-y`/`span` にゃ -/
 def configuraTapete {m : Type → Type} [Monad m]
     (via : String) (optio : Option ModusTapetis := none) : SakuraM m Unit :=
-  match optio with
-  | none   => emitte s!"\\![set,wallpaper,{evadeArgumentum via}]"
-  | some m => emitte s!"\\![set,wallpaper,{evadeArgumentum via},{m.toString}]"
+  emitte (.proprietatis (.configuraTapete via optio))
 
 -- ════════════════════════════════════════════════════
 --  音響拡張2 (Extensio Soni II)
@@ -396,17 +394,17 @@ def configuraTapete {m : Type → Type} [Monad m]
 
 /-- 音聲の完了を待つにゃん（\\![sound,wait]）-/
 def expectaSonumPulsus {m : Type → Type} [Monad m] : SakuraM m Unit :=
-  emitte "\\![sound,wait]"
+  emitte (.soni .expectaSonumPulsus)
 
 /-- CD トラックを再生するにゃん（\\![sound,cdplay,track]）-/
 def sonusCD {m : Type → Type} [Monad m] (track : Nat) : SakuraM m Unit :=
-  emitte s!"\\![sound,cdplay,{track}]"
+  emitte (.soni (.sonusCD track))
 
 /-- 音聲のオプションを変更するにゃん（\\![sound,option,file,options]）。
     optiones は `OptionesSoni` で指定するにゃ -/
 def sonusOptio {m : Type → Type} [Monad m]
     (via : String) (optiones : OptionesSoni) : SakuraM m Unit :=
-  emitte s!"\\![sound,option,{evadeArgumentum via},{optiones.toString}]"
+  emitte (.soni (.sonusOptio via optiones))
 
 -- ════════════════════════════════════════════════════
 --  再讀込拡張 (Extensio Renovationis)
@@ -414,23 +412,23 @@ def sonusOptio {m : Type → Type} [Monad m]
 
 /-- SHIORI をアンロードするにゃん（\\![unload,shiori]）-/
 def expelleShiori {m : Type → Type} [Monad m] : SakuraM m Unit :=
-  emitte "\\![unload,shiori]"
+  emitte (.mutationis .expelleShiori)
 
 /-- makoto をアンロードするにゃん（\\![unload,makoto]）-/
 def expelleMakoto {m : Type → Type} [Monad m] : SakuraM m Unit :=
-  emitte "\\![unload,makoto]"
+  emitte (.mutationis .expelleMakoto)
 
 /-- SHIORI をロードするにゃん（\\![load,shiori]）-/
 def oneraSHIORI {m : Type → Type} [Monad m] : SakuraM m Unit :=
-  emitte "\\![load,shiori]"
+  emitte (.mutationis .oneraSHIORI)
 
 /-- makoto をロードするにゃん（\\![load,makoto]）-/
 def oneraMakoto {m : Type → Type} [Monad m] : SakuraM m Unit :=
-  emitte "\\![load,makoto]"
+  emitte (.mutationis .oneraMakoto)
 
 /-- SHIORI のデバッグモードを設定するにゃん（\\![set,shioridebugmode]）-/
 def configuraShioriDebug {m : Type → Type} [Monad m] : SakuraM m Unit :=
-  emitte "\\![set,shioridebugmode]"
+  emitte (.mutationis .configuraShioriDebug)
 
 -- ════════════════════════════════════════════════════
 --  HTTP 拡張 (Extensio HTTP)
@@ -439,38 +437,32 @@ def configuraShioriDebug {m : Type → Type} [Monad m] : SakuraM m Unit :=
 /-- HTTP GET リクエストゥムを實行するにゃん（\\![execute,http-get,URL,options]）-/
 def executaHttpGet {m : Type → Type} [Monad m]
     (nexus : String) (optiones : String := "") : SakuraM m Unit :=
-  if optiones.isEmpty then emitte s!"\\![execute,http-get,{evadeArgumentum nexus}]"
-  else emitte s!"\\![execute,http-get,{evadeArgumentum nexus},{evadeArgumentum optiones}]"
+  emitte (.retis (.executaHttpGet nexus optiones))
 
 /-- HTTP POST リクエストゥムを實行するにゃん（\\![execute,http-post,URL,options]）-/
 def executaHttpPost {m : Type → Type} [Monad m]
     (nexus : String) (optiones : String := "") : SakuraM m Unit :=
-  if optiones.isEmpty then emitte s!"\\![execute,http-post,{evadeArgumentum nexus}]"
-  else emitte s!"\\![execute,http-post,{evadeArgumentum nexus},{evadeArgumentum optiones}]"
+  emitte (.retis (.executaHttpPost nexus optiones))
 
 /-- HTTP HEAD リクエストゥムを實行するにゃん（\\![execute,http-head,URL,options]）-/
 def executaHttpHead {m : Type → Type} [Monad m]
     (nexus : String) (optiones : String := "") : SakuraM m Unit :=
-  if optiones.isEmpty then emitte s!"\\![execute,http-head,{evadeArgumentum nexus}]"
-  else emitte s!"\\![execute,http-head,{evadeArgumentum nexus},{evadeArgumentum optiones}]"
+  emitte (.retis (.executaHttpHead nexus optiones))
 
 /-- HTTP PUT リクエストを實行するにゃん（\\![execute,http-put,URL,options]）-/
 def executaHttpPut {m : Type → Type} [Monad m]
     (nexus : String) (optiones : String := "") : SakuraM m Unit :=
-  if optiones.isEmpty then emitte s!"\\![execute,http-put,{evadeArgumentum nexus}]"
-  else emitte s!"\\![execute,http-put,{evadeArgumentum nexus},{evadeArgumentum optiones}]"
+  emitte (.retis (.executaHttpPut nexus optiones))
 
 /-- HTTP DELETE リクエストを實行するにゃん（\\![execute,http-delete,URL,options]）-/
 def executaHttpDelete {m : Type → Type} [Monad m]
     (nexus : String) (optiones : String := "") : SakuraM m Unit :=
-  if optiones.isEmpty then emitte s!"\\![execute,http-delete,{evadeArgumentum nexus}]"
-  else emitte s!"\\![execute,http-delete,{evadeArgumentum nexus},{evadeArgumentum optiones}]"
+  emitte (.retis (.executaHttpDelete nexus optiones))
 
 /-- HTTP PATCH リクエストを實行するにゃん（\\![execute,http-patch,URL,options]）-/
 def executaHttpPatch {m : Type → Type} [Monad m]
     (nexus : String) (optiones : String := "") : SakuraM m Unit :=
-  if optiones.isEmpty then emitte s!"\\![execute,http-patch,{evadeArgumentum nexus}]"
-  else emitte s!"\\![execute,http-patch,{evadeArgumentum nexus},{evadeArgumentum optiones}]"
+  emitte (.retis (.executaHttpPatch nexus optiones))
 
 /-- RSS GET リクエストを實行するにゃん（\\![execute,rss-get,URL,options]）-/
 def executaRssGet {m : Type → Type} [Monad m]
