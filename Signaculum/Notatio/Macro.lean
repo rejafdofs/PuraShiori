@@ -256,7 +256,7 @@ end Signaculum.Notatio
 --  scriptum! パーサー + エラボレーター (ネームスペース外で宣言にゃん)
 -- ════════════════════════════════════════════════════
 
-open Lean Elab Term Meta Signaculum.Notatio
+open Lean Elab Term Signaculum.Notatio
 
 /-- SakuraScript を原形タグ記法で書けるパーサにゃん。
     行の先頭列より深いトークンだけ取り込むにゃ♪
@@ -316,8 +316,6 @@ def elabScriptum : TermElab := fun stx expectedType? => do
       let next ← genTerm s
       body ← `(Bind.bind $body fun () => $next)
       lineaPrior := lineaCurrens
-
     elabTerm body expectedType?
-
   else
     elabTerm (← `(pure ())) expectedType?
