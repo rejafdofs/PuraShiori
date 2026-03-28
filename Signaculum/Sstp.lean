@@ -8,6 +8,7 @@ import Signaculum.Protocollum.Typi
 
 namespace Signaculum.Sstp
 
+open Signaculum.Protocollum
 open Std.Net
 open Std.Internal.UV.TCP
 
@@ -21,11 +22,17 @@ def sstpDirectumMittere (request : String) : IO Unit := do
     let sock ← Socket.new
     let addr : SocketAddress := .v4 ⟨.ofParts 127 0 0 1, sstpPortus⟩
     let connectPromise ← sock.connect addr
-    IO.ofExcept connectPromise.result!.get
+    match connectPromise.result?.get with
+    | some r => IO.ofExcept r
+    | none   => throw (IO.Error.userError "connexio defecit")
     let sendPromise ← sock.send #[request.toUTF8]
-    IO.ofExcept sendPromise.result!.get
+    match sendPromise.result?.get with
+    | some r => IO.ofExcept r
+    | none   => throw (IO.Error.userError "missio defecit")
     let shutdownPromise ← sock.shutdown
-    IO.ofExcept shutdownPromise.result!.get
+    match shutdownPromise.result?.get with
+    | some r => IO.ofExcept r
+    | none   => throw (IO.Error.userError "occlusio defecit")
   catch _ =>
     pure ()  -- SSP 未起動 or 接續拒否: 靜かに無視にゃ
 

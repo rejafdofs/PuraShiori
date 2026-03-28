@@ -1,11 +1,12 @@
--- Signaculum.Nucleus.Loop
+-- Signaculum.Nucleus.Circulus
 -- ゴースト本體（ghost.exe）として標準入出力で中繼器と通信する小循環（loop）にゃん。
 
 import Signaculum.Nucleus.Exporta
 import Signaculum.Protocollum.Responsum
 import Signaculum.Memoria.Auxilia
 
-namespace Signaculum
+namespace Signaculum.Nucleus
+open Signaculum.Protocollum
 
 -- ═══════════════════════════════════════════════════
 -- I/O 通信構造體にゃん
@@ -20,10 +21,10 @@ structure Communicatio where
 def Communicatio.scribeU32 (c : Communicatio) (numerus : UInt32) : IO Unit :=
   c.rivusEgressus.write (Memoria.u32LE numerus)
 
-/-- リトルエンディアン 4バイトを讀信するにゃん。Memoria.readU32LE を使ふにゃ -/
+/-- リトルエンディアン 4バイトを讀信するにゃん。Memoria.legeU32LE を使ふにゃ -/
 def Communicatio.legeU32 (c : Communicatio) : IO (Option UInt32) := do
   let o ← c.rivusIngressus.read 4
-  match Memoria.readU32LE o 0 with
+  match Memoria.legeU32LE o 0 with
   | some (v, _) => return some v
   | none        => return none
 
@@ -69,14 +70,14 @@ private partial def tractaOnerare (c : Communicatio) : IO Unit := do
         c.rivusEgressus.flush
       | some catenaViae =>
         registrareVestigium s!"[LOAD] via={catenaViae}, len={longitudoViae}"
-        let resSecunda ← Signaculum.exportaLoad catenaViae
+        let resSecunda ← exportaLoad catenaViae
         c.rivusEgressus.write ⟨#[resSecunda.toUInt8]⟩
         c.rivusEgressus.flush
 
 /-- UNLOAD 命令を處理するにゃん: [2u8] -> 終了 -/
 private def tractaExonerare : IO Unit := do
   registrareVestigium "[UNLOAD] vocatus"
-  let _ ← Signaculum.exportaUnload
+  let _ ← exportaUnload
   registrareVestigium "[UNLOAD] perfectus"
 
 /-- REQUEST 命令を處理するにゃん: [3u8] [4bytes:len] [bytes:req] -> [4bytes:len] [bytes:res] を返すにゃ -/
@@ -98,7 +99,7 @@ private partial def tractaRogationem (c : Communicatio) : IO Unit := do
         registrareVestigium "[PERNICIES] REQUEST: rogatio non est UTF-8 valida"
         c.scribeResponsum (Responsum.malaRogatio.adProtocollum.toUTF8)
       | some catenaRogationis =>
-        let catenaResponsi ← Signaculum.exportaRequest catenaRogationis
+        let catenaResponsi ← exportaRequest catenaRogationis
         let octetiResponsi := catenaResponsi.toUTF8
         registrareVestigium s!"[REQUEST] PERFECTUM, magnitudoResponsi={octetiResponsi.size}"
         c.scribeResponsum octetiResponsi
@@ -131,4 +132,4 @@ partial def loopPrincipalis : IO Unit := do
   else
     return () -- EOF にゃ
 
-end Signaculum
+end Signaculum.Nucleus
