@@ -65,18 +65,18 @@ private def resolveWallpaperMode (modeArg : Syntax) (viaArg : Syntax) (stx : Syn
     : TermElabM (TSyntax `term) := do
   -- 括弧式にゃん
   if let some inner := estParenthesisatum modeArg then
-    `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some $(⟨inner⟩)))
+    `(Signaculum.Sakura.Systema.configuraTapete $(⟨viaArg⟩) (Option.some $(⟨inner⟩)))
   else
     match argAdNomenC modeArg with
-    | some "center"    => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraCentrum.centrum))
-    | some "tile"      => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraTessella.tessella))
-    | some "stretch"   => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraExtende.extende))
-    | some "stretch-x" => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .extendeX))
-    | some "stretch-y" => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some .extendeY))
-    | some "span"      => `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraSpatium.spatium))
+    | some "center"    => `(Signaculum.Sakura.Systema.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraCentrum.centrum))
+    | some "tile"      => `(Signaculum.Sakura.Systema.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraTessella.tessella))
+    | some "stretch"   => `(Signaculum.Sakura.Systema.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraExtende.extende))
+    | some "stretch-x" => `(Signaculum.Sakura.Systema.configuraTapete $(⟨viaArg⟩) (Option.some .extendeX))
+    | some "stretch-y" => `(Signaculum.Sakura.Systema.configuraTapete $(⟨viaArg⟩) (Option.some .extendeY))
+    | some "span"      => `(Signaculum.Sakura.Systema.configuraTapete $(⟨viaArg⟩) (Option.some Signaculum.Sakura.SakuraSpatium.spatium))
     | some other       => throwErrorAt stx s!"\\![set,wallpaper,...] のモード '{other}' は未知にゃ。center/tile/stretch/stretch-x/stretch-y/span か (式) を使ふにゃ"
     | none             =>
-      `(Signaculum.Sakura.configuraTapete $(⟨viaArg⟩) (Option.some $(⟨modeArg⟩)))
+      `(Signaculum.Sakura.Systema.configuraTapete $(⟨viaArg⟩) (Option.some $(⟨modeArg⟩)))
 
 -- ════════════════════════════════════════════════════
 --  set サブコマンドにゃん♪ (Subimperium Configurationis)
@@ -167,7 +167,7 @@ private def resolveSet (subCmd : String) (rest : Array Syntax) (stx : Syntax)
     | 1 =>
       -- \![set,wallpaper, v] — モード無しにゃん
       let v := rest[0]!
-      some <$> `(Signaculum.Sakura.configuraTapete $(⟨v⟩) Option.none)
+      some <$> `(Signaculum.Sakura.Systema.configuraTapete $(⟨v⟩) Option.none)
     | 2 =>
       -- \![set,wallpaper, v, mode] — キーワードかもにゃん
       let v := rest[0]!
@@ -188,7 +188,7 @@ private def resolveBind (args : Array Syntax) (stx : Syntax)
   | 2 =>
     -- \![bind, cat, part] — 値省略にゃん
     let c := args[0]!; let p := args[1]!
-    some <$> `(Signaculum.Sakura.nexaDressup $(⟨c⟩) $(⟨p⟩) Option.none)
+    some <$> `(Signaculum.Sakura.Systema.nexaDressup $(⟨c⟩) $(⟨p⟩) Option.none)
   | 3 =>
     -- \![bind, cat, part, 0/1] にゃん
     let c := args[0]!; let p := args[1]!; let v := args[2]!
@@ -196,14 +196,14 @@ private def resolveBind (args : Array Syntax) (stx : Syntax)
     match v with
     | Syntax.node _ ``Lean.Parser.Term.num #[Syntax.atom _ digits] =>
       match digits.toNat? with
-      | some 1 => some <$> `(Signaculum.Sakura.nexaDressup $(⟨c⟩) $(⟨p⟩) (Option.some Bool.true))
-      | some 0 => some <$> `(Signaculum.Sakura.nexaDressup $(⟨c⟩) $(⟨p⟩) (Option.some Bool.false))
+      | some 1 => some <$> `(Signaculum.Sakura.Systema.nexaDressup $(⟨c⟩) $(⟨p⟩) (Option.some Bool.true))
+      | some 0 => some <$> `(Signaculum.Sakura.Systema.nexaDressup $(⟨c⟩) $(⟨p⟩) (Option.some Bool.false))
       | _      => throwErrorAt stx "\\![bind,...] の值は 0 か 1 のみにゃ"
     | _ =>
       -- num リテラルでない場合、numLit を直接確認にゃん
       match v.isNatLit? with
-      | some 1 => some <$> `(Signaculum.Sakura.nexaDressup $(⟨c⟩) $(⟨p⟩) (Option.some Bool.true))
-      | some 0 => some <$> `(Signaculum.Sakura.nexaDressup $(⟨c⟩) $(⟨p⟩) (Option.some Bool.false))
+      | some 1 => some <$> `(Signaculum.Sakura.Systema.nexaDressup $(⟨c⟩) $(⟨p⟩) (Option.some Bool.true))
+      | some 0 => some <$> `(Signaculum.Sakura.Systema.nexaDressup $(⟨c⟩) $(⟨p⟩) (Option.some Bool.false))
       | _      =>
         -- 式として渡す — 實行時に檢證されるにゃ
         throwErrorAt stx "\\![bind,...] の值は 0 か 1 のみにゃ"

@@ -47,53 +47,53 @@ def expandeSonus (args : Array Lean.Syntax) (stx : Lean.Syntax)
     if args.size < 2 then
       throwErrorAt stx "\\![sound,play,...]: ファイル名が必要にゃ"
     let s ← expectaStrLitSonus args[1]! "\\![sound,play]"
-    pure <| some (← `(Signaculum.Sakura.sonusPulsus $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonusPulsus $s))
 
   | "loop" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,loop,...]: ファイル名が必要にゃ"
     let s ← expectaStrLitSonus args[1]! "\\![sound,loop]"
-    pure <| some (← `(Signaculum.Sakura.sonusOrbitans $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonusOrbitans $s))
 
   | "stop" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,stop,...]: ファイル名が必要にゃ"
     let s ← expectaStrLitSonus args[1]! "\\![sound,stop]"
-    pure <| some (← `(Signaculum.Sakura.sonusInterrumpit $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonusInterrumpit $s))
 
   | "pause" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,pause,...]: ファイル名が必要にゃ"
     let s ← expectaStrLitSonus args[1]! "\\![sound,pause]"
-    pure <| some (← `(Signaculum.Sakura.sonusPausat $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonusPausat $s))
 
   | "resume" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,resume,...]: ファイル名が必要にゃ"
     let s ← expectaStrLitSonus args[1]! "\\![sound,resume]"
-    pure <| some (← `(Signaculum.Sakura.sonusContinuat $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonusContinuat $s))
 
   | "wait" =>
-    pure <| some (← `(Signaculum.Sakura.expectaSonumPulsus))
+    pure <| some (← `(Signaculum.Sakura.Systema.expectaSonumPulsus))
 
   | "load" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,load,...]: ファイル名が必要にゃ"
     let s ← expectaStrLitSonus args[1]! "\\![sound,load]"
-    pure <| some (← `(Signaculum.Sakura.sonusOneratur $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonusOneratur $s))
 
   | "cdplay" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,cdplay,...]: トラック番號が必要にゃ"
     let n : TSyntax `term := ⟨args[1]!⟩
-    pure <| some (← `(Signaculum.Sakura.sonusCD $n))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonusCD $n))
 
   | "option" =>
     if args.size < 3 then
       throwErrorAt stx "\\![sound,option,...]: ファイル名とオプションが必要にゃ"
     let s ← expectaStrLitSonus args[1]! "\\![sound,option]"
     let o : TSyntax `term := ⟨args[2]!⟩
-    pure <| some (← `(Signaculum.Sakura.sonusOptio $s $o))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonusOptio $s $o))
 
   | other =>
     throwErrorAt stx s!"\\![sound,{other},...]: 未知のサブコマンドにゃ"

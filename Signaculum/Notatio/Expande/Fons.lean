@@ -338,22 +338,22 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
   -- ════════════════════════════════════════════════════
 
   | "bold" =>
-    pure <| some (← interpretaBooleum `Signaculum.Sakura.audax valores stx)
+    pure <| some (← interpretaBooleum `Signaculum.Sakura.Textus.audax valores stx)
 
   | "italic" =>
-    pure <| some (← interpretaBooleum `Signaculum.Sakura.obliquus valores stx)
+    pure <| some (← interpretaBooleum `Signaculum.Sakura.Textus.obliquus valores stx)
 
   | "underline" =>
-    pure <| some (← interpretaBooleum `Signaculum.Sakura.sublinea valores stx)
+    pure <| some (← interpretaBooleum `Signaculum.Sakura.Textus.sublinea valores stx)
 
   | "strike" =>
-    pure <| some (← interpretaBooleum `Signaculum.Sakura.deletura valores stx)
+    pure <| some (← interpretaBooleum `Signaculum.Sakura.Textus.deletura valores stx)
 
   | "sub" =>
-    pure <| some (← interpretaBooleum `Signaculum.Sakura.subscriptus valores stx)
+    pure <| some (← interpretaBooleum `Signaculum.Sakura.Textus.subscriptus valores stx)
 
   | "sup" =>
-    pure <| some (← interpretaBooleum `Signaculum.Sakura.superscriptus valores stx)
+    pure <| some (← interpretaBooleum `Signaculum.Sakura.Textus.superscriptus valores stx)
 
   -- ════════════════════════════════════════════════════
   --  色系 (Colores)
@@ -361,11 +361,11 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "color" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.color $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.color $c))
 
   | "shadowcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorUmbrae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorUmbrae $c))
 
   -- ════════════════════════════════════════════════════
   --  文字サイズ (Magnitudo Litterarum)
@@ -373,7 +373,7 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "height" => do
     let m ← interpretaMagnitudinem valores stx
-    pure <| some (← `(Signaculum.Sakura.altitudoLitterarum $m))
+    pure <| some (← `(Signaculum.Sakura.Textus.altitudoLitterarum $m))
 
   -- ════════════════════════════════════════════════════
   --  フォント名 (Nomen Fontis)
@@ -383,7 +383,7 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
     if valores.size != 1 then
       throwErrorAt stx "\\f[name]: term が1つ期待されてゐますにゃ"
     let v : TSyntax `term := ⟨valores[0]!⟩
-    pure <| some (← `(Signaculum.Sakura.nomenFontis $v))
+    pure <| some (← `(Signaculum.Sakura.Textus.nomenFontis $v))
 
   -- ════════════════════════════════════════════════════
   --  影スタイル (Stylus Umbrae)
@@ -391,7 +391,7 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "shadowstyle" => do
     let s ← interpretaStylusUmbrae valores stx
-    pure <| some (← `(Signaculum.Sakura.stylumUmbrae $s))
+    pure <| some (← `(Signaculum.Sakura.Textus.stylumUmbrae $s))
 
   -- ════════════════════════════════════════════════════
   --  輪郭 (Contornus)
@@ -399,7 +399,7 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "outline" => do
     let s ← interpretaStatusContorni valores stx
-    pure <| some (← `(Signaculum.Sakura.contornus $s))
+    pure <| some (← `(Signaculum.Sakura.Textus.contornus $s))
 
   -- ════════════════════════════════════════════════════
   --  方向系 (Directiones)
@@ -407,21 +407,21 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "align" => do
     let d ← interpretaDirectioAllineatio valores stx
-    pure <| some (← `(Signaculum.Sakura.allineatio $d))
+    pure <| some (← `(Signaculum.Sakura.Textus.allineatio $d))
 
   | "valign" => do
     let d ← interpretaDirectioVerticalis valores stx
-    pure <| some (← `(Signaculum.Sakura.allineatioVerticalis $d))
+    pure <| some (← `(Signaculum.Sakura.Textus.allineatioVerticalis $d))
 
   -- ════════════════════════════════════════════════════
   --  パラメータなし (Sine Parametris)
   -- ════════════════════════════════════════════════════
 
   | "disable" =>
-    pure <| some (← `(Signaculum.Sakura.formaInhabilis))
+    pure <| some (← `(Signaculum.Sakura.Textus.formaInhabilis))
 
   | "default" =>
-    pure <| some (← `(Signaculum.Sakura.formaPraefinita))
+    pure <| some (← `(Signaculum.Sakura.Textus.formaPraefinita))
 
   -- ════════════════════════════════════════════════════
   --  カーソル選擇中 (Cursor Electi)
@@ -429,27 +429,27 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "cursorstyle" => do
     let f ← interpretaFormamMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.stylumCursorisElecti $f))
+    pure <| some (← `(Signaculum.Sakura.Textus.stylumCursorisElecti $f))
 
   | "cursorcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorCursorisElecti $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorCursorisElecti $c))
 
   | "cursorbrushcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorPenicilliCursorisElecti $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorPenicilliCursorisElecti $c))
 
   | "cursorpencolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorCalamCursorisElecti $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorCalamCursorisElecti $c))
 
   | "cursorfontcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorFontisCursorisElecti $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorFontisCursorisElecti $c))
 
   | "cursormethod" => do
     let m ← interpretaMethodumMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.methodusCursorisElecti $m))
+    pure <| some (← `(Signaculum.Sakura.Textus.methodusCursorisElecti $m))
 
   -- ════════════════════════════════════════════════════
   --  カーソル未選擇 (Cursor Non Electi)
@@ -457,27 +457,27 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "cursornotselectstyle" => do
     let f ← interpretaFormamMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.stylumCursorisNonElecti $f))
+    pure <| some (← `(Signaculum.Sakura.Textus.stylumCursorisNonElecti $f))
 
   | "cursornotselectcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorCursorisNonElecti $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorCursorisNonElecti $c))
 
   | "cursornotselectbrushcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorPenicilliCursorisNonElecti $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorPenicilliCursorisNonElecti $c))
 
   | "cursornotselectpencolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorCalamCursorisNonElecti $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorCalamCursorisNonElecti $c))
 
   | "cursornotselectfontcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorFontisCursorisNonElecti $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorFontisCursorisNonElecti $c))
 
   | "cursornotselectmethod" => do
     let m ← interpretaMethodumMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.methodusCursorisNonElecti $m))
+    pure <| some (← `(Signaculum.Sakura.Textus.methodusCursorisNonElecti $m))
 
   -- ════════════════════════════════════════════════════
   --  錨選擇中 (Ancora Electa)
@@ -485,27 +485,27 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "anchorstyle" => do
     let f ← interpretaFormamMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.stylumAncorae $f))
+    pure <| some (← `(Signaculum.Sakura.Textus.stylumAncorae $f))
 
   | "anchorcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorAncorae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorAncorae $c))
 
   | "anchorbrushcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorPenicilliAncorae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorPenicilliAncorae $c))
 
   | "anchorpencolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorCalamAncorae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorCalamAncorae $c))
 
   | "anchorfontcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorFontisAncoraTotae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorFontisAncoraTotae $c))
 
   | "anchormethod" => do
     let m ← interpretaMethodumMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.methodusAncorae $m))
+    pure <| some (← `(Signaculum.Sakura.Textus.methodusAncorae $m))
 
   -- ════════════════════════════════════════════════════
   --  錨未選擇 (Ancora Non Electa)
@@ -513,27 +513,27 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "anchornotselectstyle" => do
     let f ← interpretaFormamMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.stylumAncoraeNonElectae $f))
+    pure <| some (← `(Signaculum.Sakura.Textus.stylumAncoraeNonElectae $f))
 
   | "anchornotselectcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorAncoraeNonElectae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorAncoraeNonElectae $c))
 
   | "anchornotselectbrushcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorPenicilliAncoraeNonElectae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorPenicilliAncoraeNonElectae $c))
 
   | "anchornotselectpencolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorCalamAncoraeNonElectae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorCalamAncoraeNonElectae $c))
 
   | "anchornotselectfontcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorFontisAncoraeNonElectae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorFontisAncoraeNonElectae $c))
 
   | "anchornotselectmethod" => do
     let m ← interpretaMethodumMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.methodusAncoraeNonElectae $m))
+    pure <| some (← `(Signaculum.Sakura.Textus.methodusAncoraeNonElectae $m))
 
   -- ════════════════════════════════════════════════════
   --  錨訪問済み (Ancora Visa)
@@ -541,27 +541,27 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "anchorvisitedstyle" => do
     let f ← interpretaFormamMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.stylumAncoraeVisae $f))
+    pure <| some (← `(Signaculum.Sakura.Textus.stylumAncoraeVisae $f))
 
   | "anchorvisitedcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorAncoraeVisae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorAncoraeVisae $c))
 
   | "anchorvisitedbrushcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorPenicilliAncoraeVisae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorPenicilliAncoraeVisae $c))
 
   | "anchorvisitedpencolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorCalamAncoraeVisae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorCalamAncoraeVisae $c))
 
   | "anchorvisitedfontcolor" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorFontisAncoraeVisae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorFontisAncoraeVisae $c))
 
   | "anchorvisitedmethod" => do
     let m ← interpretaMethodumMarci valores stx
-    pure <| some (← `(Signaculum.Sakura.methodusAncoraeVisae $m))
+    pure <| some (← `(Signaculum.Sakura.Textus.methodusAncoraeVisae $m))
 
   -- ════════════════════════════════════════════════════
   --  錨テクストゥス全體色 (Color Fontis Ancorae)
@@ -569,7 +569,7 @@ def expandeFons (clavis : String) (valores : Array Lean.Syntax) (stx : Lean.Synt
 
   | "anchor.font.color" => do
     let c ← interpretaColoris valores stx
-    pure <| some (← `(Signaculum.Sakura.colorFontisAncorae $c))
+    pure <| some (← `(Signaculum.Sakura.Textus.colorFontisAncorae $c))
 
   -- ════════════════════════════════════════════════════
   --  未處理 (Non Tractatum)

@@ -5,7 +5,7 @@ import Signaculum.Notatio.Macro
 
 namespace Signaculum.Notatio.Verificatio
 
-open Signaculum.Sakura
+open Signaculum.Sakura Signaculum.Sakura.Textus Signaculum.Sakura.Systema
 
 -- 基本タグの出力検證にゃん
 example : Id.run (currereScriptum (scriptum! \h)) = "\\h" := by native_decide
@@ -46,7 +46,7 @@ example : Id.run (currereScriptum (scriptum! \f[italic, true])) = "\\f[italic,tr
 example : Id.run (currereScriptum (scriptum! \f[default])) = "\\f[default]" := by native_decide
 
 -- 式埋込の検證にゃん（SakuraM Unit）
-example : Id.run (currereScriptum (scriptum! {Signaculum.Sakura.sakura})) = "\\h" := by native_decide
+example : Id.run (currereScriptum (scriptum! {Signaculum.Sakura.Textus.sakura})) = "\\h" := by native_decide
 
 -- 式埋込の檢證にゃん（String 自動 loqui）
 example : Id.run (currereScriptum (scriptum! {"こんにちは"})) = "こんにちは" := by native_decide

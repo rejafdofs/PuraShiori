@@ -128,7 +128,7 @@ def expandeSignumSystematisBasicum (nomen : String) (args : Array Lean.Syntax) (
     if args.size < 1 then
       throwErrorAt stx "\\_v: ファイル名が必要にゃ"
     let s ← expectaStrLitSys args[0]! "\\_v"
-    pure <| some (← `(Signaculum.Sakura.sonus $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonus $s))
 
   -- ────────────────────────────────────────────────
   --  \8 — 簡易波形再生にゃん
@@ -138,7 +138,7 @@ def expandeSignumSystematisBasicum (nomen : String) (args : Array Lean.Syntax) (
     if args.size < 1 then
       throwErrorAt stx "\\8: ファイル名が必要にゃ"
     let s ← expectaStrLitSys args[0]! "\\8"
-    pure <| some (← `(Signaculum.Sakura.sonus8 $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.sonus8 $s))
 
   -- ────────────────────────────────────────────────
   --  \m — Windows メッセージにゃん
@@ -150,7 +150,7 @@ def expandeSignumSystematisBasicum (nomen : String) (args : Array Lean.Syntax) (
     let u ← expectaStrLitSys args[0]! "\\m"
     let w ← expectaStrLitSys args[1]! "\\m"
     let l ← expectaStrLitSys args[2]! "\\m"
-    pure <| some (← `(Signaculum.Sakura.nuntiumWindowae $u $w $l))
+    pure <| some (← `(Signaculum.Sakura.Systema.nuntiumWindowae $u $w $l))
 
   -- ────────────────────────────────────────────────
   --  \__v — 音聲合成にゃん
@@ -160,7 +160,7 @@ def expandeSignumSystematisBasicum (nomen : String) (args : Array Lean.Syntax) (
     if args.size < 1 then
       throwErrorAt stx "\\__v: オプションが必要にゃ"
     let o ← expectaStrLitSys args[0]! "\\__v"
-    pure <| some (← `(Signaculum.Sakura.synthesisVocis $o))
+    pure <| some (← `(Signaculum.Sakura.Systema.synthesisVocis $o))
 
   -- ────────────────────────────────────────────────
   --  未處理にゃん — 次のディスパッチへ委ねるにゃ

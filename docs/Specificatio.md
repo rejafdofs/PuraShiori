@@ -22,6 +22,31 @@ Signaculum.Nucleus.Exporta  ← exportaLoad / exportaUnload / exportaRequest
   │     └── Signaculum.Protocollum.Typi        ← 共通型・定數
   │
   ├── Signaculum.Sakura.*    ← SakuraScript モナドと DSL
+  │     ├── Sakura.Typi           ← 型定義
+  │     ├── Sakura.Signum.*       ← Signum 歸納型（17 カテゴリ）
+  │     ├── Sakura.Status         ← SakuraM モナド定義
+  │     ├── Sakura.Fundamentum    ← 基盤（emitte, loqui）
+  │     ├── Sakura.Textus.*       ← テクストゥス・書體・選擇肢・制御
+  │     │     ├── Textus.Scopi        ← 範圍制御（人格切替）
+  │     │     ├── Textus.Superficiei  ← 表面制御（表情）
+  │     │     ├── Textus.Exhibitionis ← 文字表示
+  │     │     ├── Textus.Morae        ← 待機・テンポ制御
+  │     │     ├── Textus.Optionum     ← 選擇肢
+  │     │     ├── Textus.Imperii      ← 制御命令
+  │     │     ├── Textus.Formae       ← 書體
+  │     │     ├── Textus.Bullae       ← 吹出し
+  │     │     ├── Textus.Utilia       ← 便利關數・無作爲・實行
+  │     │     └── Textus.Responsi     ← レスポンスムヘッダー設定
+  │     ├── Sakura.Systema.*      ← システム操作
+  │     │     ├── Systema.Soni        ← 音響
+  │     │     ├── Systema.Eventuum    ← 事象
+  │     │     ├── Systema.Animationis ← 動畫パターン制御
+  │     │     ├── Systema.Proprietatis← プロプリエタース・效果
+  │     │     ├── Systema.Mutationis  ← ゴースト/シェル/吹出し變更
+  │     │     ├── Systema.Retis       ← HTTP・ネットワーク
+  │     │     └── Systema.Modorum     ← モード制御・同期
+  │     ├── Sakura.Fenestra       ← 窓操作
+  │     └── Sakura.Literalis      ← リテラル解析
   │
   ├── Signaculum.Memoria.*   ← 永続化・メモリー管理
   │

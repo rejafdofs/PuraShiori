@@ -45,35 +45,35 @@ def expandeAnimatio (args : Array Lean.Syntax) (stx : Lean.Syntax)
       throwErrorAt stx "\\![anim,start,...]: scopus, id の2引數が必要にゃ"
     let s : TSyntax `term := ⟨args[1]!⟩
     let i : TSyntax `term := ⟨args[2]!⟩
-    pure <| some (← `(Signaculum.Sakura.animaIncepit $s $i))
+    pure <| some (← `(Signaculum.Sakura.Systema.animaIncepit $s $i))
 
   | "stop" =>
     if args.size < 3 then
       throwErrorAt stx "\\![anim,stop,...]: scopus, id の2引數が必要にゃ"
     let s : TSyntax `term := ⟨args[1]!⟩
     let i : TSyntax `term := ⟨args[2]!⟩
-    pure <| some (← `(Signaculum.Sakura.animaDesinit $s $i))
+    pure <| some (← `(Signaculum.Sakura.Systema.animaDesinit $s $i))
 
   | "pause" =>
     if args.size < 3 then
       throwErrorAt stx "\\![anim,pause,...]: scopus, id の2引數が必要にゃ"
     let s : TSyntax `term := ⟨args[1]!⟩
     let i : TSyntax `term := ⟨args[2]!⟩
-    pure <| some (← `(Signaculum.Sakura.animaPausat $s $i))
+    pure <| some (← `(Signaculum.Sakura.Systema.animaPausat $s $i))
 
   | "resume" =>
     if args.size < 3 then
       throwErrorAt stx "\\![anim,resume,...]: scopus, id の2引數が必要にゃ"
     let s : TSyntax `term := ⟨args[1]!⟩
     let i : TSyntax `term := ⟨args[2]!⟩
-    pure <| some (← `(Signaculum.Sakura.animaContinuat $s $i))
+    pure <| some (← `(Signaculum.Sakura.Systema.animaContinuat $s $i))
 
   | "clear" =>
     if args.size < 3 then
       throwErrorAt stx "\\![anim,clear,...]: scopus, id の2引數が必要にゃ"
     let s : TSyntax `term := ⟨args[1]!⟩
     let i : TSyntax `term := ⟨args[2]!⟩
-    pure <| some (← `(Signaculum.Sakura.animaPurgat $s $i))
+    pure <| some (← `(Signaculum.Sakura.Systema.animaPurgat $s $i))
 
   -- ────────────────────────────────────────────────
   --  オフセットにゃん
@@ -86,7 +86,7 @@ def expandeAnimatio (args : Array Lean.Syntax) (stx : Lean.Syntax)
     let i : TSyntax `term := ⟨args[2]!⟩
     let x : TSyntax `term := ⟨args[3]!⟩
     let y : TSyntax `term := ⟨args[4]!⟩
-    pure <| some (← `(Signaculum.Sakura.animaTranslatio $s $i $x $y))
+    pure <| some (← `(Signaculum.Sakura.Systema.animaTranslatio $s $i $x $y))
 
   -- ────────────────────────────────────────────────
   --  add 系にゃん（args[1] がさらにサブコマンドにゃ）
@@ -104,13 +104,13 @@ def expandeAnimatio (args : Array Lean.Syntax) (stx : Lean.Syntax)
       if args.size == 3 then
         -- \![anim,add,overlay, id]
         let i : TSyntax `term := ⟨args[2]!⟩
-        pure <| some (← `(Signaculum.Sakura.animaAddOverlay $i))
+        pure <| some (← `(Signaculum.Sakura.Systema.animaAddOverlay $i))
       else if args.size >= 5 then
         -- \![anim,add,overlay, id, x, y]
         let i : TSyntax `term := ⟨args[2]!⟩
         let x : TSyntax `term := ⟨args[3]!⟩
         let y : TSyntax `term := ⟨args[4]!⟩
-        pure <| some (← `(Signaculum.Sakura.animaAddOverlayPos $i $x $y))
+        pure <| some (← `(Signaculum.Sakura.Systema.animaAddOverlayPos $i $x $y))
       else
         throwErrorAt stx "\\![anim,add,overlay,...]: id (または id, x, y) が必要にゃ"
 
@@ -118,20 +118,20 @@ def expandeAnimatio (args : Array Lean.Syntax) (stx : Lean.Syntax)
       if args.size < 3 then
         throwErrorAt stx "\\![anim,add,overlayfast,...]: id が必要にゃ"
       let i : TSyntax `term := ⟨args[2]!⟩
-      pure <| some (← `(Signaculum.Sakura.animaAddOverlayFast $i))
+      pure <| some (← `(Signaculum.Sakura.Systema.animaAddOverlayFast $i))
 
     | "base" =>
       if args.size < 3 then
         throwErrorAt stx "\\![anim,add,base,...]: id が必要にゃ"
       let i : TSyntax `term := ⟨args[2]!⟩
-      pure <| some (← `(Signaculum.Sakura.animaAddBase $i))
+      pure <| some (← `(Signaculum.Sakura.Systema.animaAddBase $i))
 
     | "move" =>
       if args.size < 4 then
         throwErrorAt stx "\\![anim,add,move,...]: x, y の2引數が必要にゃ"
       let x : TSyntax `term := ⟨args[2]!⟩
       let y : TSyntax `term := ⟨args[3]!⟩
-      pure <| some (← `(Signaculum.Sakura.animaAddMove $x $y))
+      pure <| some (← `(Signaculum.Sakura.Systema.animaAddMove $x $y))
 
     | other =>
       throwErrorAt stx s!"\\![anim,add,{other},...]: 未知のサブコマンドにゃ"

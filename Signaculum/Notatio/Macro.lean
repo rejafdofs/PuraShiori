@@ -205,7 +205,7 @@ private def genTermLexema (s : Lean.Syntax) : TermElabM (TSyntax `term) := do
     let nomen := match s[0] with
       | .ident _ rawVal _ _ => rawVal.toString
       | _ => s[0].getId.toString
-    return ← `(Signaculum.Sakura.variabilisAmbientis $(Lean.Syntax.mkStrLit nomen))
+    return ← `(Signaculum.Sakura.Systema.variabilisAmbientis $(Lean.Syntax.mkStrLit nomen))
   -- バックスラッシュタグにゃ
   if kind == lexemaSignum then
     let nomen := extractLabel s
@@ -256,7 +256,7 @@ def elabScriptum : TermElab := fun stx expectedType? => do
       match lineaPrior, lineaCurrens with
       | some lp, some lc =>
         if lc > lp then
-          body ← `(Bind.bind $body fun () => Signaculum.Sakura.linea)
+          body ← `(Bind.bind $body fun () => Signaculum.Sakura.Textus.linea)
       | _, _ => pure ()
       let next ← genTermLexema s
       body ← `(Bind.bind $body fun () => $next)
