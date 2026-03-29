@@ -51,43 +51,43 @@ def expandeExecutio (args : Array Lean.Syntax) (stx : Lean.Syntax)
     if args.size < 2 then
       throwErrorAt stx "\\![execute,http-get,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,http-get]"
-    pure <| some (← `(Signaculum.Sakura.executaHttpGet $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaHttpGet $u))
 
   | "http-post" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,http-post,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,http-post]"
-    pure <| some (← `(Signaculum.Sakura.executaHttpPost $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaHttpPost $u))
 
   | "http-head" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,http-head,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,http-head]"
-    pure <| some (← `(Signaculum.Sakura.executaHttpHead $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaHttpHead $u))
 
   | "http-put" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,http-put,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,http-put]"
-    pure <| some (← `(Signaculum.Sakura.executaHttpPut $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaHttpPut $u))
 
   | "http-delete" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,http-delete,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,http-delete]"
-    pure <| some (← `(Signaculum.Sakura.executaHttpDelete $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaHttpDelete $u))
 
   | "http-patch" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,http-patch,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,http-patch]"
-    pure <| some (← `(Signaculum.Sakura.executaHttpPatch $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaHttpPatch $u))
 
   | "http-options" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,http-options,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,http-options]"
-    pure <| some (← `(Signaculum.Sakura.executaHttpOptions $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaHttpOptions $u))
 
   -- ────────────────────────────────────────────────
   --  RSS にゃん
@@ -97,13 +97,13 @@ def expandeExecutio (args : Array Lean.Syntax) (stx : Lean.Syntax)
     if args.size < 2 then
       throwErrorAt stx "\\![execute,rss-get,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,rss-get]"
-    pure <| some (← `(Signaculum.Sakura.executaRssGet $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaRssGet $u))
 
   | "rss-post" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,rss-post,...]: URL が必要にゃ"
     let u ← expectaStrLitRete args[1]! "\\![execute,rss-post]"
-    pure <| some (← `(Signaculum.Sakura.executaRssPost $u))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaRssPost $u))
 
   -- ────────────────────────────────────────────────
   --  ヘッドライン・DNS・PING にゃん
@@ -113,19 +113,19 @@ def expandeExecutio (args : Array Lean.Syntax) (stx : Lean.Syntax)
     if args.size < 2 then
       throwErrorAt stx "\\![execute,headline,...]: 名前が必要にゃ"
     let n ← expectaStrLitRete args[1]! "\\![execute,headline]"
-    pure <| some (← `(Signaculum.Sakura.executaHeadline $n))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaHeadline $n))
 
   | "nslookup" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,nslookup,...]: パラメータが必要にゃ"
     let p ← expectaStrLitRete args[1]! "\\![execute,nslookup]"
-    pure <| some (← `(Signaculum.Sakura.executaNslookup [$p]))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaNslookup [$p]))
 
   | "ping" =>
     if args.size < 2 then
       throwErrorAt stx "\\![execute,ping,...]: パラメータが必要にゃ"
     let p ← expectaStrLitRete args[1]! "\\![execute,ping]"
-    pure <| some (← `(Signaculum.Sakura.executaPing [$p]))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaPing [$p]))
 
   -- ────────────────────────────────────────────────
   --  ダンプ・インストール・作成にゃん
@@ -140,7 +140,7 @@ def expandeExecutio (args : Array Lean.Syntax) (stx : Lean.Syntax)
     let p ← expectaStrLitRete args[4]! "\\![execute,dumpsurface]"
     let e ← expectaStrLitRete args[5]! "\\![execute,dumpsurface]"
     let z : TSyntax `term := ⟨args[6]!⟩
-    pure <| some (← `(Signaculum.Sakura.executaDumpSuperficiei $d $s $l $p $e $z))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaDumpSuperficiei $d $s $l $p $e $z))
 
   | "install" =>
     -- install の後にさらにサブコマンドがあるにゃん
@@ -155,23 +155,23 @@ def expandeExecutio (args : Array Lean.Syntax) (stx : Lean.Syntax)
         throwErrorAt stx "\\![execute,install,url,...]: URL, type の2引數が必要にゃ"
       let u ← expectaStrLitRete args[2]! "\\![execute,install,url]"
       let t ← expectaStrLitRete args[3]! "\\![execute,install,url]"
-      pure <| some (← `(Signaculum.Sakura.executaInstallationemUrl $u $t))
+      pure <| some (← `(Signaculum.Sakura.Systema.executaInstallationemUrl $u $t))
     | "path" =>
       if args.size < 3 then
         throwErrorAt stx "\\![execute,install,path,...]: パスが必要にゃ"
       let v ← expectaStrLitRete args[2]! "\\![execute,install,path]"
-      pure <| some (← `(Signaculum.Sakura.executaInstallationemVia $v))
+      pure <| some (← `(Signaculum.Sakura.Systema.executaInstallationemVia $v))
     | other =>
       throwErrorAt stx s!"\\![execute,install,{other},...]: 未知のサブコマンドにゃ"
 
   | "createupdatedata" =>
-    pure <| some (← `(Signaculum.Sakura.executaCreationemUpdateData))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaCreationemUpdateData))
 
   | "createnar" =>
-    pure <| some (← `(Signaculum.Sakura.executaCreationemNar))
+    pure <| some (← `(Signaculum.Sakura.Systema.executaCreationemNar))
 
   | "emptyrecyclebin" =>
-    pure <| some (← `(Signaculum.Sakura.evacuaRecyclatorium))
+    pure <| some (← `(Signaculum.Sakura.Systema.evacuaRecyclatorium))
 
   | other =>
     throwErrorAt stx s!"\\![execute,{other},...]: 未知のサブコマンドにゃ"

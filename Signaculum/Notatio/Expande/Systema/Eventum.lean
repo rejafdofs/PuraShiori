@@ -39,7 +39,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     if args.size < 1 then
       throwErrorAt stx "\\![raise,...]: 引數が不足してゐますにゃ"
     let e ← expectaStrLitSystema args[0]! "\\![raise]"
-    pure <| some (← `(Signaculum.Sakura.excita $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.excita $e))
 
   -- ────────────────────────────────────────────────
   --  embed — 結果埋込にゃん
@@ -49,7 +49,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     if args.size < 1 then
       throwErrorAt stx "\\![embed,...]: 引數が不足してゐますにゃ"
     let e ← expectaStrLitSystema args[0]! "\\![embed]"
-    pure <| some (← `(Signaculum.Sakura.insere $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.insere $e))
 
   -- ────────────────────────────────────────────────
   --  notify — 通知にゃん
@@ -59,7 +59,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     if args.size < 1 then
       throwErrorAt stx "\\![notify,...]: 引數が不足してゐますにゃ"
     let e ← expectaStrLitSystema args[0]! "\\![notify]"
-    pure <| some (← `(Signaculum.Sakura.notifica $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.notifica $e))
 
   -- ────────────────────────────────────────────────
   --  timerraise — 時限事象にゃん
@@ -71,7 +71,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     let ms  : TSyntax `term := ⟨args[0]!⟩
     let rep : TSyntax `term := ⟨args[1]!⟩
     let e ← expectaStrLitSystema args[2]! "\\![timerraise]"
-    pure <| some (← `(Signaculum.Sakura.excitaPostTempus $ms $rep $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.excitaPostTempus $ms $rep $e))
 
   -- ────────────────────────────────────────────────
   --  timernotify — 時限通知にゃん
@@ -83,7 +83,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     let ms  : TSyntax `term := ⟨args[0]!⟩
     let rep : TSyntax `term := ⟨args[1]!⟩
     let e ← expectaStrLitSystema args[2]! "\\![timernotify]"
-    pure <| some (← `(Signaculum.Sakura.notificaPostTempus $ms $rep $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.notificaPostTempus $ms $rep $e))
 
   -- ────────────────────────────────────────────────
   --  raiseother — 他ゴースト事象にゃん
@@ -94,7 +94,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       throwErrorAt stx "\\![raiseother,...]: ghost, event の2引數が必要にゃ"
     let g ← expectaStrLitSystema args[0]! "\\![raiseother]"
     let e ← expectaStrLitSystema args[1]! "\\![raiseother]"
-    pure <| some (← `(Signaculum.Sakura.excitaAlium $g $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.excitaAlium $g $e))
 
   -- ────────────────────────────────────────────────
   --  notifyother — 他ゴースト通知にゃん
@@ -105,7 +105,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       throwErrorAt stx "\\![notifyother,...]: ghost, event の2引數が必要にゃ"
     let g ← expectaStrLitSystema args[0]! "\\![notifyother]"
     let e ← expectaStrLitSystema args[1]! "\\![notifyother]"
-    pure <| some (← `(Signaculum.Sakura.notificaAlium $g $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.notificaAlium $g $e))
 
   -- ────────────────────────────────────────────────
   --  timerraiseother — 時限他ゴースト事象にゃん
@@ -118,7 +118,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     let rep : TSyntax `term := ⟨args[1]!⟩
     let g ← expectaStrLitSystema args[2]! "\\![timerraiseother]"
     let e ← expectaStrLitSystema args[3]! "\\![timerraiseother]"
-    pure <| some (← `(Signaculum.Sakura.excitaAliumPostTempus $ms $rep $g $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.excitaAliumPostTempus $ms $rep $g $e))
 
   -- ────────────────────────────────────────────────
   --  timernotifyother — 時限他ゴースト通知にゃん
@@ -131,7 +131,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     let rep : TSyntax `term := ⟨args[1]!⟩
     let g ← expectaStrLitSystema args[2]! "\\![timernotifyother]"
     let e ← expectaStrLitSystema args[3]! "\\![timernotifyother]"
-    pure <| some (← `(Signaculum.Sakura.notificaAliumPostTempus $ms $rep $g $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.notificaAliumPostTempus $ms $rep $g $e))
 
   -- ────────────────────────────────────────────────
   --  raiseplugin — プラグイン事象にゃん
@@ -142,7 +142,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       throwErrorAt stx "\\![raiseplugin,...]: plugin, event の2引數が必要にゃ"
     let p ← expectaStrLitSystema args[0]! "\\![raiseplugin]"
     let e ← expectaStrLitSystema args[1]! "\\![raiseplugin]"
-    pure <| some (← `(Signaculum.Sakura.vocaPlugin $p $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.vocaPlugin $p $e))
 
   -- ────────────────────────────────────────────────
   --  notifyplugin — プラグイン通知にゃん
@@ -153,7 +153,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       throwErrorAt stx "\\![notifyplugin,...]: plugin, event の2引數が必要にゃ"
     let p ← expectaStrLitSystema args[0]! "\\![notifyplugin]"
     let e ← expectaStrLitSystema args[1]! "\\![notifyplugin]"
-    pure <| some (← `(Signaculum.Sakura.notificaPlugin $p $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.notificaPlugin $p $e))
 
   -- ────────────────────────────────────────────────
   --  timerraiseplugin — 時限プラグイン事象にゃん
@@ -166,7 +166,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     let rep : TSyntax `term := ⟨args[1]!⟩
     let p ← expectaStrLitSystema args[2]! "\\![timerraiseplugin]"
     let e ← expectaStrLitSystema args[3]! "\\![timerraiseplugin]"
-    pure <| some (← `(Signaculum.Sakura.excitaPluginPostTempus $ms $rep $p $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.excitaPluginPostTempus $ms $rep $p $e))
 
   -- ────────────────────────────────────────────────
   --  timernotifyplugin — 時限プラグイン通知にゃん
@@ -179,7 +179,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     let rep : TSyntax `term := ⟨args[1]!⟩
     let p ← expectaStrLitSystema args[2]! "\\![timernotifyplugin]"
     let e ← expectaStrLitSystema args[3]! "\\![timernotifyplugin]"
-    pure <| some (← `(Signaculum.Sakura.notificaPluginPostTempus $ms $rep $p $e))
+    pure <| some (← `(Signaculum.Sakura.Systema.notificaPluginPostTempus $ms $rep $p $e))
 
   -- ────────────────────────────────────────────────
   --  async — 非同期實行にゃん

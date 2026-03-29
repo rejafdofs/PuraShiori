@@ -187,7 +187,7 @@ def elabExcitaTerm : TermElab := fun stx _ => do
   let argTerms ← args.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
     `(Signaculum.Memoria.Citatio.toRef $t)
-  elabTerm (← `(Signaculum.Sakura.excita $(Syntax.mkStrLit nomenEventi) [$argTerms,*])) none
+  elabTerm (← `(Signaculum.Sakura.Systema.excita $(Syntax.mkStrLit nomenEventi) [$argTerms,*])) none
 
 /-- `excita ( term ) args*` — ラムダ式（Tractator 型）を直接渡しにゃ♪
     args は Reference 経由でイベントに渡されるにゃ -/
@@ -222,7 +222,7 @@ def elabInsereTerm : TermElab := fun stx _ => do
   let argTerms ← args.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
     `(Signaculum.Memoria.Citatio.toRef $t)
-  elabTerm (← `(Signaculum.Sakura.insere $(Syntax.mkStrLit nomenEventi) [$argTerms,*])) none
+  elabTerm (← `(Signaculum.Sakura.Systema.insere $(Syntax.mkStrLit nomenEventi) [$argTerms,*])) none
 
 /-- `insere ( term ) args*` — ラムダ式（Tractator 型）を直接渡しにゃ♪ -/
 @[term_parser]
@@ -260,7 +260,7 @@ def elabNotificaTerm : TermElab := fun stx _ => do
   let argTerms ← args.mapM fun a => do
     let t : TSyntax `term := ⟨a⟩
     `(Signaculum.Memoria.Citatio.toRef $t)
-  elabTerm (← `(Signaculum.Sakura.notifica $(Syntax.mkStrLit nomenEventi) [$argTerms,*])) none
+  elabTerm (← `(Signaculum.Sakura.Systema.notifica $(Syntax.mkStrLit nomenEventi) [$argTerms,*])) none
 
 /-- `notifica ( term ) args*` — ラムダ式（Tractator 型）を直接渡しにゃ♪ -/
 @[term_parser]
@@ -299,7 +299,7 @@ def elabExcitaPostTempusTerm : TermElab := fun stx _ => do
     let t : TSyntax `term := ⟨a⟩
     `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
-    (← `(Signaculum.Sakura.excitaPostTempus $ms $rep $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.Systema.excitaPostTempus $ms $rep $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 /-- `excitaPostTempus ms rep ( term ) args*` — ラムダ式（Tractator 型）を遅延発火させるにゃ♪ -/
@@ -338,7 +338,7 @@ def elabNotificaPostTempusTerm : TermElab := fun stx _ => do
     let t : TSyntax `term := ⟨a⟩
     `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
-    (← `(Signaculum.Sakura.notificaPostTempus $ms $rep $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.Systema.notificaPostTempus $ms $rep $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 /-- `notificaPostTempus ms rep ( term ) args*` — ラムダ式（Tractator 型）を遅延通知するにゃ♪ -/
@@ -370,7 +370,7 @@ def elabOptioEventumTerm : TermElab := fun stx _ => do
     let t : TSyntax `term := ⟨a⟩
     `(Signaculum.Memoria.Citatio.toRef $t)
   elabTerm
-    (← `(Signaculum.Sakura.optioEventum $titulus $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
+    (← `(Signaculum.Sakura.Textus.optioEventum $titulus $(Syntax.mkStrLit nomenEventi) [$argTerms,*]))
     none
 
 -- ═══════════════════════════════════════════════════
@@ -430,7 +430,7 @@ elab "aperiInputumIP" f:ident titulus:term ip1:term ip2:term ip3:term ip4:term :
 elab "legeProprietatem" f:ident proprietates:term : term => do
   let nomenEventi ← registraLazium f
   elabTerm
-    (← `(Signaculum.Sakura.legeProprietatem $(Syntax.mkStrLit nomenEventi) $proprietates))
+    (← `(Signaculum.Sakura.Systema.legeProprietatem $(Syntax.mkStrLit nomenEventi) $proprietates))
     none
 
 -- ═══════════════════════════════════════════════════
@@ -454,7 +454,7 @@ elab "spawnaScriptum" f:ident args:term* : term => do
   let callTerm ← `($f $args*)
   elabTerm
     (← `(liftM (Signaculum.Nucleus.spawnaMunitus do
-      let _st ← Signaculum.Sakura.currere $callTerm
+      let _st ← Signaculum.Sakura.Textus.currere $callTerm
       Signaculum.Sstp.mitteSstpScriptum (Signaculum.Sakura.adCatenamLista _st.scriptum))))
     none
 

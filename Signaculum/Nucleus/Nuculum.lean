@@ -61,7 +61,7 @@ def tracta (s : Shiori) (rogatio : Rogatio) : IO Responsum := do
   | some tractator =>
     try
       -- SakuraScript モナドを實行して StatusSakurae を得るにゃん
-      let status ← Sakura.currere (tractator rogatio)
+      let status ← Sakura.Textus.currere (tractator rogatio)
       match rogatio.methodus with
       | .pete     => return {
           status           := .ok

@@ -65,7 +65,7 @@ private def expandeMoveEtc (imperium : String) (args : Array Syntax) (stx : Synt
       some <$> `(Signaculum.Sakura.restituere $(⟨n⟩))
     else throwErrorAt stx "\\![restore] は引數0か1にゃ"
   | "reboot" =>
-    if args.size == 0 then some <$> `(Signaculum.Sakura.renovaGhost)
+    if args.size == 0 then some <$> `(Signaculum.Sakura.Systema.renovaGhost)
     else throwErrorAt stx "\\![reboot] は引數不要にゃ"
   | "quicksession" =>
     if args.size == 1 then
@@ -75,12 +75,12 @@ private def expandeMoveEtc (imperium : String) (args : Array Syntax) (stx : Synt
   | "quicksection" =>
     if args.size == 1 then
       let b := args[0]!
-      some <$> `(Signaculum.Sakura.sectionCeler $(⟨b⟩))
+      some <$> `(Signaculum.Sakura.Systema.sectionCeler $(⟨b⟩))
     else throwErrorAt stx "\\![quicksection,...] は引數1つにゃ"
   | "create" =>
     if args.size == 1 then
       match argAdNomen args[0]! with
-      | some "shortcut" => some <$> `(Signaculum.Sakura.creaViam)
+      | some "shortcut" => some <$> `(Signaculum.Sakura.Systema.creaViam)
       | _ => return none
     else return none
   | "*" =>
@@ -136,10 +136,10 @@ private def expandeModusEtc (imperium : String) (args : Array Syntax) (stx : Syn
   | "leave", some "inductionmode"   => some <$> `(Signaculum.Sakura.egrediereModumInductivum)
   | "enter", some "collisionmode"   => some <$> `(Signaculum.Sakura.ingredereModumCollisionis)
   | "leave", some "collisionmode"   => some <$> `(Signaculum.Sakura.egrediereModumCollisionis)
-  | "enter", some "onlinemode"      => some <$> `(Signaculum.Sakura.ingredereModumOnline)
-  | "leave", some "onlinemode"      => some <$> `(Signaculum.Sakura.egrediereModumOnline)
-  | "enter", some "nouserbreakmode" => some <$> `(Signaculum.Sakura.ingredereModumNonInterruptum)
-  | "leave", some "nouserbreakmode" => some <$> `(Signaculum.Sakura.egrediereModumNonInterruptum)
+  | "enter", some "onlinemode"      => some <$> `(Signaculum.Sakura.Systema.ingredereModumOnline)
+  | "leave", some "onlinemode"      => some <$> `(Signaculum.Sakura.Systema.egrediereModumOnline)
+  | "enter", some "nouserbreakmode" => some <$> `(Signaculum.Sakura.Systema.ingredereModumNonInterruptum)
+  | "leave", some "nouserbreakmode" => some <$> `(Signaculum.Sakura.Systema.egrediereModumNonInterruptum)
   | "enter", some "selectmode" =>
     -- \![enter,selectmode, rect, collision] にゃん
     match secundusArg with
@@ -229,7 +229,7 @@ def expandeSignumFenestraeBasicum (nomen : String) (args : Array Lean.Syntax) (s
       | _ =>
         -- \_b[v, x, y] にゃん
         let x := args[1]!; let y := args[2]!
-        some <$> `(Signaculum.Sakura.imagoBullae $(⟨v⟩) $(⟨x⟩) $(⟨y⟩))
+        some <$> `(Signaculum.Sakura.Textus.imagoBullae $(⟨v⟩) $(⟨x⟩) $(⟨y⟩))
     | 4 =>
       -- \_b[v, x, y, opaque] にゃん
       let v := args[0]!; let x := args[1]!; let y := args[2]!

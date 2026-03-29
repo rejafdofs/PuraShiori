@@ -59,18 +59,18 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       if args.size < 2 then
         throwErrorAt stx "\\![call,shiori,...]: イヴェント名が必要にゃ"
       let e ← expectaStrLitReliqua args[1]! "\\![call,shiori]"
-      pure <| some (← `(Signaculum.Sakura.vocaShiori $e))
+      pure <| some (← `(Signaculum.Sakura.Systema.vocaShiori $e))
     | "saori" =>
       if args.size < 3 then
         throwErrorAt stx "\\![call,saori,...]: DLL パスと關數名が必要にゃ"
       let d ← expectaStrLitReliqua args[1]! "\\![call,saori]"
       let f ← expectaStrLitReliqua args[2]! "\\![call,saori]"
-      pure <| some (← `(Signaculum.Sakura.vocaSaori $d $f))
+      pure <| some (← `(Signaculum.Sakura.Systema.vocaSaori $d $f))
     | "ghost" =>
       if args.size < 2 then
         throwErrorAt stx "\\![call,ghost,...]: ゴースト名が必要にゃ"
       let n ← expectaStrLitReliqua args[1]! "\\![call,ghost]"
-      pure <| some (← `(Signaculum.Sakura.vocaGhost $n))
+      pure <| some (← `(Signaculum.Sakura.Systema.vocaGhost $n))
     | other =>
       throwErrorAt stx s!"\\![call,{other},...]: 未知のサブコマンドにゃ"
 
@@ -89,17 +89,17 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       if args.size < 2 then
         throwErrorAt stx "\\![change,ghost,...]: ゴースト名が必要にゃ"
       let n ← expectaStrLitReliqua args[1]! "\\![change,ghost]"
-      pure <| some (← `(Signaculum.Sakura.mutaGhostNomen $n))
+      pure <| some (← `(Signaculum.Sakura.Systema.mutaGhostNomen $n))
     | "shell" =>
       if args.size < 2 then
         throwErrorAt stx "\\![change,shell,...]: シェル名が必要にゃ"
       let n ← expectaStrLitReliqua args[1]! "\\![change,shell]"
-      pure <| some (← `(Signaculum.Sakura.mutaShell $n))
+      pure <| some (← `(Signaculum.Sakura.Systema.mutaShell $n))
     | "balloon" =>
       if args.size < 2 then
         throwErrorAt stx "\\![change,balloon,...]: 吹出し名が必要にゃ"
       let n ← expectaStrLitReliqua args[1]! "\\![change,balloon]"
-      pure <| some (← `(Signaculum.Sakura.mutaBullam $n))
+      pure <| some (← `(Signaculum.Sakura.Systema.mutaBullam $n))
     | other =>
       throwErrorAt stx s!"\\![change,{other},...]: 未知のサブコマンドにゃ"
 
@@ -107,10 +107,10 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   --  引數なし命令にゃん
   -- ────────────────────────────────────────────────
 
-  | "updatebymyself"  => pure <| some (← `(Signaculum.Sakura.renovaSeIpsum))
-  | "vanishbymyself"  => pure <| some (← `(Signaculum.Sakura.evanesceSeIpsum))
-  | "executesntp"     => pure <| some (← `(Signaculum.Sakura.executaSNTP))
-  | "reloadsurface"   => pure <| some (← `(Signaculum.Sakura.renovaSuperficiem))
+  | "updatebymyself"  => pure <| some (← `(Signaculum.Sakura.Systema.renovaSeIpsum))
+  | "vanishbymyself"  => pure <| some (← `(Signaculum.Sakura.Systema.evanesceSeIpsum))
+  | "executesntp"     => pure <| some (← `(Signaculum.Sakura.Systema.executaSNTP))
+  | "reloadsurface"   => pure <| some (← `(Signaculum.Sakura.Systema.renovaSuperficiem))
 
   -- ────────────────────────────────────────────────
   --  reload にゃん
@@ -120,7 +120,7 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     if args.size < 1 then
       throwErrorAt stx "\\![reload,...]: 對象が必要にゃ"
     let s : TSyntax `term := ⟨args[0]!⟩
-    pure <| some (← `(Signaculum.Sakura.renova $s))
+    pure <| some (← `(Signaculum.Sakura.Systema.renova $s))
 
   -- ────────────────────────────────────────────────
   --  unload/load にゃん
@@ -133,8 +133,8 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       | some v => v
       | none   => ""
     match sub with
-    | "shiori" => pure <| some (← `(Signaculum.Sakura.expelleShiori))
-    | "makoto" => pure <| some (← `(Signaculum.Sakura.expelleMakoto))
+    | "shiori" => pure <| some (← `(Signaculum.Sakura.Systema.expelleShiori))
+    | "makoto" => pure <| some (← `(Signaculum.Sakura.Systema.expelleMakoto))
     | other    => throwErrorAt stx s!"\\![unload,{other}]: 未知の對象にゃ"
 
   | "load" =>
@@ -144,8 +144,8 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       | some v => v
       | none   => ""
     match sub with
-    | "shiori" => pure <| some (← `(Signaculum.Sakura.oneraSHIORI))
-    | "makoto" => pure <| some (← `(Signaculum.Sakura.oneraMakoto))
+    | "shiori" => pure <| some (← `(Signaculum.Sakura.Systema.oneraSHIORI))
+    | "makoto" => pure <| some (← `(Signaculum.Sakura.Systema.oneraMakoto))
     | other    => throwErrorAt stx s!"\\![load,{other}]: 未知の對象にゃ"
 
   -- ────────────────────────────────────────────────
@@ -157,14 +157,14 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       -- \![bind, c, p] — トグル形式にゃん
       let c ← expectaStrLitReliqua args[0]! "\\![bind]"
       let p ← expectaStrLitReliqua args[1]! "\\![bind]"
-      pure <| some (← `(Signaculum.Sakura.nexaDressup $c $p Option.none))
+      pure <| some (← `(Signaculum.Sakura.Systema.nexaDressup $c $p Option.none))
     else if args.size >= 3 then
       -- \![bind, c, p, v] — 明示的値にゃん
       let c ← expectaStrLitReliqua args[0]! "\\![bind]"
       let p ← expectaStrLitReliqua args[1]! "\\![bind]"
       match getNatValReliqua args[2]! with
-      | some 1 => pure <| some (← `(Signaculum.Sakura.nexaDressup $c $p (Option.some Bool.true)))
-      | some 0 => pure <| some (← `(Signaculum.Sakura.nexaDressup $c $p (Option.some Bool.false)))
+      | some 1 => pure <| some (← `(Signaculum.Sakura.Systema.nexaDressup $c $p (Option.some Bool.true)))
+      | some 0 => pure <| some (← `(Signaculum.Sakura.Systema.nexaDressup $c $p (Option.some Bool.false)))
       | _      => throwErrorAt args[2]! "\\![bind,...] の値は 0 か 1 のみにゃ"
     else
       throwErrorAt stx "\\![bind,...]: category, part の2引數が最低必要にゃ"
@@ -179,7 +179,7 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     let p ← expectaStrLitReliqua args[0]! "\\![effect]"
     let s : TSyntax `term := ⟨args[1]!⟩
     let r ← expectaStrLitReliqua args[2]! "\\![effect]"
-    pure <| some (← `(Signaculum.Sakura.applicaEffectum $p $s $r))
+    pure <| some (← `(Signaculum.Sakura.Systema.applicaEffectum $p $s $r))
 
   | "effect2" =>
     if args.size < 4 then
@@ -188,7 +188,7 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     let p ← expectaStrLitReliqua args[1]! "\\![effect2]"
     let s : TSyntax `term := ⟨args[2]!⟩
     let r ← expectaStrLitReliqua args[3]! "\\![effect2]"
-    pure <| some (← `(Signaculum.Sakura.applicaEffectum2 $i $p $s $r))
+    pure <| some (← `(Signaculum.Sakura.Systema.applicaEffectum2 $i $p $s $r))
 
   -- ────────────────────────────────────────────────
   --  biff — 郵便確認にゃん
@@ -198,7 +198,7 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
     if args.size < 1 then
       throwErrorAt stx "\\![biff,...]: アカウント名が必要にゃ"
     let a ← expectaStrLitReliqua args[0]! "\\![biff]"
-    pure <| some (← `(Signaculum.Sakura.exploraPostam $a))
+    pure <| some (← `(Signaculum.Sakura.Systema.exploraPostam $a))
 
   -- ────────────────────────────────────────────────
   --  set 系にゃん
@@ -216,19 +216,19 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
         throwErrorAt stx "\\![set,property,...]: プロパティ名と値が必要にゃ"
       let p : TSyntax `term := ⟨args[1]!⟩
       let v ← expectaStrLitReliqua args[2]! "\\![set,property]"
-      pure <| some (← `(Signaculum.Sakura.configuraProprietatem $p $v))
+      pure <| some (← `(Signaculum.Sakura.Systema.configuraProprietatem $p $v))
 
     | "otherghosttalk" =>
       if args.size < 2 then
         throwErrorAt stx "\\![set,otherghosttalk,...]: モードが必要にゃ"
       let m : TSyntax `term := ⟨args[1]!⟩
-      pure <| some (← `(Signaculum.Sakura.configuraAliosGhostes $m))
+      pure <| some (← `(Signaculum.Sakura.Systema.configuraAliosGhostes $m))
 
     | "othersurfacechange" =>
       if args.size < 2 then
         throwErrorAt stx "\\![set,othersurfacechange,...]: 眞僞値が必要にゃ"
       let b : TSyntax `term := ⟨args[1]!⟩
-      pure <| some (← `(Signaculum.Sakura.configuraAliasSuperficies $b))
+      pure <| some (← `(Signaculum.Sakura.Systema.configuraAliasSuperficies $b))
 
     | "wallpaper" =>
       if args.size < 2 then
@@ -236,30 +236,30 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       let v ← expectaStrLitReliqua args[1]! "\\![set,wallpaper]"
       if args.size == 2 then
         -- モード省略にゃん
-        pure <| some (← `(Signaculum.Sakura.configuraTapete $v Option.none))
+        pure <| some (← `(Signaculum.Sakura.Systema.configuraTapete $v Option.none))
       else
         -- モード指定にゃん — キーワードを檢査するにゃ
         let modeStr := match extractIdentValReliqua args[2]! with
           | some v => v
           | none   => ""
         match modeStr with
-        | "center"    => pure <| some (← `(Signaculum.Sakura.configuraTapete $v (Option.some .centrum)))
-        | "tile"      => pure <| some (← `(Signaculum.Sakura.configuraTapete $v (Option.some .tessella)))
-        | "stretch"   => pure <| some (← `(Signaculum.Sakura.configuraTapete $v (Option.some .extende)))
-        | "stretch-x" => pure <| some (← `(Signaculum.Sakura.configuraTapete $v (Option.some .extendeX)))
-        | "stretch-y" => pure <| some (← `(Signaculum.Sakura.configuraTapete $v (Option.some .extendeY)))
-        | "span"      => pure <| some (← `(Signaculum.Sakura.configuraTapete $v (Option.some .spatium)))
+        | "center"    => pure <| some (← `(Signaculum.Sakura.Systema.configuraTapete $v (Option.some .centrum)))
+        | "tile"      => pure <| some (← `(Signaculum.Sakura.Systema.configuraTapete $v (Option.some .tessella)))
+        | "stretch"   => pure <| some (← `(Signaculum.Sakura.Systema.configuraTapete $v (Option.some .extende)))
+        | "stretch-x" => pure <| some (← `(Signaculum.Sakura.Systema.configuraTapete $v (Option.some .extendeX)))
+        | "stretch-y" => pure <| some (← `(Signaculum.Sakura.Systema.configuraTapete $v (Option.some .extendeY)))
+        | "span"      => pure <| some (← `(Signaculum.Sakura.Systema.configuraTapete $v (Option.some .spatium)))
         | other       =>
           throwErrorAt args[2]! s!"\\![set,wallpaper,...,{other}]: 未知のモードにゃ（center/tile/stretch/stretch-x/stretch-y/span が使へるにゃ）"
 
     | "shioridebugmode" =>
-      pure <| some (← `(Signaculum.Sakura.configuraShioriDebug))
+      pure <| some (← `(Signaculum.Sakura.Systema.configuraShioriDebug))
 
     | "choicetimeout" =>
       if args.size < 2 then
         throwErrorAt stx "\\![set,choicetimeout,...]: ミリ秒が必要にゃ"
       let ms : TSyntax `term := ⟨args[1]!⟩
-      pure <| some (← `(Signaculum.Sakura.tempusOptionum $ms))
+      pure <| some (← `(Signaculum.Sakura.Systema.tempusOptionum $ms))
 
     | other =>
       throwErrorAt stx s!"\\![set,{other},...]: 未知のサブコマンドにゃ"
@@ -280,7 +280,7 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
         throwErrorAt stx "\\![get,property,...]: イヴェント名とプロパティが必要にゃ"
       let e ← expectaStrLitReliqua args[1]! "\\![get,property]"
       let p : TSyntax `term := ⟨args[2]!⟩
-      pure <| some (← `(Signaculum.Sakura.legeProprietatem $e [$p]))
+      pure <| some (← `(Signaculum.Sakura.Systema.legeProprietatem $e [$p]))
     | other =>
       throwErrorAt stx s!"\\![get,{other},...]: 未知のサブコマンドにゃ"
 
@@ -291,12 +291,12 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "filter" =>
     if args.size == 0 then
       -- \![filter] — フィルタ除去にゃん
-      pure <| some (← `(Signaculum.Sakura.applicaFiltratum "" 0 ""))
+      pure <| some (← `(Signaculum.Sakura.Systema.applicaFiltratum "" 0 ""))
     else if args.size >= 3 then
       let p ← expectaStrLitReliqua args[0]! "\\![filter]"
       let t : TSyntax `term := ⟨args[1]!⟩
       let r ← expectaStrLitReliqua args[2]! "\\![filter]"
-      pure <| some (← `(Signaculum.Sakura.applicaFiltratum $p $t $r))
+      pure <| some (← `(Signaculum.Sakura.Systema.applicaFiltratum $p $t $r))
     else
       throwErrorAt stx "\\![filter,...]: plugin, time, parameter の3引數が必要にゃ"
 
@@ -316,7 +316,7 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
         throwErrorAt stx "\\![wait,syncobject,...]: 名前とタイムアウトが必要にゃ"
       let n ← expectaStrLitReliqua args[1]! "\\![wait,syncobject]"
       let t : TSyntax `term := ⟨args[2]!⟩
-      pure <| some (← `(Signaculum.Sakura.expectaSyncObjectum $n $t))
+      pure <| some (← `(Signaculum.Sakura.Systema.expectaSyncObjectum $n $t))
     | other =>
       throwErrorAt stx s!"\\![wait,{other},...]: 未知のサブコマンドにゃ"
 
@@ -331,7 +331,7 @@ def expandeReliqua (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       | some v => v
       | none   => ""
     match sub with
-    | "platform" => pure <| some (← `(Signaculum.Sakura.renovaPlatformam))
+    | "platform" => pure <| some (← `(Signaculum.Sakura.Systema.renovaPlatformam))
     | other      => throwErrorAt stx s!"\\![update,{other}]: 未知の對象にゃ"
 
   | _ => pure none

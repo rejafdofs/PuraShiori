@@ -10,6 +10,7 @@ import Signaculum.Elementa.Varia
 open Signaculum
 open Signaculum.Nucleus
 open Signaculum.Sakura
+open Signaculum.Sakura.Textus
 
 -- ═══════════════════════════════════════════════════
 -- 事象處理器を直接定義するにゃん（DSL マクロなし版）
@@ -62,7 +63,7 @@ initialize (Signaculum.Nucleus.registraShiori [
 
 /-- 純粹な SakuraScript 生成のテストにゃん -/
 def testumPurumSakura : String := Id.run do
-  Sakura.currereScriptum do
+  Sakura.Textus.currereScriptum do
     sakura
     superficies 0
     loqui "テストにゃ！"
