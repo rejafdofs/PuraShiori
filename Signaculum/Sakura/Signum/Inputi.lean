@@ -35,6 +35,12 @@ inductive SignumInputi where
       (ip3 : Nat) (h3 : ip3 ≤ 255 := by omega)
       (ip4 : Nat) (h4 : ip4 ≤ 255 := by omega)
       (optiones : OptionesInputi)
+  | aperiInputumColoris
+      (eventum titulus : String)
+      (r : Nat) (hr : r ≤ 255 := by omega)
+      (g : Nat) (hg : g ≤ 255 := by omega)
+      (b : Nat) (hb : b ≤ 255 := by omega)
+      (optiones : OptionesInputi)
   | aperiDialogum
       (modus : ModusDialogi)
       (optiones : OptionesDialogi)
@@ -62,6 +68,10 @@ def SignumInputi.adCatenam : SignumInputi → String
     let opt := optiones.toString
     let opt := if opt.isEmpty then "" else s!",{opt}"
     s!"\\![open,ipinput,{evadeArgumentum eventum},{evadeArgumentum titulus},{ip1},{ip2},{ip3},{ip4}{opt}]"
+  | .aperiInputumColoris eventum titulus r _ g _ b _ optiones =>
+    let opt := optiones.toString
+    let opt := if opt.isEmpty then "" else s!",{opt}"
+    s!"\\![open,colorinput,{evadeArgumentum eventum},{evadeArgumentum titulus},{r},{g},{b}{opt}]"
   | .aperiDialogum modus optiones =>
     let opt := optiones.toString
     let opt := if opt.isEmpty then "" else s!",{opt}"

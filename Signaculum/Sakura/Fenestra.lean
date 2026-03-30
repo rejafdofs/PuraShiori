@@ -341,6 +341,14 @@ def aperiInputumIP {m : Type → Type} [Monad m]
   emitte (.inputi (.aperiInputumIP eventum titulus ip1 _h1 ip2 _h2 ip3 _h3 ip4 _h4 optiones))
 
 
+/-- 色入力ボックスを開くにゃん（\\![open,colorinput,...]）。
+    r/g/b は初期色の RGB 値（0〜255）にゃ -/
+def aperiInputumColoris {m : Type → Type} [Monad m]
+    (eventum titulus : String) (r g b : Nat)
+    (_hr : r ≤ 255 := by omega) (_hg : g ≤ 255 := by omega) (_hb : b ≤ 255 := by omega)
+    (optiones : OptionesInputi := {}) : SakuraM m Unit :=
+  emitte (.inputi (.aperiInputumColoris eventum titulus r _hr g _hg b _hb optiones))
+
 /-- ダイアローグスを開くにゃん（\\![open,dialog,modus,options]）。
     modus で種類を選ぶにゃ（`aperire`/`servare`/`directorium`/`color`）にゃ -/
 def aperiDialogum {m : Type → Type} [Monad m]

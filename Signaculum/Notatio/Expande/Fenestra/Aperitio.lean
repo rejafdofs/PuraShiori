@@ -126,6 +126,12 @@ private def resolveOpenCumArgs (subCmd : String) (rest : Array Syntax) (stx : Sy
       let a := rest[2]!; let b := rest[3]!; let c := rest[4]!; let d := rest[5]!
       some <$> `(Signaculum.Sakura.aperiInputumIP (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) $(⟨a⟩) $(⟨b⟩) $(⟨c⟩) $(⟨d⟩))
     else throwErrorAt stx "\\![open,ipinput,...] は引數6つ (cb,title,a,b,c,d) にゃ"
+  | "colorinput" =>
+    if rest.size == 5 then
+      let cb := rest[0]!; let title := rest[1]!
+      let r := rest[2]!; let g := rest[3]!; let b := rest[4]!
+      some <$> `(Signaculum.Sakura.aperiInputumColoris (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) $(⟨r⟩) $(⟨g⟩) $(⟨b⟩))
+    else throwErrorAt stx "\\![open,colorinput,...] は引數5つ (cb,title,r,g,b) にゃ"
   | _ => return none
 
 -- ════════════════════════════════════════════════════

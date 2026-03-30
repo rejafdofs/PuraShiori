@@ -40,7 +40,8 @@
       "Bash(cmd.exe /c \"cd /d \\\\\"D:\\\\anything\\\\リリフェエ伺かプロジェクト\\\\ghost\\\\master\\\\\" && lake build ghost 2>&1\")",
       "Bash(powershell.exe -Command \"Set-Location 'D:\\\\anything\\\\リリフェエ伺かプロジェクト\\\\ghost\\\\master'; lake build ghost 2>&1\")",
       "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\a\\\\AppData\\\\Local\\\\Temp\\\\analyze:?\" 2>&1)",
-      "Bash(gh search:*)"
+      "Bash(gh search:*)",
+      "Bash(grep:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

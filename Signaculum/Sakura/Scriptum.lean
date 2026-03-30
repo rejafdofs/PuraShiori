@@ -8,3 +8,4 @@ import Signaculum.Sakura.Fundamentum
 import Signaculum.Sakura.Textus
 import Signaculum.Sakura.Fenestra
 import Signaculum.Sakura.Systema
+import Signaculum.Sakura.Theoremata
