@@ -46,7 +46,8 @@ Signaculum.Nucleus.Exporta  ← exportaLoad / exportaUnload / exportaRequest
   │     │     ├── Systema.Retis       ← HTTP・ネットワーク
   │     │     └── Systema.Modorum     ← モード制御・同期
   │     ├── Sakura.Fenestra       ← 窓操作
-  │     └── Sakura.Literalis      ← リテラル解析
+  │     ├── Sakura.Literalis      ← リテラル解析
+  │     └── Sakura.Theoremata    ← adCatenam 全稱證明（§1〜§8b）
   │
   ├── Signaculum.Memoria.*   ← 永続化・メモリー管理
   │
@@ -430,9 +431,11 @@ Bind.bind で連鎖した SakuraM m Unit 項
 
 `Parsitor/Argumenta.lean` の `argumentaInUncisFn` は括弧内引數を解析し、不正な引數に對してタグ名入りの日本語エラーメッセージを生成する（例: `\s[aaa]` → `\s: []の中には数字が期待されてゐますにゃ`）。
 
-#### 検証（Verificatio.lean）
+#### 検証
 
-`native_decide` による rfl テストで、代表的なタグの出力文字列が期待値と一致することをコンパイル時に検証する。
+ランタイム関数の正しさは `Sakura/Theoremata.lean` の全称証明（∀ 量化）で保証する。全 Signum カテゴリの adCatenam 関数について、定数・Bool・Nat/Int・String・有限列挙・if/match 分岐を含む全コンストラクタの出力が定義通りであることを証明済み。加えて adCatenamLista のリスト連結準同型性、evadeTextus/evadeArgumentum の定義展開同値性、SignumFormae の構造的 prefix/suffix 性質も証明済み。
+
+`Notatio/Verificatio.lean` には scriptum! マクロ固有の動作検証（行跨ぎ改行自動挿入、式埋込、舊形式スコープ、裸テクストゥス解析）のみを置く。
 
 使用例:
 
