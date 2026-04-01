@@ -274,12 +274,14 @@ aperiInputum .simplex "OnInput" "タイトル" ""
 
 ### 数値系入力
 
-数値入力は用途別に3つの関数に分かれています。それぞれコンパイル時に境界が検証されます。
+数値入力は用途別に関数が分かれています。それぞれコンパイル時に境界が検証されます。
+全入力ダイアログのコールバック引数（第1引数）は文字列・識別子・ラムダのいずれでも渡せます。
 
 ```lean
 -- 日付入力（年・月・日）
 -- mensis: 1〜12、dies: 1〜diesInMense（閏年考慮）
 aperiInputumDiei "OnDate" "日付を選択" 2026 3 14
+aperiInputumDiei onDateSelected "日付を選択" 2026 3 14
 
 -- 時刻入力（時・分・秒）
 -- hora: 0〜23、minutum: 0〜59、secundum: 0〜59
@@ -290,10 +292,20 @@ aperiInputumTemporis "OnTime" "時刻を選択" 12 0 0
 aperiInputumGradus "OnSlider" "音量" 0 100 50
 ```
 
-### IP アドレス入力
+### IP アドレス・色入力
 
 ```lean
 aperiInputumIP "OnIP" "IPアドレス" 192 168 1 1
+aperiInputumColoris "OnColor" "色を選択" 128 64 0
+```
+
+### scriptum! タグ記法での入力ダイアログ
+
+```lean
+scriptum!
+  \![open,inputbox, (fun text => scriptum ありがとう\、{text}), 名前を教えて]
+  \![open,dateinput, onDateSelected, 日付を選択, 2026, 3, 14]
+  \![open,sliderinput, "OnSlider", 音量, 0, 100, 50]
 ```
 
 `OptionesInputi` のメソッド: `.cumNoClose` `.cumNoClear` `.cumTempore n`

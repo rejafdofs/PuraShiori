@@ -129,7 +129,7 @@ private partial def countExplicitParams : Lean.Expr → MetaM Nat
   | _                          => return 0
 
 /-- ident を項として展開して const 名と引數リストを取り出すにゃん♪ -/
-private def resolveToConst (f : Ident) : TermElabM Name := do
+def resolveToConst (f : Ident) : TermElabM Name := do
   let fExpr ← elabTerm f none
   let fExpr ← instantiateMVars fExpr
   match fExpr with
@@ -137,7 +137,7 @@ private def resolveToConst (f : Ident) : TermElabM Name := do
   | _ => throwError "excita/insere: 関数定数の識別子を渡してにゃ: {f}"
 
 /-- def ベース事象を lazyEventa に登録する共通処理にゃん -/
-private def registraLazium (f : Ident) : TermElabM String := do
+def registraLazium (f : Ident) : TermElabM String := do
   let fname ← resolveToConst f
   let env ← getEnv
   let some info := env.find? fname |
@@ -150,7 +150,7 @@ private def registraLazium (f : Ident) : TermElabM String := do
   return nomenEventi
 
 /-- ラムダ式（Tractator 型の term）を lazyEventa にソース位置ベースの新鮮な名前で登録するにゃ -/
-private def registraLaziumLambda (lamStx : Syntax) (posIdx : Nat) (pc : Nat := 0) : TermElabM String := do
+def registraLaziumLambda (lamStx : Syntax) (posIdx : Nat) (pc : Nat := 0) : TermElabM String := do
   let freshName := Name.mkSimple s!"_excitaLambda_{posIdx}"
   let nomenEventi := freshName.toString
   modifyEnv (ghostAccumulatioExt.addEntry · (.lazium {

@@ -4,6 +4,7 @@
 
 import Lean
 import Signaculum.Sakura.Scriptum
+import Signaculum.Syntaxis
 
 namespace Signaculum.Notatio.Expande.Fenestra
 
@@ -48,6 +49,24 @@ private def resolveOpenFixum (nomen : String) : TermElabM (Option (TSyntax `term
   | "shiorirequest"            => some <$> `(Signaculum.Sakura.aperi .petitioShiori)
   | "dressupexplorer"          => some <$> `(Signaculum.Sakura.aperi .exploratorDressupi)
   | _ => return none
+
+-- ════════════════════════════════════════════════════
+--  コールバック解決にゃん♪ (Resolutio Callbacki)
+-- ════════════════════════════════════════════════════
+
+/-- cb 構文ノードからイヴェント名文字列の term を作るにゃ。
+    strLit → そのまま、ident → registraLazium、項 → registraLaziumLambda -/
+private def resolveCallbackum (cb : Syntax) (paramCount : Nat := 1)
+    : TermElabM (TSyntax `term) := do
+  if cb.isStrLit?.isSome then
+    pure ⟨cb⟩
+  else if cb.isIdent then
+    let ev ← Signaculum.registraLazium ⟨cb⟩
+    `($(Syntax.mkStrLit ev))
+  else
+    let posIdx := (cb.getPos?.getD ⟨0⟩).byteIdx
+    let ev ← Signaculum.registraLaziumLambda cb posIdx paramCount
+    `($(Syntax.mkStrLit ev))
 
 -- ════════════════════════════════════════════════════
 --  open — 引數付きにゃん (Cum Argumentis)
@@ -103,51 +122,53 @@ private def resolveOpenCumArgs (subCmd : String) (rest : Array Syntax) (stx : Sy
     | _ => throwErrorAt stx "\\![open,editor,...] は引數1〜2つにゃ"
   -- 入力ダイアログ拡張にゃん♪ (Extensio Ingressuum)
   | "dateinput" =>
-    if rest.size == 5 then
-      let cb := rest[0]!; let title := rest[1]!
-      let y := rest[2]!; let m := rest[3]!; let d := rest[4]!
-      some <$> `(Signaculum.Sakura.aperiInputumDiei (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) $(⟨y⟩) $(⟨m⟩) $(⟨d⟩))
-    else throwErrorAt stx "\\![open,dateinput,...] は引數5つ (cb,title,y,m,d) にゃ"
+    if h : rest.size = 5 then
+      let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
+      let y := rest[2]'(by omega); let m := rest[3]'(by omega); let d := rest[4]'(by omega)
+      let evStx ← resolveCallbackum cb
+      some <$> `(Signaculum.Sakura.aperiInputumDiei $evStx (show String from $(⟨title⟩)) $(⟨y⟩) $(⟨m⟩) $(⟨d⟩))
+    else throwErrorAt stx "\\![open,dateinput,...] は引數5つ (f,title,y,m,d) にゃ"
   | "timeinput" =>
-    if rest.size == 5 then
-      let cb := rest[0]!; let title := rest[1]!
-      let h := rest[2]!; let m := rest[3]!; let s := rest[4]!
-      some <$> `(Signaculum.Sakura.aperiInputumTemporis (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) $(⟨h⟩) $(⟨m⟩) $(⟨s⟩))
-    else throwErrorAt stx "\\![open,timeinput,...] は引數5つ (cb,title,h,m,s) にゃ"
+    if h : rest.size = 5 then
+      let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
+      let hr := rest[2]'(by omega); let mi := rest[3]'(by omega); let se := rest[4]'(by omega)
+      let evStx ← resolveCallbackum cb
+      some <$> `(Signaculum.Sakura.aperiInputumTemporis $evStx (show String from $(⟨title⟩)) $(⟨hr⟩) $(⟨mi⟩) $(⟨se⟩))
+    else throwErrorAt stx "\\![open,timeinput,...] は引數5つ (f,title,h,m,s) にゃ"
   | "sliderinput" =>
-    if rest.size == 5 then
-      let cb := rest[0]!; let title := rest[1]!
-      let mn := rest[2]!; let mx := rest[3]!; let init := rest[4]!
-      some <$> `(Signaculum.Sakura.aperiInputumGradus (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) $(⟨mn⟩) $(⟨mx⟩) $(⟨init⟩))
-    else throwErrorAt stx "\\![open,sliderinput,...] は引數5つ (cb,title,min,max,init) にゃ"
+    if h : rest.size = 5 then
+      let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
+      let mn := rest[2]'(by omega); let mx := rest[3]'(by omega); let init := rest[4]'(by omega)
+      let evStx ← resolveCallbackum cb
+      some <$> `(Signaculum.Sakura.aperiInputumGradus $evStx (show String from $(⟨title⟩)) $(⟨mn⟩) $(⟨mx⟩) $(⟨init⟩))
+    else throwErrorAt stx "\\![open,sliderinput,...] は引數5つ (f,title,min,max,init) にゃ"
   | "ipinput" =>
-    if rest.size == 6 then
-      let cb := rest[0]!; let title := rest[1]!
-      let a := rest[2]!; let b := rest[3]!; let c := rest[4]!; let d := rest[5]!
-      some <$> `(Signaculum.Sakura.aperiInputumIP (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) $(⟨a⟩) $(⟨b⟩) $(⟨c⟩) $(⟨d⟩))
-    else throwErrorAt stx "\\![open,ipinput,...] は引數6つ (cb,title,a,b,c,d) にゃ"
+    if h : rest.size = 6 then
+      let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
+      let a := rest[2]'(by omega); let b := rest[3]'(by omega)
+      let c := rest[4]'(by omega); let d := rest[5]'(by omega)
+      let evStx ← resolveCallbackum cb
+      some <$> `(Signaculum.Sakura.aperiInputumIP $evStx (show String from $(⟨title⟩)) $(⟨a⟩) $(⟨b⟩) $(⟨c⟩) $(⟨d⟩))
+    else throwErrorAt stx "\\![open,ipinput,...] は引數6つ (f,title,a,b,c,d) にゃ"
   | "colorinput" =>
-    if rest.size == 5 then
-      let cb := rest[0]!; let title := rest[1]!
-      let r := rest[2]!; let g := rest[3]!; let b := rest[4]!
-      some <$> `(Signaculum.Sakura.aperiInputumColoris (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) $(⟨r⟩) $(⟨g⟩) $(⟨b⟩))
-    else throwErrorAt stx "\\![open,colorinput,...] は引數5つ (cb,title,r,g,b) にゃ"
-  | "inputbox" =>
-    if h : rest.size = 2 then
+    if h : rest.size = 5 then
       let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
-      some <$> `(Signaculum.Sakura.aperiInputum .simplex (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) "")
-    else if h : rest.size = 3 then
-      let cb := rest[0]'(by omega); let title := rest[1]'(by omega); let text := rest[2]'(by omega)
-      some <$> `(Signaculum.Sakura.aperiInputum .simplex (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) (show String from $(⟨text⟩)))
-    else throwErrorAt stx "\\![open,inputbox,...] は引數2〜3つ (cb,title[,text]) にゃ"
-  | "passwordinput" =>
-    if h : rest.size = 2 then
+      let r := rest[2]'(by omega); let g := rest[3]'(by omega); let b := rest[4]'(by omega)
+      let evStx ← resolveCallbackum cb
+      some <$> `(Signaculum.Sakura.aperiInputumColoris $evStx (show String from $(⟨title⟩)) $(⟨r⟩) $(⟨g⟩) $(⟨b⟩))
+    else throwErrorAt stx "\\![open,colorinput,...] は引數5つ (f,title,r,g,b) にゃ"
+  | "inputbox" | "passwordinput" =>
+    let modusStx ← if subCmd == "inputbox"
+      then `(Signaculum.Sakura.ModusInputiTextus.simplex)
+      else `(Signaculum.Sakura.ModusInputiTextus.sigillum)
+    if h : rest.size = 2 ∨ rest.size = 3 then
       let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
-      some <$> `(Signaculum.Sakura.aperiInputum .sigillum (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) "")
-    else if h : rest.size = 3 then
-      let cb := rest[0]'(by omega); let title := rest[1]'(by omega); let text := rest[2]'(by omega)
-      some <$> `(Signaculum.Sakura.aperiInputum .sigillum (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) (show String from $(⟨text⟩)))
-    else throwErrorAt stx "\\![open,passwordinput,...] は引數2〜3つ (cb,title[,text]) にゃ"
+      let textStx : TSyntax `term ← if h3 : rest.size = 3
+        then pure ⟨rest[2]'(by omega)⟩ else `("")
+      let evStx ← resolveCallbackum cb
+      some <$> `(Signaculum.Sakura.aperiInputum $modusStx $evStx
+        (show String from $(⟨title⟩)) (show String from $textStx))
+    else throwErrorAt stx s!"\\![open,{subCmd},...] は引數2〜3つ (f,title[,text]) にゃ"
   | _ => return none
 
 -- ════════════════════════════════════════════════════

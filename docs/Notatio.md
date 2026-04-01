@@ -88,9 +88,14 @@ def talkScriptum : SakuraPura Unit := scriptum!
 | `\![timernotify, t, r, "event"]` | `notificaPostTempus t r "event"` | 遅延通知（文字列形） |
 | `\![timernotify, t, r, ident args*]` | `notificaPostTempus t r ident args*` | 遅延通知（def 識別子形） |
 | `\![timernotify, t, r, (fun x => ...)]` | `notificaPostTempus t r (fun x => ...)` | 遅延通知（ラムダ形） |
-| `\![open,inputbox, (fun x => ...), t, title]` | `aperiInputum .simplex (fun x => ...) title` | テキスト入力（ラムダ形） |
-| `\![open,inputbox, ident, t, title]` | `aperiInputum .simplex ident title ""` | テキスト入力（識別子形） |
-| `\![open,passwordinput, (fun x => ...), t, title]` | `aperiInputum .sigillum (fun x => ...) title` | パスワード入力（ラムダ形） |
+| `\![open,inputbox, f, title]` | `aperiInputum .simplex f title ""` | テキスト入力（f: 文字列/識別子/ラムダ） |
+| `\![open,inputbox, f, title, text]` | `aperiInputum .simplex f title text` | テキスト入力（初期テキスト付き） |
+| `\![open,passwordinput, f, title]` | `aperiInputum .sigillum f title ""` | パスワード入力 |
+| `\![open,dateinput, f, title, y, m, d]` | `aperiInputumDiei f title y m d` | 日付入力 |
+| `\![open,timeinput, f, title, h, m, s]` | `aperiInputumTemporis f title h m s` | 時刻入力 |
+| `\![open,sliderinput, f, title, min, max, init]` | `aperiInputumGradus f title min max init` | スライダー入力 |
+| `\![open,ipinput, f, title, a, b, c, d]` | `aperiInputumIP f title a b c d` | IP入力 |
+| `\![open,colorinput, f, title, r, g, b]` | `aperiInputumColoris f title r g b` | 色入力 |
 | `\![async, ident args*]` | `spawnaScriptum ident args*` | 非同期 SSTP 送信 |
 | `\![anim,start, s, i]` | `animaIncepit s i` | アニメーション開始 |
 | `\![change,ghost, "name"]` | `mutaGhostNomen "name"` | ゴースト変更 |
