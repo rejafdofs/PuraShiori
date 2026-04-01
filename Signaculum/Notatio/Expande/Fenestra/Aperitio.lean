@@ -132,6 +132,22 @@ private def resolveOpenCumArgs (subCmd : String) (rest : Array Syntax) (stx : Sy
       let r := rest[2]!; let g := rest[3]!; let b := rest[4]!
       some <$> `(Signaculum.Sakura.aperiInputumColoris (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) $(⟨r⟩) $(⟨g⟩) $(⟨b⟩))
     else throwErrorAt stx "\\![open,colorinput,...] は引數5つ (cb,title,r,g,b) にゃ"
+  | "inputbox" =>
+    if h : rest.size = 2 then
+      let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
+      some <$> `(Signaculum.Sakura.aperiInputum .simplex (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) "")
+    else if h : rest.size = 3 then
+      let cb := rest[0]'(by omega); let title := rest[1]'(by omega); let text := rest[2]'(by omega)
+      some <$> `(Signaculum.Sakura.aperiInputum .simplex (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) (show String from $(⟨text⟩)))
+    else throwErrorAt stx "\\![open,inputbox,...] は引數2〜3つ (cb,title[,text]) にゃ"
+  | "passwordinput" =>
+    if h : rest.size = 2 then
+      let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
+      some <$> `(Signaculum.Sakura.aperiInputum .sigillum (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) "")
+    else if h : rest.size = 3 then
+      let cb := rest[0]'(by omega); let title := rest[1]'(by omega); let text := rest[2]'(by omega)
+      some <$> `(Signaculum.Sakura.aperiInputum .sigillum (show String from $(⟨cb⟩)) (show String from $(⟨title⟩)) (show String from $(⟨text⟩)))
+    else throwErrorAt stx "\\![open,passwordinput,...] は引數2〜3つ (cb,title[,text]) にゃ"
   | _ => return none
 
 -- ════════════════════════════════════════════════════
