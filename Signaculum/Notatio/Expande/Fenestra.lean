@@ -93,7 +93,7 @@ private def expandeMoveEtc (imperium : String) (args : Array Syntax) (stx : Synt
 -- ════════════════════════════════════════════════════
 
 /-- `\![lock,repaint]` 系のロック・アンロックを捌くにゃん -/
-private def expandeSeraEtc (imperium : String) (args : Array Syntax) (stx : Syntax)
+private def expandeSeraEtc (imperium : String) (args : Array Syntax) (_stx : Syntax)
     : TermElabM (Option (TSyntax `term)) := do
   let primusArg := if args.size ≥ 1 then argAdNomen args[0]! else none
   let secundusArg := if args.size ≥ 2 then argAdNomen args[1]! else none

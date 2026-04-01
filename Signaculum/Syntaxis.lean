@@ -63,9 +63,26 @@ instance : Inhabited LazyEventDecl :=
 
 instance : Inhabited GhostAccumulatio := ⟨{}⟩
 
-/-- 環境拡張の登錄にゃん♪ -/
-initialize ghostAccumulatioExt : EnvExtension GhostAccumulatio ←
-  registerEnvExtension (pure {})
+/-- 環境拡張のエントリ型にゃん。永続化用の和型にゃ -/
+inductive GhostEntry
+  | varia (decl : GhostVarDecl)
+  | eventum (decl : GhostEventDecl)
+  | lazium (decl : LazyEventDecl)
+
+private def addGhostEntry (acc : GhostAccumulatio) (entry : GhostEntry) : GhostAccumulatio :=
+  match entry with
+  | .varia d => { acc with variae := acc.variae.push d }
+  | .eventum d => { acc with eventa := acc.eventa.push d }
+  | .lazium d => { acc with lazyEventa := acc.lazyEventa.push d }
+
+/-- 環境拡張の登錄にゃん♪ ファイル境界を越えて状態が伝搬するにゃ -/
+initialize ghostAccumulatioExt : SimplePersistentEnvExtension GhostEntry GhostAccumulatio ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun imported =>
+      imported.foldl (fun acc entries =>
+        entries.foldl addGhostEntry acc) {}
+    addEntryFn := addGhostEntry
+  }
 
 -- ═══════════════════════════════════════════════════
 -- varia 構文擴張にゃん
@@ -75,17 +92,15 @@ initialize ghostAccumulatioExt : EnvExtension GhostAccumulatio ←
 elab "varia" "perpetua" n:ident ":" t:term ":=" v:term : command => do
   elabCommand (← `(initialize $n : IO.Ref $t ← IO.mkRef $v))
   modifyEnv fun env =>
-    ghostAccumulatioExt.modifyState env fun acc =>
-      { acc with variae := acc.variae.push {
-          nomen := n.getId, typusSyntax := t, permanet := true } }
+    ghostAccumulatioExt.addEntry env (.varia {
+      nomen := n.getId, typusSyntax := t, permanet := true })
 
 /-- 一時變數を宣言するにゃん -/
 elab "varia" "temporaria" n:ident ":" t:term ":=" v:term : command => do
   elabCommand (← `(initialize $n : IO.Ref $t ← IO.mkRef $v))
   modifyEnv fun env =>
-    ghostAccumulatioExt.modifyState env fun acc =>
-      { acc with variae := acc.variae.push {
-          nomen := n.getId, typusSyntax := t, permanet := false } }
+    ghostAccumulatioExt.addEntry env (.varia {
+      nomen := n.getId, typusSyntax := t, permanet := false })
 
 -- ═══════════════════════════════════════════════════
 -- eventum 構文擴張にゃん
@@ -100,9 +115,8 @@ elab "eventum" nomenEventi:str body:term : command => do
   let ns ← getCurrNamespace
   let nomenPlenumTractatorum := ns ++ Name.mkSimple nomenBasisTractatorum
   modifyEnv fun env =>
-    ghostAccumulatioExt.modifyState env fun acc =>
-      { acc with eventa := acc.eventa.push {
-          nomen, tractatorNomen := nomenPlenumTractatorum } }
+    ghostAccumulatioExt.addEntry env (.eventum {
+      nomen, tractatorNomen := nomenPlenumTractatorum })
 
 -- ═══════════════════════════════════════════════════
 -- def ベース事象の補助にゃん
@@ -131,21 +145,19 @@ private def registraLazium (f : Ident) : TermElabM String := do
   let paramCount ← countExplicitParams info.type
   let nomenEventi := fname.toString
   unless (ghostAccumulatioExt.getState env).lazyEventa.any (·.declNomen == fname) do
-    modifyEnv (ghostAccumulatioExt.modifyState · fun a =>
-      { a with lazyEventa := a.lazyEventa.push {
-          declNomen := fname, nomenEventi, paramCount } })
+    modifyEnv (ghostAccumulatioExt.addEntry · (.lazium {
+      declNomen := fname, nomenEventi, paramCount }))
   return nomenEventi
 
 /-- ラムダ式（Tractator 型の term）を lazyEventa にソース位置ベースの新鮮な名前で登録するにゃ -/
 private def registraLaziumLambda (lamStx : Syntax) (posIdx : Nat) (pc : Nat := 0) : TermElabM String := do
   let freshName := Name.mkSimple s!"_excitaLambda_{posIdx}"
   let nomenEventi := freshName.toString
-  modifyEnv (ghostAccumulatioExt.modifyState · fun a =>
-    { a with lazyEventa := a.lazyEventa.push {
-        declNomen := freshName
-        nomenEventi
-        paramCount := pc
-        lambdaStx?  := some lamStx } })
+  modifyEnv (ghostAccumulatioExt.addEntry · (.lazium {
+      declNomen := freshName
+      nomenEventi
+      paramCount := pc
+      lambdaStx? := some lamStx }))
   return nomenEventi
 
 -- ═══════════════════════════════════════════════════
@@ -561,7 +573,5 @@ elab "construe" : command => do
           catch _ => pure ()))
         (some servaStatum))
     ))
-  -- ゴーストの主循環エントリーポイントを自動定義するにゃ
-  elabCommand (← `(def main : IO Unit := Signaculum.Nucleus.loopPrincipalis))
 
 end Signaculum
