@@ -261,9 +261,8 @@ private def extractLabel (s : Lean.Syntax) : String :=
     環境內宣言のマッチングを有效にするにゃ -/
 private def emitteCompletionem (stx : Lean.Syntax) (nomenId : Name) (ns : Name) : TermElabM Unit := do
   let openDecl := Lean.OpenDecl.simple ns []
-  let ctx ← readThe Lean.Core.Context
   withTheReader Lean.Core.Context
-    ({ ctx with openDecls := ctx.openDecls ++ [openDecl] }) do
+    (fun ctx => { ctx with openDecls := ctx.openDecls ++ [openDecl] }) do
     pushInfoLeaf (.ofCompletionInfo (.id stx nomenId false (← getLCtx) none))
 
 -- ════════════════════════════════════════════════════
