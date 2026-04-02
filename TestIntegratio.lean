@@ -4,8 +4,10 @@
 
 import Signaculum
 
+namespace TestIntegratio
+
 open Signaculum.Sakura.Textus
-      Signaculum.Sakura (sakura kero finis loqui linea superficies mora)
+open Signaculum.Sakura (loqui)
 
 -- ═══════════════════════════════════════════════════
 -- §1 變數宣言 (varia)
@@ -158,3 +160,5 @@ eventum "OnMouseDoubleClick" fun req => do
 -- ═══════════════════════════════════════════════════
 
 construe
+
+end TestIntegratio
