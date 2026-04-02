@@ -146,7 +146,12 @@ private def parsitorSignumExclFn (c : ParserContext) (s : ParserState) (bsPos : 
     let s := skipWsFn c { s with pos := s.pos.next input }
     let (imperium, afterCmd) := legeCmdPartFn input s.pos
     if imperium.isEmpty then
-      s.mkError "\\!: コマンド名が期待されてゐますにゃ"
+      -- 補完用プレースホルダーにゃ（\![  ] の場合）
+      if s.pos.byteIdx < input.utf8ByteSize && s.pos.get input == ']' then
+        let s := { s with pos := s.pos.next input }
+        mkSignumNode c s bsPos lexemaSignumExcl "" #[]
+      else
+        s.mkError "\\!: コマンド名が期待されてゐますにゃ"
     else
       let s := skipWsFn c { s with pos := afterCmd }
       legeExclArgs imperium c s s.stxStack.size bsPos
@@ -189,7 +194,12 @@ private def parsitorFontisFn (c : ParserContext) (s : ParserState) (bsPos : Stri
     let s := skipWsFn c { s with pos := s.pos.next input }
     let (clavis, afterKey) := legeFontKeyFn input s.pos
     if clavis.isEmpty then
-      s.mkError "\\f: フォントキーが期待されてゐますにゃ"
+      -- 補完用プレースホルダーにゃ（\f[  ] の場合）
+      if s.pos.byteIdx < input.utf8ByteSize && s.pos.get input == ']' then
+        let s := { s with pos := s.pos.next input }
+        mkSignumNode c s bsPos lexemaFontis "" #[]
+      else
+        s.mkError "\\f: フォントキーが期待されてゐますにゃ"
     else
       let s := skipWsFn c { s with pos := afterKey }
       legeFontVals clavis c s s.stxStack.size bsPos
@@ -232,7 +242,8 @@ private def parsitorTagiFn (c : ParserContext) (s : ParserState) : ParserState :
   let bsPos := s.pos
   let afterBs := bsPos.next input
   if afterBs.byteIdx >= input.utf8ByteSize then
-    s.mkError "タグ名が期待されてゐますにゃ"
+    -- 入力末尾の \ は補完用プレースホルダーにゃ
+    mkSignumNode c { s with pos := afterBs } bsPos lexemaSignum "\\" #[]
   else
     let nextCh := afterBs.get input
     if nextCh == '{' || nextCh == '}' then
@@ -241,7 +252,8 @@ private def parsitorTagiFn (c : ParserContext) (s : ParserState) : ParserState :
     else
       let (nomen, afterNomen) := legeNomenTagi input afterBs
       if nomen == "\\" then
-        s.mkError "タグ名が期待されてゐますにゃ"
+        -- 補完用プレースホルダーにゃ（カーソルが \ 直後にある場合）
+        mkSignumNode c { s with pos := afterBs } bsPos lexemaSignum "\\" #[]
       else if nomen == "\\!" then
         parsitorSignumExclFn c { s with pos := afterNomen } bsPos
       else if nomen == "\\f" then

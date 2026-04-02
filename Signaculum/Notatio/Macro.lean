@@ -3,6 +3,7 @@
 
 import Signaculum.Notatio.Parsitor
 import Signaculum.Notatio.Expande
+import Signaculum.Notatio.Complementum
 
 namespace Signaculum.Notatio
 
@@ -225,6 +226,7 @@ end Signaculum.Notatio
 -- ════════════════════════════════════════════════════
 
 open Lean Elab Term Signaculum.Notatio Signaculum.Notatio.Parsitor Signaculum.Notatio.Expande
+open Signaculum.Notatio.Complementum
 
 private def scriptumParserCore (kw : String) : Lean.Parser.Parser :=
   withInitioLineae <|
@@ -249,6 +251,19 @@ private def extractLabel (s : Lean.Syntax) : String :=
   match s[0] with
   | .atom _ val => val
   | _ => ""
+
+-- ════════════════════════════════════════════════════
+--  補完情報 (Complementum)
+-- ════════════════════════════════════════════════════
+
+/-- タグ名の構文ノードに CompletionInfo.id を追加するにゃん♪
+    名前空間 ns を一時的に open して、nomenId をプレフィックスとした
+    環境內宣言のマッチングを有效にするにゃ -/
+private def emitteCompletionem (stx : Lean.Syntax) (nomenId : Name) (ns : Name) : TermElabM Unit := do
+  let openDecl := Lean.OpenDecl.simple ns []
+  withTheReader Lean.Core.Context
+    (fun ctx => { ctx with openDecls := ctx.openDecls ++ [openDecl] }) do
+    pushInfoLeaf (.ofCompletionInfo (.id stx nomenId false (← getLCtx) none))
 
 -- ════════════════════════════════════════════════════
 --  scriptumMacro エラボレーター
@@ -289,6 +304,11 @@ private def genTermLexema (s : Lean.Syntax) : TermElabM (TSyntax `term) := do
   if kind == lexemaSignum then
     let nomen := extractLabel s
     let args := extractArgs s
+    -- 補完情報をプッシュにゃ
+    emitteCompletionem s[0] (Name.mkSimple nomen) `Signaculum.Notatio.Complementum.Signa
+    -- 補完用プレースホルダー（\ のみ）にゃ
+    if nomen == "\\" then
+      return ← `(Pure.pure ())
     -- Textus ディスパッチにゃ
     if let some t ← expandeSignumTextus nomen args s then return t
     -- Fenestra basicum ディスパッチにゃ（\z, \_b 等）
@@ -300,6 +320,11 @@ private def genTermLexema (s : Lean.Syntax) : TermElabM (TSyntax `term) := do
   if kind == lexemaSignumExcl then
     let imperium := extractLabel s
     let args := extractArgs s
+    -- 補完情報をプッシュにゃ
+    emitteCompletionem s[0] (Name.mkSimple imperium) `Signaculum.Notatio.Complementum.Imperium
+    -- 補完用プレースホルダー（空コマンド名）にゃ
+    if imperium == "" then
+      return ← `(Pure.pure ())
     -- Fenestra ディスパッチにゃ
     if let some t ← expandeSignumFenestrae imperium args s then return t
     -- Systema ディスパッチにゃ
@@ -309,6 +334,11 @@ private def genTermLexema (s : Lean.Syntax) : TermElabM (TSyntax `term) := do
   if kind == lexemaFontis then
     let clavis := extractLabel s
     let valores := extractArgs s
+    -- 補完情報をプッシュにゃ
+    emitteCompletionem s[0] (Name.mkSimple clavis) `Signaculum.Notatio.Complementum.Clavis
+    -- 補完用プレースホルダー（空キー名）にゃ
+    if clavis == "" then
+      return ← `(Pure.pure ())
     if let some t ← expandeFons clavis valores s then return t
     throwErrorAt s s!"未知の \\f[...] キーにゃ: {clavis}"
   -- 未知のノードにゃ
