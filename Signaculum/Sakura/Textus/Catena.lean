@@ -41,22 +41,22 @@ initialize catenaActiva : IO.Ref (Option String) ← IO.mkRef none
     末尾到達時はリセットして catenaActiva を none にするにゃ。
     空チェインは何もしないにゃん♪ -/
 def exequiCatenam (c : Catena) : SakuraIO Unit := do
-  let pos ← liftM c.positio.get
+  let pos : Nat ← liftM (show IO Nat from c.positio.get)
   let n := c.colloquia.size
-  if h : n = 0 then
+  if _ : n = 0 then
     pure ()
   else if h2 : pos < n then
     c.colloquia[pos]'h2
     if pos + 1 < n then
-      liftM (c.positio.set (pos + 1))
+      liftM (show IO Unit from c.positio.set (pos + 1))
     else
       -- チェイン完了にゃ。リセットするにゃん
-      liftM (c.positio.set 0)
-      liftM (catenaActiva.set none)
+      liftM (show IO Unit from c.positio.set 0)
+      liftM (show IO Unit from catenaActiva.set none)
   else
     -- 位置が範圍外にゃ。リセットするにゃん
-    liftM (c.positio.set 0)
-    liftM (catenaActiva.set none)
+    liftM (show IO Unit from c.positio.set 0)
+    liftM (show IO Unit from catenaActiva.set none)
 
 -- ═══════════════════════════════════════════════════
 -- 混合プール選擇 (Electio Piscinae) にゃん
@@ -66,7 +66,7 @@ def exequiCatenam (c : Catena) : SakuraIO Unit := do
     活動中のチェインがあればそれを續行し、なければランダムに選ぶにゃ。
     チェインが選ばれたら第一話を再生して次回のために狀態を更新するにゃん♪ -/
 def eligeVelCatena (optiones : Array OptioPiscinae) : SakuraIO Unit := do
-  let activa ← liftM catenaActiva.get
+  let activa : Option String ← liftM (show IO (Option String) from catenaActiva.get)
   match activa with
   | some nomen =>
     -- 活動中チェインを探すにゃん
@@ -81,7 +81,7 @@ def eligeVelCatena (optiones : Array OptioPiscinae) : SakuraIO Unit := do
       | _ => pure ()
     -- 見つからなかったらリセットしてランダム選擇にフォールバックにゃ
     unless inventa do
-      liftM (catenaActiva.set none)
+      liftM (show IO Unit from catenaActiva.set none)
       eligeExOptionibus optiones
   | none =>
     eligeExOptionibus optiones
@@ -98,7 +98,7 @@ where
       | .simplex actio => actio
       | .catena c =>
         -- チェイン開始にゃん♪
-        liftM (catenaActiva.set (some c.nomen))
+        liftM (show IO Unit from catenaActiva.set (some c.nomen))
         exequiCatenam c
 
 -- ═══════════════════════════════════════════════════
