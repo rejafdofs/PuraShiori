@@ -101,10 +101,17 @@ private def legeFontKeyFn (input : String) (startPos : String.Pos.Raw) : String 
 -- ════════════════════════════════════════════════════
 
 private def mkSignumNode (c : ParserContext) (s : ParserState) (bsPos : String.Pos.Raw)
-    (kind : SyntaxNodeKind) (label : String) (args : Array Syntax) : ParserState :=
-  let labelAtom := mkAtom (SourceInfo.synthetic bsPos s.pos) label
+    (kind : SyntaxNodeKind) (label : String) (args : Array Syntax)
+    (estPlaceholder : Bool := false) : ParserState :=
+  -- プレースホルダーは ident にゃん（補完 handler が ident を探すため）
+  -- 通常タグは atom にゃ
+  let labelNode := if estPlaceholder then
+    Syntax.ident (.synthetic bsPos s.pos (canonical := true))
+      label.toRawSubstring (Name.mkSimple label) []
+  else
+    mkAtom (SourceInfo.synthetic bsPos s.pos) label
   let argsNode := Syntax.node SourceInfo.none nullKind args
-  let node := Syntax.node (SourceInfo.synthetic bsPos s.pos) kind #[labelAtom, argsNode]
+  let node := Syntax.node (SourceInfo.synthetic bsPos s.pos) kind #[labelNode, argsNode]
   let s := skipWsFn c s
   { s with stxStack := s.stxStack.push node }
 
@@ -243,7 +250,7 @@ private def parsitorTagiFn (c : ParserContext) (s : ParserState) : ParserState :
   let afterBs := bsPos.next input
   if afterBs.byteIdx >= input.utf8ByteSize then
     -- 入力末尾の \ は補完用プレースホルダーにゃ
-    mkSignumNode c { s with pos := afterBs } bsPos lexemaSignum "\\" #[]
+    mkSignumNode c { s with pos := afterBs } bsPos lexemaSignum "\\" #[] (estPlaceholder := true)
   else
     let nextCh := afterBs.get input
     if nextCh == '{' || nextCh == '}' then
@@ -253,7 +260,7 @@ private def parsitorTagiFn (c : ParserContext) (s : ParserState) : ParserState :
       let (nomen, afterNomen) := legeNomenTagi input afterBs
       if nomen == "\\" then
         -- 補完用プレースホルダーにゃ（カーソルが \ 直後にある場合）
-        mkSignumNode c { s with pos := afterBs } bsPos lexemaSignum "\\" #[]
+        mkSignumNode c { s with pos := afterBs } bsPos lexemaSignum "\\" #[] (estPlaceholder := true)
       else if nomen == "\\!" then
         parsitorSignumExclFn c { s with pos := afterNomen } bsPos
       else if nomen == "\\f" then

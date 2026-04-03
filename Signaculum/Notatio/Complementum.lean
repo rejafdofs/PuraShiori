@@ -1,6 +1,11 @@
 -- Signaculum.Notatio.Complementum
 -- scriptum マクロ用タグ入力補完にゃん♪
--- 全有效タグ名を名前空間に宣言し、CompletionInfo.id 經由で IDE 補完を提供するにゃ
+-- 全有效タグ名を名前空間に宣言し、Token Table 經由で IDE 補完を提供するにゃ
+
+-- サクラスクリプトゥム・タグ專用シンタクスカテゴリにゃん♪
+-- Token Table に登錄して keyword 補完を有效にするにゃ
+-- 通常の term パーサーには干渉しないにゃん
+declare_syntax_cat sakuratag
 
 namespace Signaculum.Notatio.Complementum
 
@@ -403,3 +408,57 @@ def «anchor.font.color» : Unit := ()
 end Clavis
 
 end Signaculum.Notatio.Complementum
+
+-- ════════════════════════════════════════════════════
+--  Token Table 登錄にゃん♪
+--  sakuratag カテゴリへの syntax 宣言で token table に登錄するにゃ
+--  通常の term パーサーには干渉しないにゃん
+-- ════════════════════════════════════════════════════
+
+-- バックスラッシュタグにゃ
+syntax "\\h" : sakuratag
+syntax "\\u" : sakuratag
+syntax "\\0" : sakuratag
+syntax "\\1" : sakuratag
+syntax "\\p" : sakuratag
+syntax "\\s" : sakuratag
+syntax "\\i" : sakuratag
+syntax "\\n" : sakuratag
+syntax "\\_n" : sakuratag
+syntax "\\c" : sakuratag
+syntax "\\C" : sakuratag
+syntax "\\w" : sakuratag
+syntax "\\_w" : sakuratag
+syntax "\\__w" : sakuratag
+syntax "\\x" : sakuratag
+syntax "\\t" : sakuratag
+syntax "\\e" : sakuratag
+syntax "\\_q" : sakuratag
+syntax "\\-" : sakuratag
+syntax "\\+" : sakuratag
+syntax "\\_+" : sakuratag
+syntax "\\v" : sakuratag
+syntax "\\4" : sakuratag
+syntax "\\5" : sakuratag
+syntax "\\6" : sakuratag
+syntax "\\7" : sakuratag
+syntax "\\_?" : sakuratag
+syntax "\\_V" : sakuratag
+syntax "\\*" : sakuratag
+syntax "\\_s" : sakuratag
+syntax "\\b" : sakuratag
+syntax "\\j" : sakuratag
+syntax "\\_a" : sakuratag
+syntax "\\q" : sakuratag
+syntax "\\__q" : sakuratag
+syntax "\\_u" : sakuratag
+syntax "\\_m" : sakuratag
+syntax "\\_l" : sakuratag
+syntax "\\&" : sakuratag
+syntax "\\z" : sakuratag
+syntax "\\_b" : sakuratag
+syntax "\\_v" : sakuratag
+syntax "\\8" : sakuratag
+syntax "\\__v" : sakuratag
+syntax "\\m" : sakuratag
+syntax "\\f" : sakuratag

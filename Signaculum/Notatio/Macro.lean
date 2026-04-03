@@ -250,6 +250,7 @@ private def extractArgs (s : Lean.Syntax) : Array Lean.Syntax :=
 private def extractLabel (s : Lean.Syntax) : String :=
   match s[0] with
   | .atom _ val => val
+  | .ident _ _ val _ => val.toString (escape := false)
   | _ => ""
 
 -- ════════════════════════════════════════════════════
