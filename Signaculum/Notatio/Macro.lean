@@ -260,10 +260,15 @@ private def extractLabel (s : Lean.Syntax) : String :=
     名前空間 ns を一時的に open して、nomenId をプレフィックスとした
     環境內宣言のマッチングを有效にするにゃ -/
 private def emitteCompletionem (stx : Lean.Syntax) (nomenId : Name) (ns : Name) : TermElabM Unit := do
+  -- canonical := true にして補完 handler から見えるやうにするにゃん♪
+  let canonStx := match stx with
+    | .atom (.synthetic p ep _) val => .atom (.synthetic p ep (canonical := true)) val
+    | .ident (.synthetic p ep _) raw val pre => .ident (.synthetic p ep (canonical := true)) raw val pre
+    | other => other
   let openDecl := Lean.OpenDecl.simple ns []
   withTheReader Lean.Core.Context
     (fun ctx => { ctx with openDecls := ctx.openDecls ++ [openDecl] }) do
-    pushInfoLeaf (.ofCompletionInfo (.id stx nomenId false (← getLCtx) none))
+    pushInfoLeaf (.ofCompletionInfo (.id canonStx nomenId false (← getLCtx) none))
 
 -- ════════════════════════════════════════════════════
 --  scriptumMacro エラボレーター

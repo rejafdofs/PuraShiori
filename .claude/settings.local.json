@@ -42,7 +42,8 @@
       "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\a\\\\AppData\\\\Local\\\\Temp\\\\analyze:?\" 2>&1)",
       "Bash(gh search:*)",
       "Bash(grep:*)",
-      "mcp__lean-mcp-server__lean_hover_info"
+      "mcp__lean-mcp-server__lean_hover_info",
+      "mcp__lean-mcp-server__lean_completions"
     ]
   },
   "enableAllProjectMcpServers": true,
