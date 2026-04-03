@@ -264,6 +264,11 @@ private def emitteCompletionem (stx : Lean.Syntax) (nomenId : Name) (ns : Name) 
   withTheReader Lean.Core.Context
     (fun ctx => { ctx with openDecls := ctx.openDecls ++ [openDecl] }) do
     pushInfoLeaf (.ofCompletionInfo (.id stx nomenId false (← getLCtx) none))
+  -- ホバー情報: Complementum の定數を參照して docstring を表示するにゃん♪
+  let fullName := ns ++ nomenId
+  if (← getEnv).find? fullName |>.isSome then
+    let expr ← mkConstWithLevelParams fullName
+    Term.addTermInfo' stx expr (isBinder := false)
 
 -- ════════════════════════════════════════════════════
 --  scriptumMacro エラボレーター

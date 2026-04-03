@@ -64,16 +64,19 @@ private def resolveCallbackum (cb : Syntax) (paramCount : Nat := 1)
     return .staticum stx #[]
   else if cb.isIdent then
     match ← Signaculum.resolveToConstOpt ⟨cb⟩ with
-    | some _ =>
+    | some fname =>
       let ev ← Signaculum.registraLazium ⟨cb⟩
-      let fname ← Signaculum.resolveToConst ⟨cb⟩
       let some info := (← getEnv).find? fname |
         throwError "resolveCallbackum: {cb} が見つからにゃいにゃ"
       let paramTypes ← Signaculum.getExplicitParamTypes info.type
       if paramTypes.size != paramCount then
         throwError "\\![open,...]: コールバック {cb} は {paramTypes.size} 引數ですが、このウィジェットは {paramCount} 個の Reference を返すにゃ"
+      let expr ← mkConstWithLevelParams fname
+      Term.addTermInfo' cb expr (isBinder := false)
       return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
     | none =>
+      let cbExpr ← elabTerm cb none
+      Term.addTermInfo' cb cbExpr (isBinder := false)
       return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
   else
     let cbExpr ← elabTerm cb none

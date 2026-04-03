@@ -31,14 +31,17 @@ private def resolveCallbackumEventum (cb : Syntax) (paramCount : Nat := 0)
     return .staticum stx #[]
   else if cb.isIdent then
     match ← Signaculum.resolveToConstOpt ⟨cb⟩ with
-    | some _ =>
+    | some fname =>
       let ev ← Signaculum.registraLazium ⟨cb⟩
-      let fname ← Signaculum.resolveToConst ⟨cb⟩
       let some info := (← getEnv).find? fname |
         throwError "resolveCallbackumEventum: {cb} が見つからにゃいにゃ"
       let paramTypes ← Signaculum.getExplicitParamTypes info.type
+      let expr ← mkConstWithLevelParams fname
+      Term.addTermInfo' cb expr (isBinder := false)
       return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
     | none =>
+      let cbExpr ← elabTerm cb none
+      Term.addTermInfo' cb cbExpr (isBinder := false)
       return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
   else
     let cbExpr ← elabTerm cb none
