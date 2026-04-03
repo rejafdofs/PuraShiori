@@ -16,6 +16,36 @@ open Signaculum.Sakura
     Rogatio を受け取って SakuraScript を do 記法で組み立てるにゃん -/
 def Tractator := Rogatio → SakuraIO Unit
 
+/-- 動的コールバックレジストリにゃん♪
+    ランタイムで登錄されるコールバック（ローカル變數等）を保持するにゃ。
+    靜的ハンドラテーブルに無いイヴェント名はこちらをフォールバック檢索するにゃん -/
+initialize dynamicTractatores : IO.Ref (Std.HashMap String Tractator) ← IO.mkRef {}
+
+/-- Nat を指定桁數の0埋め16進文字列にするにゃん -/
+private def hexPad (n : Nat) (width : Nat) : String :=
+  let digits := Nat.toDigits 16 n
+  let pad := List.replicate (width - digits.length) '0'
+  String.ofList (pad ++ digits)
+
+/-- ランタイムで UUID v4 準據のイヴェント名を生成するにゃん♪
+    形式: `On_xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx` -/
+def generaNomenEventumIO : IO String := do
+  let a ← IO.rand 0 (2^32 - 1)
+  let b ← IO.rand 0 (2^16 - 1)
+  let c ← IO.rand 0 (2^12 - 1)
+  let d ← IO.rand 0 (2^14 - 1)
+  let e ← IO.rand 0 (2^48 - 1)
+  let c4 := 0x4000 + c
+  let d8 := 0x8000 + (d % 0x4000)
+  return s!"On_{hexPad a 8}-{hexPad b 4}-{hexPad c4 4}-{hexPad d8 4}-{hexPad e 12}"
+
+/-- ランタイムコールバックを動的レジストリに登錄して UUID を返すにゃん♪
+    SakuraIO コンテクスト内で使へるにゃ -/
+def registraCallbackumDynamicum (handler : Tractator) : SakuraIO String := do
+  let uuid ← liftM (show IO String from generaNomenEventumIO)
+  liftM (show IO Unit from dynamicTractatores.modify (·.insert uuid handler))
+  return uuid
+
 /-- 栞の狀態にゃん -/
 structure StatusShiori where
   /-- 家ディレクトーリウム（ゴーストのフォルダーにゃ）-/
@@ -55,9 +85,13 @@ def obtinereDomus (s : Shiori) : IO String := do
 /-- 要求を處理して應答を返すにゃん。
     これが栞の心臟部にゃ -/
 def tracta (s : Shiori) (rogatio : Rogatio) : IO Responsum := do
-  -- NOTIFY の場合、Value は無視されるにゃん
-  -- でも處理器は呼ぶにゃ（副作用のために）
-  match s.tractatores[rogatio.nomen]? with
+  -- 靜的→動的の順で處理器を探すにゃん
+  let tractator? ← match s.tractatores[rogatio.nomen]? with
+    | some t => pure (some t)
+    | none => do
+      let dyn ← dynamicTractatores.get
+      pure dyn[rogatio.nomen]?
+  match tractator? with
   | some tractator =>
     try
       -- SakuraScript モナドを實行して StatusSakurae を得るにゃん

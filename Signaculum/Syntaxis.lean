@@ -202,6 +202,48 @@ def toRefCumTypo (args : Array Syntax) (paramTypes : Array Lean.Expr)
       result := result.push (← `(Signaculum.Memoria.Citatio.toRef $t))
   return result
 
+/-- コールバック解決の結果にゃん。靜的（コンパイル時確定）か動的（ランタイム登錄）かで分かれるにゃ -/
+inductive CallbackumResolutum
+  /-- コンパイル時に確定した靜的イヴェント名にゃ -/
+  | staticum (evStx : TSyntax `term) (paramTypes : Array Lean.Expr)
+  /-- ランタイムで登錄する動的コールバックにゃ。regStx は `SakuraIO String` 型の式にゃ -/
+  | dynamicum (regStx : TSyntax `term)
+
+/-- CallbackumResolutum から、イヴェント名を使ふ繼續を受け取って
+    靜的ならそのまま、動的なら >>= で繋ぐ項を生成するにゃん♪ -/
+def CallbackumResolutum.cumActione
+    (res : CallbackumResolutum)
+    (actio : TSyntax `term → Array Lean.Expr → TermElabM (TSyntax `term))
+    : TermElabM (TSyntax `term) := do
+  match res with
+  | .staticum evStx paramTypes => actio evStx paramTypes
+  | .dynamicum regStx =>
+    let freshName ← mkFreshUserName `_ev
+    let freshIdent := mkIdent freshName
+    let body ← actio freshIdent #[]
+    `($regStx >>= fun $freshIdent => $body)
+
+/-- ident がトップレヴェル定數か判定するにゃん。ローカル變數なら none を返すにゃ -/
+def resolveToConstOpt (f : Ident) : TermElabM (Option Name) := do
+  let fExpr ← elabTerm f none
+  let fExpr ← instantiateMVars fExpr
+  match fExpr with
+  | .const n _ => return some n
+  | _ => return none
+
+/-- ランタイムコールバック登錄コードを生成するにゃん♪
+    ローカル變數をコールバックとして渡す時に使ふにゃ。
+    paramCount 個の Reference を fromRef で變換して渡すラッパーを作るにゃん -/
+def generaCallbackumDynamicum (cb : TSyntax `term) (paramCount : Nat)
+    : TermElabM (TSyntax `term) := do
+  if paramCount == 0 then
+    `(Signaculum.Nucleus.registraCallbackumDynamicum (fun _req => $cb))
+  else
+    let argExprs : Array (TSyntax `term) ← (Array.range paramCount).mapM fun i => do
+      let idx := Syntax.mkNumLit (toString i)
+      `(Signaculum.Memoria.Citatio.fromRef ((req.referentiam $idx).getD ""))
+    `(Signaculum.Nucleus.registraCallbackumDynamicum (fun req => $cb $argExprs*))
+
 /-- ident を項として展開して const 名と引數リストを取り出すにゃん♪ -/
 def resolveToConst (f : Ident) : TermElabM Name := do
   let fExpr ← elabTerm f none

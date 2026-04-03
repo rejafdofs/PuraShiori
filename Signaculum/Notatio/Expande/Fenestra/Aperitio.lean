@@ -58,28 +58,33 @@ private def resolveOpenFixum (nomen : String) : TermElabM (Option (TSyntax `term
     strLit → そのまま（型情報なし）、ident → registraLazium（型取得＋paramCount檢證）、
     項 → elaborate して型取得＋paramCount檢證 → registraLaziumLambda -/
 private def resolveCallbackum (cb : Syntax) (paramCount : Nat := 1)
-    : TermElabM (TSyntax `term × Array Lean.Expr) := do
+    : TermElabM Signaculum.CallbackumResolutum := do
   if cb.isStrLit?.isSome then
     let stx : TSyntax `term := ⟨cb⟩
-    return (stx, #[])
+    return .staticum stx #[]
   else if cb.isIdent then
-    let ev ← Signaculum.registraLazium ⟨cb⟩
-    let fname ← Signaculum.resolveToConst ⟨cb⟩
-    let some info := (← getEnv).find? fname |
-      throwError "resolveCallbackum: {cb} が見つからにゃいにゃ"
-    let paramTypes ← Signaculum.getExplicitParamTypes info.type
-    if paramTypes.size != paramCount then
-      throwError "\\![open,...]: コールバック {cb} は {paramTypes.size} 引數ですが、このウィジェットは {paramCount} 個の Reference を返すにゃ"
-    return (← `($(Syntax.mkStrLit ev)), paramTypes)
+    match ← Signaculum.resolveToConstOpt ⟨cb⟩ with
+    | some _ =>
+      let ev ← Signaculum.registraLazium ⟨cb⟩
+      let fname ← Signaculum.resolveToConst ⟨cb⟩
+      let some info := (← getEnv).find? fname |
+        throwError "resolveCallbackum: {cb} が見つからにゃいにゃ"
+      let paramTypes ← Signaculum.getExplicitParamTypes info.type
+      if paramTypes.size != paramCount then
+        throwError "\\![open,...]: コールバック {cb} は {paramTypes.size} 引數ですが、このウィジェットは {paramCount} 個の Reference を返すにゃ"
+      return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
+    | none =>
+      return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
   else
     let cbExpr ← elabTerm cb none
     let cbType ← inferType cbExpr
     let paramTypes ← Signaculum.getExplicitParamTypes (← whnf cbType)
-    if paramTypes.size != paramCount then
-      throwError "\\![open,...]: コールバックは {paramTypes.size} 引數ですが、このウィジェットは {paramCount} 個の Reference を返すにゃ"
-    let posIdx := (cb.getPos?.getD ⟨0⟩).byteIdx
-    let ev ← Signaculum.registraLaziumLambda cb posIdx paramCount
-    return (← `($(Syntax.mkStrLit ev)), paramTypes)
+    if paramTypes.size == paramCount then
+      let posIdx := (cb.getPos?.getD ⟨0⟩).byteIdx
+      let ev ← Signaculum.registraLaziumLambda cb posIdx paramCount
+      return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
+    else
+      return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
 
 -- ════════════════════════════════════════════════════
 --  open — 引數付きにゃん (Cum Argumentis)
@@ -138,37 +143,42 @@ private def resolveOpenCumArgs (subCmd : String) (rest : Array Syntax) (stx : Sy
     if h : rest.size = 5 then
       let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
       let y := rest[2]'(by omega); let m := rest[3]'(by omega); let d := rest[4]'(by omega)
-      let (evStx, _) ← resolveCallbackum cb
-      some <$> `(Signaculum.Sakura.aperiInputumDiei $evStx (show String from $(⟨title⟩)) $(⟨y⟩) $(⟨m⟩) $(⟨d⟩))
+      let res ← resolveCallbackum cb
+      some <$> res.cumActione fun evStx _ => do
+        `(Signaculum.Sakura.aperiInputumDiei $evStx (show String from $(⟨title⟩)) $(⟨y⟩) $(⟨m⟩) $(⟨d⟩))
     else throwErrorAt stx "\\![open,dateinput,...] は引數5つ (f,title,y,m,d) にゃ"
   | "timeinput" =>
     if h : rest.size = 5 then
       let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
       let hr := rest[2]'(by omega); let mi := rest[3]'(by omega); let se := rest[4]'(by omega)
-      let (evStx, _) ← resolveCallbackum cb
-      some <$> `(Signaculum.Sakura.aperiInputumTemporis $evStx (show String from $(⟨title⟩)) $(⟨hr⟩) $(⟨mi⟩) $(⟨se⟩))
+      let res ← resolveCallbackum cb
+      some <$> res.cumActione fun evStx _ => do
+        `(Signaculum.Sakura.aperiInputumTemporis $evStx (show String from $(⟨title⟩)) $(⟨hr⟩) $(⟨mi⟩) $(⟨se⟩))
     else throwErrorAt stx "\\![open,timeinput,...] は引數5つ (f,title,h,m,s) にゃ"
   | "sliderinput" =>
     if h : rest.size = 5 then
       let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
       let mn := rest[2]'(by omega); let mx := rest[3]'(by omega); let init := rest[4]'(by omega)
-      let (evStx, _) ← resolveCallbackum cb
-      some <$> `(Signaculum.Sakura.aperiInputumGradus $evStx (show String from $(⟨title⟩)) $(⟨mn⟩) $(⟨mx⟩) $(⟨init⟩))
+      let res ← resolveCallbackum cb
+      some <$> res.cumActione fun evStx _ => do
+        `(Signaculum.Sakura.aperiInputumGradus $evStx (show String from $(⟨title⟩)) $(⟨mn⟩) $(⟨mx⟩) $(⟨init⟩))
     else throwErrorAt stx "\\![open,sliderinput,...] は引數5つ (f,title,min,max,init) にゃ"
   | "ipinput" =>
     if h : rest.size = 6 then
       let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
       let a := rest[2]'(by omega); let b := rest[3]'(by omega)
       let c := rest[4]'(by omega); let d := rest[5]'(by omega)
-      let (evStx, _) ← resolveCallbackum cb
-      some <$> `(Signaculum.Sakura.aperiInputumIP $evStx (show String from $(⟨title⟩)) $(⟨a⟩) $(⟨b⟩) $(⟨c⟩) $(⟨d⟩))
+      let res ← resolveCallbackum cb
+      some <$> res.cumActione fun evStx _ => do
+        `(Signaculum.Sakura.aperiInputumIP $evStx (show String from $(⟨title⟩)) $(⟨a⟩) $(⟨b⟩) $(⟨c⟩) $(⟨d⟩))
     else throwErrorAt stx "\\![open,ipinput,...] は引數6つ (f,title,a,b,c,d) にゃ"
   | "colorinput" =>
     if h : rest.size = 5 then
       let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
       let r := rest[2]'(by omega); let g := rest[3]'(by omega); let b := rest[4]'(by omega)
-      let (evStx, _) ← resolveCallbackum cb
-      some <$> `(Signaculum.Sakura.aperiInputumColoris $evStx (show String from $(⟨title⟩)) $(⟨r⟩) $(⟨g⟩) $(⟨b⟩))
+      let res ← resolveCallbackum cb
+      some <$> res.cumActione fun evStx _ => do
+        `(Signaculum.Sakura.aperiInputumColoris $evStx (show String from $(⟨title⟩)) $(⟨r⟩) $(⟨g⟩) $(⟨b⟩))
     else throwErrorAt stx "\\![open,colorinput,...] は引數5つ (f,title,r,g,b) にゃ"
   | "inputbox" | "passwordinput" =>
     let modusStx ← if subCmd == "inputbox"
@@ -178,9 +188,10 @@ private def resolveOpenCumArgs (subCmd : String) (rest : Array Syntax) (stx : Sy
       let cb := rest[0]'(by omega); let title := rest[1]'(by omega)
       let textStx : TSyntax `term ← if h3 : rest.size = 3
         then pure ⟨rest[2]'(by omega)⟩ else `("")
-      let (evStx, _) ← resolveCallbackum cb
-      some <$> `(Signaculum.Sakura.aperiInputum $modusStx $evStx
-        (show String from $(⟨title⟩)) (show String from $textStx))
+      let res ← resolveCallbackum cb
+      some <$> res.cumActione fun evStx _ => do
+        `(Signaculum.Sakura.aperiInputum $modusStx $evStx
+          (show String from $(⟨title⟩)) (show String from $textStx))
     else throwErrorAt stx s!"\\![open,{subCmd},...] は引數2〜3つ (f,title[,text]) にゃ"
   | _ => return none
 

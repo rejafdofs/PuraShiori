@@ -25,24 +25,31 @@ private def expectaStrLitSystema (s : Lean.Syntax) (nomenSigni : String)
     strLit → そのまま（型情報なし）、ident → registraLazium（型取得）、
     項 → elaborate して型取得 → registraLaziumLambda -/
 private def resolveCallbackumEventum (cb : Syntax) (paramCount : Nat := 0)
-    : TermElabM (TSyntax `term × Array Lean.Expr) := do
+    : TermElabM Signaculum.CallbackumResolutum := do
   if cb.isStrLit?.isSome then
     let stx : TSyntax `term := ⟨cb⟩
-    return (stx, #[])
+    return .staticum stx #[]
   else if cb.isIdent then
-    let ev ← Signaculum.registraLazium ⟨cb⟩
-    let fname ← Signaculum.resolveToConst ⟨cb⟩
-    let some info := (← getEnv).find? fname |
-      throwError "resolveCallbackumEventum: {cb} が見つからにゃいにゃ"
-    let paramTypes ← Signaculum.getExplicitParamTypes info.type
-    return (← `($(Syntax.mkStrLit ev)), paramTypes)
+    match ← Signaculum.resolveToConstOpt ⟨cb⟩ with
+    | some _ =>
+      let ev ← Signaculum.registraLazium ⟨cb⟩
+      let fname ← Signaculum.resolveToConst ⟨cb⟩
+      let some info := (← getEnv).find? fname |
+        throwError "resolveCallbackumEventum: {cb} が見つからにゃいにゃ"
+      let paramTypes ← Signaculum.getExplicitParamTypes info.type
+      return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
+    | none =>
+      return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
   else
     let cbExpr ← elabTerm cb none
     let cbType ← inferType cbExpr
     let paramTypes ← Signaculum.getExplicitParamTypes (← whnf cbType)
-    let posIdx := (cb.getPos?.getD ⟨0⟩).byteIdx
-    let ev ← Signaculum.registraLaziumLambda cb posIdx paramCount
-    return (← `($(Syntax.mkStrLit ev)), paramTypes)
+    if paramTypes.size == paramCount then
+      let posIdx := (cb.getPos?.getD ⟨0⟩).byteIdx
+      let ev ← Signaculum.registraLaziumLambda cb posIdx paramCount
+      return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
+    else
+      return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
 
 -- ════════════════════════════════════════════════════
 --  事象ディスパッチ (Dispatch Eventuum)
@@ -62,12 +69,13 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "raise" =>
     if h : args.size ≥ 1 then
       let cb := args[0]'(by omega)
-      let (evStx, paramTypes) ← resolveCallbackumEventum cb (args.size - 1)
-      if args.size == 1 then
-        pure <| some (← `(Signaculum.Sakura.Systema.excita $evStx))
-      else
-        let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
-        pure <| some (← `(Signaculum.Sakura.Systema.excita $evStx [$refArgs,*]))
+      let res ← resolveCallbackumEventum cb (args.size - 1)
+      some <$> res.cumActione fun evStx paramTypes => do
+        if args.size == 1 then
+          `(Signaculum.Sakura.Systema.excita $evStx)
+        else
+          let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
+          `(Signaculum.Sakura.Systema.excita $evStx [$refArgs,*])
     else throwErrorAt stx "\\![raise,...]: 引數が不足してゐますにゃ"
 
   -- ────────────────────────────────────────────────
@@ -77,12 +85,13 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "embed" =>
     if h : args.size ≥ 1 then
       let cb := args[0]'(by omega)
-      let (evStx, paramTypes) ← resolveCallbackumEventum cb (args.size - 1)
-      if args.size == 1 then
-        pure <| some (← `(Signaculum.Sakura.Systema.insere $evStx))
-      else
-        let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
-        pure <| some (← `(Signaculum.Sakura.Systema.insere $evStx [$refArgs,*]))
+      let res ← resolveCallbackumEventum cb (args.size - 1)
+      some <$> res.cumActione fun evStx paramTypes => do
+        if args.size == 1 then
+          `(Signaculum.Sakura.Systema.insere $evStx)
+        else
+          let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
+          `(Signaculum.Sakura.Systema.insere $evStx [$refArgs,*])
     else throwErrorAt stx "\\![embed,...]: 引數が不足してゐますにゃ"
 
   -- ────────────────────────────────────────────────
@@ -92,12 +101,13 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "notify" =>
     if h : args.size ≥ 1 then
       let cb := args[0]'(by omega)
-      let (evStx, paramTypes) ← resolveCallbackumEventum cb (args.size - 1)
-      if args.size == 1 then
-        pure <| some (← `(Signaculum.Sakura.Systema.notifica $evStx))
-      else
-        let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
-        pure <| some (← `(Signaculum.Sakura.Systema.notifica $evStx [$refArgs,*]))
+      let res ← resolveCallbackumEventum cb (args.size - 1)
+      some <$> res.cumActione fun evStx paramTypes => do
+        if args.size == 1 then
+          `(Signaculum.Sakura.Systema.notifica $evStx)
+        else
+          let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
+          `(Signaculum.Sakura.Systema.notifica $evStx [$refArgs,*])
     else throwErrorAt stx "\\![notify,...]: 引數が不足してゐますにゃ"
 
   -- ────────────────────────────────────────────────
@@ -109,12 +119,13 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       let ms  : TSyntax `term := ⟨args[0]'(by omega)⟩
       let rep : TSyntax `term := ⟨args[1]'(by omega)⟩
       let cb := args[2]'(by omega)
-      let (evStx, paramTypes) ← resolveCallbackumEventum cb (args.size - 3)
-      if args.size == 3 then
-        pure <| some (← `(Signaculum.Sakura.Systema.excitaPostTempus $ms $rep $evStx))
-      else
-        let refArgs ← Signaculum.toRefCumTypo (args.extract 3 args.size) paramTypes
-        pure <| some (← `(Signaculum.Sakura.Systema.excitaPostTempus $ms $rep $evStx [$refArgs,*]))
+      let res ← resolveCallbackumEventum cb (args.size - 3)
+      some <$> res.cumActione fun evStx paramTypes => do
+        if args.size == 3 then
+          `(Signaculum.Sakura.Systema.excitaPostTempus $ms $rep $evStx)
+        else
+          let refArgs ← Signaculum.toRefCumTypo (args.extract 3 args.size) paramTypes
+          `(Signaculum.Sakura.Systema.excitaPostTempus $ms $rep $evStx [$refArgs,*])
     else throwErrorAt stx "\\![timerraise,...]: ms, rep, f の3引數以上が必要にゃ"
 
   -- ────────────────────────────────────────────────
@@ -126,12 +137,13 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       let ms  : TSyntax `term := ⟨args[0]'(by omega)⟩
       let rep : TSyntax `term := ⟨args[1]'(by omega)⟩
       let cb := args[2]'(by omega)
-      let (evStx, paramTypes) ← resolveCallbackumEventum cb (args.size - 3)
-      if args.size == 3 then
-        pure <| some (← `(Signaculum.Sakura.Systema.notificaPostTempus $ms $rep $evStx))
-      else
-        let refArgs ← Signaculum.toRefCumTypo (args.extract 3 args.size) paramTypes
-        pure <| some (← `(Signaculum.Sakura.Systema.notificaPostTempus $ms $rep $evStx [$refArgs,*]))
+      let res ← resolveCallbackumEventum cb (args.size - 3)
+      some <$> res.cumActione fun evStx paramTypes => do
+        if args.size == 3 then
+          `(Signaculum.Sakura.Systema.notificaPostTempus $ms $rep $evStx)
+        else
+          let refArgs ← Signaculum.toRefCumTypo (args.extract 3 args.size) paramTypes
+          `(Signaculum.Sakura.Systema.notificaPostTempus $ms $rep $evStx [$refArgs,*])
     else throwErrorAt stx "\\![timernotify,...]: ms, rep, f の3引數以上が必要にゃ"
 
   -- ────────────────────────────────────────────────

@@ -58,24 +58,31 @@ private def estNegativusUnus (args : Array Lean.Syntax) : Bool :=
     strLit → そのまま（型情報なし）、ident → registraLazium（型取得）、
     項 → elaborate して型取得 → registraLaziumLambda -/
 private def resolveCallbackumOptionis (cb : Syntax) (paramCount : Nat := 0)
-    : TermElabM (TSyntax `term × Array Lean.Expr) := do
+    : TermElabM CallbackumResolutum := do
   if cb.isStrLit?.isSome then
     let stx : TSyntax `term := ⟨cb⟩
-    return (stx, #[])
+    return .staticum stx #[]
   else if cb.isIdent then
-    let ev ← Signaculum.registraLazium ⟨cb⟩
-    let fname ← Signaculum.resolveToConst ⟨cb⟩
-    let some info := (← getEnv).find? fname |
-      throwError "resolveCallbackumOptionis: {cb} が見つからにゃいにゃ"
-    let paramTypes ← Signaculum.getExplicitParamTypes info.type
-    return (← `($(Syntax.mkStrLit ev)), paramTypes)
+    match ← Signaculum.resolveToConstOpt ⟨cb⟩ with
+    | some _ =>
+      let ev ← Signaculum.registraLazium ⟨cb⟩
+      let fname ← Signaculum.resolveToConst ⟨cb⟩
+      let some info := (← getEnv).find? fname |
+        throwError "resolveCallbackumOptionis: {cb} が見つからにゃいにゃ"
+      let paramTypes ← Signaculum.getExplicitParamTypes info.type
+      return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
+    | none =>
+      return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
   else
     let cbExpr ← elabTerm cb none
     let cbType ← inferType cbExpr
     let paramTypes ← Signaculum.getExplicitParamTypes (← whnf cbType)
-    let posIdx := (cb.getPos?.getD ⟨0⟩).byteIdx
-    let ev ← Signaculum.registraLaziumLambda cb posIdx paramCount
-    return (← `($(Syntax.mkStrLit ev)), paramTypes)
+    if paramTypes.size == paramCount then
+      let posIdx := (cb.getPos?.getD ⟨0⟩).byteIdx
+      let ev ← Signaculum.registraLaziumLambda cb posIdx paramCount
+      return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
+    else
+      return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
 
 -- ════════════════════════════════════════════════════
 --  主ディスパッチ函數 (Functio Principalis Dispatchonis)
@@ -294,12 +301,13 @@ def expandeSignumTextus (nomen : String) (args : Array Lean.Syntax) (stx : Lean.
       pure <| some (← `(Signaculum.Sakura.Textus.fineAncora))
     else
       let cb := args[0]!
-      let (evStx, paramTypes) ← resolveCallbackumOptionis cb (args.size - 1)
-      if args.size == 1 then
-        pure <| some (← `(Signaculum.Sakura.Textus.ancora $evStx))
-      else
-        let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
-        pure <| some (← `(Signaculum.Sakura.Textus.ancora $evStx [$refArgs,*]))
+      let res ← resolveCallbackumOptionis cb (args.size - 1)
+      some <$> res.cumActione fun evStx paramTypes => do
+        if args.size == 1 then
+          `(Signaculum.Sakura.Textus.ancora $evStx)
+        else
+          let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
+          `(Signaculum.Sakura.Textus.ancora $evStx [$refArgs,*])
 
   -- ════════════════════════════════════════════════════
   --  選擇肢 (Optiones)
@@ -310,32 +318,30 @@ def expandeSignumTextus (nomen : String) (args : Array Lean.Syntax) (stx : Lean.
       let t ← expectaStrLit args[0]! "\\q"
       let cb := args[1]!
       if cb.isStrLit?.isSome then
-        -- 文字列形: optio title id（從來互換にゃ）
         pure <| some (← `(Signaculum.Sakura.Textus.optio $t $(⟨cb⟩)))
       else
-        -- 關數形: registraLazium/Lambda → optioEventum にゃ
-        let (evStx, _) ← resolveCallbackumOptionis cb 0
-        pure <| some (← `(Signaculum.Sakura.Textus.optioEventum $t $evStx))
+        let res ← resolveCallbackumOptionis cb 0
+        some <$> res.cumActione fun evStx _ => do
+          `(Signaculum.Sakura.Textus.optioEventum $t $evStx)
     else if args.size >= 3 then
       let t ← expectaStrLit args[0]! "\\q"
-      -- script: キーワード附き選擇肢にゃん (\q[t, script: sc])
       if args.size == 3 then
         match extractIdentVal args[1]! with
         | some "script:" =>
           let sc ← expectaStrLit args[2]! "\\q"
           pure <| some (← `(Signaculum.Sakura.Textus.optioScriptum $t $sc))
         | _ =>
-          -- \\q[t, f, rs...] — 關數/文字列附き選擇肢にゃん
           let cb := args[1]!
-          let (evStx, paramTypes) ← resolveCallbackumOptionis cb (args.size - 2)
-          let refArgs ← Signaculum.toRefCumTypo (args.extract 2 args.size) paramTypes
-          pure <| some (← `(Signaculum.Sakura.Textus.optioEventum $t $evStx [$refArgs,*]))
+          let res ← resolveCallbackumOptionis cb (args.size - 2)
+          some <$> res.cumActione fun evStx paramTypes => do
+            let refArgs ← Signaculum.toRefCumTypo (args.extract 2 args.size) paramTypes
+            `(Signaculum.Sakura.Textus.optioEventum $t $evStx [$refArgs,*])
       else
-        -- \\q[t, f, rs...] — 關數/文字列附き選擇肢にゃん
         let cb := args[1]!
-        let (evStx, paramTypes) ← resolveCallbackumOptionis cb (args.size - 2)
-        let refArgs ← Signaculum.toRefCumTypo (args.extract 2 args.size) paramTypes
-        pure <| some (← `(Signaculum.Sakura.Textus.optioEventum $t $evStx [$refArgs,*]))
+        let res ← resolveCallbackumOptionis cb (args.size - 2)
+        some <$> res.cumActione fun evStx paramTypes => do
+          let refArgs ← Signaculum.toRefCumTypo (args.extract 2 args.size) paramTypes
+          `(Signaculum.Sakura.Textus.optioEventum $t $evStx [$refArgs,*])
     else
       throwErrorAt stx "\\q: 引數が不足してゐますにゃ"
 
@@ -344,12 +350,13 @@ def expandeSignumTextus (nomen : String) (args : Array Lean.Syntax) (stx : Lean.
       pure <| some (← `(Signaculum.Sakura.Textus.fineOptioScopus))
     else
       let cb := args[0]!
-      let (evStx, paramTypes) ← resolveCallbackumOptionis cb (args.size - 1)
-      if args.size == 1 then
-        pure <| some (← `(Signaculum.Sakura.Textus.optioScopus $evStx))
-      else
-        let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
-        pure <| some (← `(Signaculum.Sakura.Textus.optioScopus $evStx [$refArgs,*]))
+      let res ← resolveCallbackumOptionis cb (args.size - 1)
+      some <$> res.cumActione fun evStx paramTypes => do
+        if args.size == 1 then
+          `(Signaculum.Sakura.Textus.optioScopus $evStx)
+        else
+          let refArgs ← Signaculum.toRefCumTypo (args.extract 1 args.size) paramTypes
+          `(Signaculum.Sakura.Textus.optioScopus $evStx [$refArgs,*])
 
   -- ════════════════════════════════════════════════════
   --  文字 (Characteres)
