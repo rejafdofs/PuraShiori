@@ -3,7 +3,6 @@
 
 import Signaculum.Notatio.Parsitor
 import Signaculum.Notatio.Expande
-import Signaculum.Notatio.Complementum
 
 namespace Signaculum.Notatio
 
@@ -226,7 +225,6 @@ end Signaculum.Notatio
 -- ════════════════════════════════════════════════════
 
 open Lean Elab Term Signaculum.Notatio Signaculum.Notatio.Parsitor Signaculum.Notatio.Expande
-open Signaculum.Notatio.Complementum
 
 private def scriptumParserCore (kw : String) : Lean.Parser.Parser :=
   withInitioLineae <|
@@ -250,43 +248,12 @@ private def extractArgs (s : Lean.Syntax) : Array Lean.Syntax :=
 private def extractLabel (s : Lean.Syntax) : String :=
   match s[0] with
   | .atom _ val => val
-  | .ident _ _ val _ => val.toString (escape := false)
   | _ => ""
-
--- ════════════════════════════════════════════════════
---  補完情報 (Complementum)
--- ════════════════════════════════════════════════════
-
-/-- タグ名の構文ノードに CompletionInfo.id を追加するにゃん♪
-    名前空間 ns を一時的に open して、nomenId をプレフィックスとした
-    環境內宣言のマッチングを有效にするにゃ -/
-private def emitteCompletionem (stx : Lean.Syntax) (nomenId : Name) (ns : Name) : TermElabM Unit := do
-  -- canonical := true にして補完 handler から見えるやうにするにゃん♪
-  let canonStx := match stx with
-    | .atom (.synthetic p ep _) val => .atom (.synthetic p ep (canonical := true)) val
-    | .ident (.synthetic p ep _) raw val pre => .ident (.synthetic p ep (canonical := true)) raw val pre
-    | other => other
-  let openDecl := Lean.OpenDecl.simple ns []
-  withTheReader Lean.Core.Context
-    (fun ctx => { ctx with openDecls := ctx.openDecls ++ [openDecl] }) do
-    pushInfoLeaf (.ofCompletionInfo (.id canonStx .anonymous false (← getLCtx) none))
 
 -- ════════════════════════════════════════════════════
 --  scriptumMacro エラボレーター
 -- ════════════════════════════════════════════════════
 
-/-- 構文木の先頭 ident/atom だけ canonical synthetic に書き換へるにゃん♪
-    ホバー handler が canonicalOnly := true で檢索するため必要にゃ。
-    Bind.bind 等の外側ノードは non-canonical のままにして、
-    主要な關數 ident のホバーだけが表示されるやうにするにゃん -/
-partial def canonizaHead (pos endPos : String.Pos.Raw) : Lean.Syntax → Lean.Syntax
-  | .atom _ val => .atom (.synthetic pos endPos (canonical := true)) val
-  | .ident _ raw val pre => .ident (.synthetic pos endPos (canonical := true)) raw val pre
-  | .node si kind args =>
-    let args' := args.mapIdx fun i a =>
-      if i == 0 then canonizaHead pos endPos a else a
-    .node si kind args'
-  | .missing => .missing
 
 /-- LexemaSakurae ノードを term 構文に變換するにゃん♪
     ノードカインドでディスパッチしてから Expande 關數に委ねるにゃ -/
@@ -323,8 +290,6 @@ private def genTermLexema (s : Lean.Syntax) : TermElabM (TSyntax `term) := do
   if kind == lexemaSignum then
     let nomen := extractLabel s
     let args := extractArgs s
-    -- 補完情報をプッシュにゃ
-    emitteCompletionem s[0] (Name.mkSimple nomen) `Signaculum.Notatio.Complementum.Signa
     -- 補完用プレースホルダー（\ のみ）にゃ
     if nomen == "\\" then
       return ← `(Pure.pure ())
@@ -339,8 +304,6 @@ private def genTermLexema (s : Lean.Syntax) : TermElabM (TSyntax `term) := do
   if kind == lexemaSignumExcl then
     let imperium := extractLabel s
     let args := extractArgs s
-    -- 補完情報をプッシュにゃ
-    emitteCompletionem s[0] (Name.mkSimple imperium) `Signaculum.Notatio.Complementum.Imperium
     -- 補完用プレースホルダー（空コマンド名）にゃ
     if imperium == "" then
       return ← `(Pure.pure ())
@@ -353,8 +316,6 @@ private def genTermLexema (s : Lean.Syntax) : TermElabM (TSyntax `term) := do
   if kind == lexemaFontis then
     let clavis := extractLabel s
     let valores := extractArgs s
-    -- 補完情報をプッシュにゃ
-    emitteCompletionem s[0] (Name.mkSimple clavis) `Signaculum.Notatio.Complementum.Clavis
     -- 補完用プレースホルダー（空キー名）にゃ
     if clavis == "" then
       return ← `(Pure.pure ())
@@ -376,10 +337,9 @@ def elabScriptum : TermElab := fun stx expectedType? => do
         | .synthetic (pos := p) .. => some p
         | .none => Option.none
       pos?.map fun pos => (tabulaFontis.toPosition pos).line
-    -- (オリジナル構文?, 生成 term) のペアを溜めるにゃん♪
-    -- some = 實タグ（ホバー有效）、none = 自動挿入（ホバー無效）
-    let mut partes : Array (Option Lean.Syntax × TSyntax `term) := #[]
-    partes := partes.push (some (ss[0]'h), ← genTermLexema (ss[0]'h))
+    -- レクセマの term を全てリストゥスに溜めるにゃん♪
+    let mut partes : Array (TSyntax `term) := #[]
+    partes := partes.push (← genTermLexema (ss[0]'h))
     let mut lineaPrior := lineamSigni (ss[0]'h)
     for s in ss[1:] do
       -- 前のシグナムと行が違ったら \n を挾むにゃ
@@ -387,29 +347,17 @@ def elabScriptum : TermElab := fun stx expectedType? => do
       match lineaPrior, lineaCurrens with
       | some lp, some lc =>
         if lc > lp then
-          partes := partes.push (none, ← `(Signaculum.Sakura.Textus.linea))
+          partes := partes.push (← `(Signaculum.Sakura.Textus.linea))
       | _, _ => pure ()
-      partes := partes.push (some s, ← genTermLexema s)
+      partes := partes.push (← genTermLexema s)
       lineaPrior := lineaCurrens
-    if partes.size > 0 then
-      -- 實タグの生成構文にだけ canonical ソース位置を埋込んでホバーを有效にするにゃん♪
-      -- 自動挿入 linea はホバー對象外にゃ
-      let partesSyntax : Array (TSyntax `term) := partes.map fun (origStx?, termStx) =>
-        match origStx? with
-        | some origStx =>
-          match origStx.getHeadInfo with
-          | .synthetic (pos := p) (endPos := ep) .. =>
-            ⟨canonizaHead p ep termStx.raw⟩
-          | _ => termStx
-        | none => termStx
-      if hp : 0 < partesSyntax.size then
-        let mut body := partesSyntax[partesSyntax.size - 1]'(by omega)
-        for i in List.range (partesSyntax.size - 1) |>.reverse do
-          if hi : i < partesSyntax.size then
-            body ← `(Bind.bind $(partesSyntax[i]'hi) fun () => $body)
-        elabTerm body expectedType?
-      else
-        elabTerm (← `(pure ())) expectedType?
+    -- 右結合で畳むにゃん♪ flat な do A; B; C; D になるにゃ
+    if hp : 0 < partes.size then
+      let mut body := partes[partes.size - 1]'(by omega)
+      for i in List.range (partes.size - 1) |>.reverse do
+        if hi : i < partes.size then
+          body ← `(Bind.bind $(partes[i]'hi) fun () => $body)
+      elabTerm body expectedType?
     else
       elabTerm (← `(pure ())) expectedType?
   else
