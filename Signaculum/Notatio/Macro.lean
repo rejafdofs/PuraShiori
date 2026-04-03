@@ -269,6 +269,19 @@ private def emitteCompletionem (stx : Lean.Syntax) (nomenId : Name) (ns : Name) 
 --  scriptumMacro エラボレーター
 -- ════════════════════════════════════════════════════
 
+/-- 構文木の先頭 ident/atom だけ canonical synthetic に書き換へるにゃん♪
+    ホバー handler が canonicalOnly := true で檢索するため必要にゃ。
+    Bind.bind 等の外側ノードは non-canonical のままにして、
+    主要な關數 ident のホバーだけが表示されるやうにするにゃん -/
+partial def canonizaHead (pos endPos : String.Pos.Raw) : Lean.Syntax → Lean.Syntax
+  | .atom _ val => .atom (.synthetic pos endPos (canonical := true)) val
+  | .ident _ raw val pre => .ident (.synthetic pos endPos (canonical := true)) raw val pre
+  | .node si kind args =>
+    let args' := args.mapIdx fun i a =>
+      if i == 0 then canonizaHead pos endPos a else a
+    .node si kind args'
+  | .missing => .missing
+
 /-- LexemaSakurae ノードを term 構文に變換するにゃん♪
     ノードカインドでディスパッチしてから Expande 關數に委ねるにゃ -/
 private def genTermLexema (s : Lean.Syntax) : TermElabM (TSyntax `term) := do
@@ -372,25 +385,12 @@ def elabScriptum : TermElab := fun stx expectedType? => do
       partes := partes.push (s, ← genTermLexema s)
       lineaPrior := lineaCurrens
     if partes.size > 0 then
-      -- ① ホバー情報登錄パスにゃん♪ 各タグを個別 elaborate して TermInfo を收集するにゃ
-      --    メタ變數が本番パスに漏れないやうに狀態を保存・復元するにゃん
-      let savedState ← saveState
-      let mut hoverInfos : Array Lean.Elab.Info := #[]
-      for (origStx, termStx) in partes do
-        try
-          let expr ← elabTerm termStx expectedType?
-          hoverInfos := hoverInfos.push (.ofTermInfo {
-            elaborator := .anonymous
-            lctx := ← getLCtx
-            expectedType?
-            expr, stx := origStx
-            isBinder := false })
-        catch _ => pure ()
-      restoreState savedState
-      for info in hoverInfos do
-        pushInfoLeaf info
-      -- ② 本番にゃん♪ 從來通り構文レヴェルで Bind.bind チェーンに畳んで elaborate するにゃ
-      let partesSyntax := partes.map (·.2)
+      -- 生成構文に canonical ソース位置を埋込んでホバーを有效にするにゃん♪
+      let partesSyntax : Array (TSyntax `term) := partes.map fun (origStx, termStx) =>
+        match origStx.getHeadInfo with
+        | .synthetic (pos := p) (endPos := ep) .. =>
+          ⟨canonizaHead p ep termStx.raw⟩
+        | _ => termStx
       if hp : 0 < partesSyntax.size then
         let mut body := partesSyntax[partesSyntax.size - 1]'(by omega)
         for i in List.range (partesSyntax.size - 1) |>.reverse do
