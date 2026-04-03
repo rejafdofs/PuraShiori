@@ -250,6 +250,19 @@ private def extractLabel (s : Lean.Syntax) : String :=
   | .atom _ val => val
   | _ => ""
 
+/-- 構文木の先頭 ident/atom だけ canonical synthetic に書き換へるにゃん♪
+    ホバー handler が canonicalOnly := true で檢索するため必要にゃ。
+    Bind.bind 等の外側ノードは non-canonical のままにして、
+    主要な關數 ident のホバーだけが表示されるやうにするにゃん -/
+partial def canonizaHead (pos endPos : String.Pos.Raw) : Lean.Syntax → Lean.Syntax
+  | .atom _ val => .atom (.synthetic pos endPos (canonical := true)) val
+  | .ident _ raw val pre => .ident (.synthetic pos endPos (canonical := true)) raw val pre
+  | .node si kind args =>
+    let args' := args.mapIdx fun i a =>
+      if i == 0 then canonizaHead pos endPos a else a
+    .node si kind args'
+  | .missing => .missing
+
 -- ════════════════════════════════════════════════════
 --  scriptumMacro エラボレーター
 -- ════════════════════════════════════════════════════
@@ -337,9 +350,10 @@ def elabScriptum : TermElab := fun stx expectedType? => do
         | .synthetic (pos := p) .. => some p
         | .none => Option.none
       pos?.map fun pos => (tabulaFontis.toPosition pos).line
-    -- レクセマの term を全てリストゥスに溜めるにゃん♪
-    let mut partes : Array (TSyntax `term) := #[]
-    partes := partes.push (← genTermLexema (ss[0]'h))
+    -- (オリジナル構文?, 生成 term) のペアを溜めるにゃん♪
+    -- some = 實タグ（ホバー有效）、none = 自動挿入（ホバー無效）
+    let mut partes : Array (Option Lean.Syntax × TSyntax `term) := #[]
+    partes := partes.push (some (ss[0]'h), ← genTermLexema (ss[0]'h))
     let mut lineaPrior := lineamSigni (ss[0]'h)
     for s in ss[1:] do
       -- 前のシグナムと行が違ったら \n を挾むにゃ
@@ -347,16 +361,26 @@ def elabScriptum : TermElab := fun stx expectedType? => do
       match lineaPrior, lineaCurrens with
       | some lp, some lc =>
         if lc > lp then
-          partes := partes.push (← `(Signaculum.Sakura.Textus.linea))
+          partes := partes.push (none, ← `(Signaculum.Sakura.Textus.linea))
       | _, _ => pure ()
-      partes := partes.push (← genTermLexema s)
+      partes := partes.push (some s, ← genTermLexema s)
       lineaPrior := lineaCurrens
+    -- 實タグの生成構文にだけ canonical ソース位置を埋込んでホバーを有效にするにゃん♪
+    -- 自動挿入 linea はホバー對象外にゃ
+    let partesSyntax : Array (TSyntax `term) := partes.map fun (origStx?, termStx) =>
+      match origStx? with
+      | some origStx =>
+        match origStx.getHeadInfo with
+        | .synthetic (pos := p) (endPos := ep) .. =>
+          ⟨canonizaHead p ep termStx.raw⟩
+        | _ => termStx
+      | none => termStx
     -- 右結合で畳むにゃん♪ flat な do A; B; C; D になるにゃ
-    if hp : 0 < partes.size then
-      let mut body := partes[partes.size - 1]'(by omega)
-      for i in List.range (partes.size - 1) |>.reverse do
-        if hi : i < partes.size then
-          body ← `(Bind.bind $(partes[i]'hi) fun () => $body)
+    if hp : 0 < partesSyntax.size then
+      let mut body := partesSyntax[partesSyntax.size - 1]'(by omega)
+      for i in List.range (partesSyntax.size - 1) |>.reverse do
+        if hi : i < partesSyntax.size then
+          body ← `(Bind.bind $(partesSyntax[i]'hi) fun () => $body)
       elabTerm body expectedType?
     else
       elabTerm (← `(pure ())) expectedType?
