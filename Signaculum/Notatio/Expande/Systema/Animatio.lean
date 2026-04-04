@@ -4,22 +4,12 @@
 
 import Lean
 import Signaculum.Sakura.Scriptum
+import Signaculum.Notatio.Expande.Auxilium
 
 namespace Signaculum.Notatio.Expande.Systema
 
 open Lean Elab Term
-
--- ════════════════════════════════════════════════════
---  補助函數 (Functiones Auxiliares Animationis)
--- ════════════════════════════════════════════════════
-
-/-- 識別子やアトムから文字列値を取り出すにゃん -/
-private def extractIdentValAnimatio (s : Lean.Syntax) : Option String :=
-  if s.isIdent then
-    some (s.getId.toString (escape := false))
-  else match s.isAtom with
-  | true  => some s.getAtomVal
-  | false => none
+open Signaculum.Notatio.Expande (extractIdentVal)
 
 -- ════════════════════════════════════════════════════
 --  anim サブコマンドディスパッチ (Dispatch Animationis)
@@ -31,7 +21,7 @@ def expandeAnimatio (args : Array Lean.Syntax) (stx : Lean.Syntax)
     : TermElabM (Option (TSyntax `term)) := do
   if args.size < 1 then
     throwErrorAt stx "\\![anim,...]: サブコマンドが必要にゃ"
-  let sub := match extractIdentValAnimatio args[0]! with
+  let sub := match extractIdentVal args[0]! with
     | some v => v
     | none   => ""
   match sub with
@@ -95,7 +85,7 @@ def expandeAnimatio (args : Array Lean.Syntax) (stx : Lean.Syntax)
   | "add" =>
     if args.size < 2 then
       throwErrorAt stx "\\![anim,add,...]: サブコマンドが必要にゃ"
-    let addSub := match extractIdentValAnimatio args[1]! with
+    let addSub := match extractIdentVal args[1]! with
       | some v => v
       | none   => ""
     match addSub with

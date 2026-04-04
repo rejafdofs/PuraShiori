@@ -12,15 +12,35 @@ open Lean Parser
 --  補助: 空白スキップ
 -- ════════════════════════════════════════════════════
 
-/-- scriptum ブロック内の空白を飛ばすにゃん（改行含む） -/
+/-- scriptum ブロック内の空白を飛ばすにゃん（改行・Lean コメント含む）。
+    括弧引數内でも -- コメントや /-...-/ ブロックコメントを正しく處理するにゃ -/
 def skipWsFn (c : ParserContext) (s : ParserState) : ParserState :=
   let input := c.fileMap.source
   let pos := Id.run do
     let mut p := s.pos
     while p.byteIdx < input.utf8ByteSize do
       let ch := p.get input
-      if ch != ' ' && ch != '\t' && ch != '\n' && ch != '\r' then break
-      p := p.next input
+      if ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' then
+        p := p.next input
+      else if ch == '-' && (p.next input).byteIdx < input.utf8ByteSize
+                        && (p.next input).get input == '-' then
+        -- --コメントを行末までスキップするにゃ
+        p := p.next input; p := p.next input
+        while p.byteIdx < input.utf8ByteSize do
+          if (p.get input) == '\n' then
+            p := p.next input; break
+          p := p.next input
+      else if ch == '/' && (p.next input).byteIdx < input.utf8ByteSize
+                        && (p.next input).get input == '-' then
+        -- /- -/ ブロックコメントをスキップするにゃ（ネスト非對應）
+        p := p.next input; p := p.next input
+        while p.byteIdx < input.utf8ByteSize do
+          let ch := p.get input
+          if ch == '-' && (p.next input).byteIdx < input.utf8ByteSize
+                       && (p.next input).get input == '/' then
+            p := p.next input; p := p.next input; break
+          p := p.next input
+      else break
     return p
   { s with pos := pos }
 
@@ -130,7 +150,8 @@ partial def legeRestantiaArgumenta (nomenTagi : String) (c : ParserContext) (s :
     let s := skipWsFn c s
     let s := argumentumFn c s
     if s.hasError then
-      s.mkError s!"{nomenTagi}: 引數が不正にゃ"
+      let nArg := s.stxStack.size - stackSz + 1
+      s.mkError s!"{nomenTagi}: 第{nArg}引數が不正にゃ"
     else
       legeRestantiaArgumenta nomenTagi c s stackSz
   else if s.pos.byteIdx < input.utf8ByteSize && s.pos.get input == ']' then
@@ -145,7 +166,8 @@ partial def legeRestantiaArgumenta (nomenTagi : String) (c : ParserContext) (s :
     if lastArg.isIdent && (lastArg.getId.toString (escape := false)).endsWith ":" then
       let s := argumentumFn c s
       if s.hasError then
-        s.mkError s!"{nomenTagi}: keyword の值が不正にゃ"
+        let kw := lastArg.getId.toString (escape := false)
+      s.mkError s!"{nomenTagi}: keyword '{kw}' の值が不正にゃ"
       else
         legeRestantiaArgumenta nomenTagi c s stackSz
     else
@@ -189,7 +211,7 @@ def argumentaInUncisFn (nomenTagi : String) (c : ParserContext) (s : ParserState
       let stackSz := s.stxStack.size
       let s := argumentumFn c s
       if s.hasError then
-        s.mkError s!"{nomenTagi}: 引數が不正にゃ"
+        s.mkError s!"{nomenTagi}: 第1引數が不正にゃ"
       else
         legeRestantiaArgumenta nomenTagi c s stackSz
 

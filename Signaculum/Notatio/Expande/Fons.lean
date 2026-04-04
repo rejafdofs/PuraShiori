@@ -5,6 +5,7 @@
 import Lean
 import Signaculum.Sakura.Scriptum
 import Signaculum.Sakura.Literalis
+import Signaculum.Notatio.Expande.Auxilium
 
 namespace Signaculum.Notatio.Expande
 
@@ -14,31 +15,8 @@ open Lean Elab Term
 --  補助函數 (Functiones Auxiliares)
 -- ════════════════════════════════════════════════════
 
-/-- 識別子やアトムから文字列値を取り出すにゃん -/
-private def extractIdentVal (s : Lean.Syntax) : Option String :=
-  if s.isIdent then
-    some (s.getId.toString (escape := false))
-  else match s.isAtom with
-  | true  => some s.getAtomVal
-  | false => none
-
-/-- 數値リテラルかどうか確認して取り出すにゃん -/
-private def expectaNatLit (s : Lean.Syntax) (nomenSigni : String)
-    : TermElabM (Lean.TSyntax `num) := do
-  if s.isNatLit?.isSome then
-    pure ⟨s⟩
-  else
-    throwErrorAt s s!"{nomenSigni}: 數字が期待されてゐますにゃ"
-
-/-- 文字列リテラルかどうか確認して取り出すにゃん -/
-private def expectaStrLit (s : Lean.Syntax) (nomenSigni : String)
-    : TermElabM (Lean.TSyntax `str) := do
-  if s.isStrLit?.isSome then
-    pure ⟨s⟩
-  else
-    match extractIdentVal s with
-    | some v => pure ⟨Syntax.mkStrLit v⟩
-    | none   => throwErrorAt s s!"{nomenSigni}: 文字列が期待されてゐますにゃ"
+-- extractIdentVal, expectaNatLit, expectaStrLit は
+-- Auxilium.lean に統合濟みにゃん♪
 
 /-- 括弧附き term か、ident/numLit/strLit でない構文ノードを term として取り出すにゃん。
     カスタムパーサーは (expr) の括弧を剥がして中身だけ積むから、

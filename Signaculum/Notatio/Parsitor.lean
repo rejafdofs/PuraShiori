@@ -48,7 +48,9 @@ private def rawTextusFn (c : ParserContext) (s : ParserState) : ParserState :=
       p := p.next input
     return (p, acc)
   if endPos == startPos then
-    s.mkError "テクストゥスが期待されてゐますにゃ"
+    let ch := if startPos.byteIdx < input.utf8ByteSize then
+      s!" (現在の文��: '{startPos.get input}')" else " (入力末尾)"
+    s.mkError s!"テクストゥスが期待されてゐますにゃ{ch}"
   else
     let identNode := Syntax.ident (SourceInfo.synthetic startPos endPos) str.toRawSubstring (Name.mkSimple str) []
     let node := Syntax.node (SourceInfo.synthetic startPos endPos) lexemaTextusNudus #[identNode]
@@ -109,32 +111,39 @@ private def mkSignumNode (c : ParserContext) (s : ParserState) (bsPos : String.P
   { s with stxStack := s.stxStack.push node }
 
 -- ════════════════════════════════════════════════════
---  \![cmd, args...] — 再帰引數讀取
+--  汎用括弧內引數再帰讀取 (legeSequelaInUncis)
+--  \![cmd, ...] と \f[key, ...] の共通パターンにゃん♪
 -- ════════════════════════════════════════════════════
 
-partial def legeExclArgs (imperium : String) (c : ParserContext) (s : ParserState)
+/-- ']' で閉ぢるカンマ區切り引數列を再帰的に讀み、
+    指定の kind でノードを組立てるにゃん♪
+    `praefixumErroris` はエラーメッセージ用の接頭辭（例: "\\![raise]", "\\f[color]"）にゃ -/
+partial def legeSequelaInUncis (praefixumErroris : String) (kind : SyntaxNodeKind)
+    (label : String) (c : ParserContext) (s : ParserState)
     (stackSz : Nat) (bsPos : String.Pos.Raw) : ParserState :=
   let input := c.fileMap.source
   if s.pos.byteIdx >= input.utf8ByteSize then
-    s.mkError s!"\\![{imperium}]: ']' が期待されてゐますにゃ"
+    s.mkError s!"{praefixumErroris}: ']' が期待されてゐますにゃ"
   else if s.pos.get input == ']' then
     let s := { s with pos := s.pos.next input }
-    let args := s.stxStack.extract stackSz s.stxStack.size
+    let elems := s.stxStack.extract stackSz s.stxStack.size
     let s := { s with stxStack := s.stxStack.shrink stackSz }
-    mkSignumNode c s bsPos lexemaSignumExcl imperium args
+    mkSignumNode c s bsPos kind label elems
   else if s.pos.get input == ',' then
     let s := skipWsFn c { s with pos := s.pos.next input }
     if s.pos.byteIdx < input.utf8ByteSize && s.pos.get input == ']' then
       let s := { s with pos := s.pos.next input }
-      let args := s.stxStack.extract stackSz s.stxStack.size
+      let elems := s.stxStack.extract stackSz s.stxStack.size
       let s := { s with stxStack := s.stxStack.shrink stackSz }
-      mkSignumNode c s bsPos lexemaSignumExcl imperium args
+      mkSignumNode c s bsPos kind label elems
     else
       let s := argumentumFn c s
-      if s.hasError then s.mkError s!"\\![{imperium},...]: 引數が不正にゃ"
-      else legeExclArgs imperium c (skipWsFn c s) stackSz bsPos
+      if s.hasError then s.mkError s!"{praefixumErroris}: 引數が不正にゃ (カンマ後の要素)"
+      else legeSequelaInUncis praefixumErroris kind label c (skipWsFn c s) stackSz bsPos
   else
-    s.mkError s!"\\![{imperium}]: , か ] が期待されてゐますにゃ"
+    let actual := if s.pos.byteIdx < input.utf8ByteSize then
+      s!" (實際: '{s.pos.get input}')" else ""
+    s.mkError s!"{praefixumErroris}: , か ] が期待されてゐますにゃ{actual}"
 
 private def parsitorSignumExclFn (c : ParserContext) (s : ParserState) (bsPos : String.Pos.Raw)
     : ParserState :=
@@ -154,35 +163,9 @@ private def parsitorSignumExclFn (c : ParserContext) (s : ParserState) (bsPos : 
         s.mkError "\\!: コマンド名が期待されてゐますにゃ"
     else
       let s := skipWsFn c { s with pos := afterCmd }
-      legeExclArgs imperium c s s.stxStack.size bsPos
+      legeSequelaInUncis s!"\\![{imperium}]" lexemaSignumExcl imperium c s s.stxStack.size bsPos
 
--- ════════════════════════════════════════════════════
---  \f[key, values...] — 再帰値讀取
--- ════════════════════════════════════════════════════
-
-partial def legeFontVals (clavis : String) (c : ParserContext) (s : ParserState)
-    (stackSz : Nat) (bsPos : String.Pos.Raw) : ParserState :=
-  let input := c.fileMap.source
-  if s.pos.byteIdx >= input.utf8ByteSize then
-    s.mkError s!"\\f[{clavis}]: ']' が期待されてゐますにゃ"
-  else if s.pos.get input == ']' then
-    let s := { s with pos := s.pos.next input }
-    let vals := s.stxStack.extract stackSz s.stxStack.size
-    let s := { s with stxStack := s.stxStack.shrink stackSz }
-    mkSignumNode c s bsPos lexemaFontis clavis vals
-  else if s.pos.get input == ',' then
-    let s := skipWsFn c { s with pos := s.pos.next input }
-    if s.pos.byteIdx < input.utf8ByteSize && s.pos.get input == ']' then
-      let s := { s with pos := s.pos.next input }
-      let vals := s.stxStack.extract stackSz s.stxStack.size
-      let s := { s with stxStack := s.stxStack.shrink stackSz }
-      mkSignumNode c s bsPos lexemaFontis clavis vals
-    else
-      let s := argumentumFn c s
-      if s.hasError then s.mkError s!"\\f[{clavis},...]: 値が不正にゃ"
-      else legeFontVals clavis c (skipWsFn c s) stackSz bsPos
-  else
-    s.mkError s!"\\f[{clavis}]: , か ] が期待されてゐますにゃ"
+-- \f[key, values...] は legeSequelaInUncis で處理するにゃん♪
 
 private def parsitorFontisFn (c : ParserContext) (s : ParserState) (bsPos : String.Pos.Raw)
     : ParserState :=
@@ -202,7 +185,7 @@ private def parsitorFontisFn (c : ParserContext) (s : ParserState) (bsPos : Stri
         s.mkError "\\f: フォントキーが期待されてゐますにゃ"
     else
       let s := skipWsFn c { s with pos := afterKey }
-      legeFontVals clavis c s s.stxStack.size bsPos
+      legeSequelaInUncis s!"\\f[{clavis}]" lexemaFontis clavis c s s.stxStack.size bsPos
 
 -- ════════════════════════════════════════════════════
 --  一般 \tag / \tag[args]
@@ -290,7 +273,9 @@ private def parsitorExpressionisFn (c : ParserContext) (s : ParserState) : Parse
     let s := { s with stxStack := s.stxStack.pop }
     let s := skipWsFn c s
     if s.pos.byteIdx >= input.utf8ByteSize || s.pos.get input != '}' then
-      s.mkError "'}' が期待されてゐますにゃ"
+      let actual := if s.pos.byteIdx < input.utf8ByteSize then
+        s!" (實際: '{s.pos.get input}')" else " (入力末尾)"
+      s.mkError s!"'{{}' 式の閉ぢ '}}' が期待されてゐますにゃ{actual}"
     else
       let s := { s with pos := s.pos.next input }
       let node := Syntax.node (SourceInfo.synthetic startPos s.pos) lexemaExpressio #[termNode]

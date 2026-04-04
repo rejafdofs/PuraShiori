@@ -4,29 +4,12 @@
 
 import Lean
 import Signaculum.Sakura.Scriptum
+import Signaculum.Notatio.Expande.Auxilium
 
 namespace Signaculum.Notatio.Expande.Systema
 
 open Lean Elab Term
-
--- ════════════════════════════════════════════════════
---  補助函數 (Functiones Auxiliares Soni)
--- ════════════════════════════════════════════════════
-
-/-- 識別子やアトムから文字列値を取り出すにゃん -/
-private def extractIdentValSonus (s : Lean.Syntax) : Option String :=
-  if s.isIdent then
-    some (s.getId.toString (escape := false))
-  else match s.isAtom with
-  | true  => some s.getAtomVal
-  | false => none
-
-/-- 文字列リテラルを期待して取り出すにゃん -/
-private def expectaStrLitSonus (s : Lean.Syntax) (nomenSigni : String)
-    : TermElabM (Lean.TSyntax `str) := do
-  match s.isStrLit? with
-  | some _ => pure ⟨s⟩
-  | none   => throwErrorAt s s!"{nomenSigni}: 文字列が期待されてゐますにゃ"
+open Signaculum.Notatio.Expande (extractIdentVal expectaStrLit)
 
 -- ════════════════════════════════════════════════════
 --  sound サブコマンドディスパッチ (Dispatch Soni)
@@ -38,7 +21,7 @@ def expandeSonus (args : Array Lean.Syntax) (stx : Lean.Syntax)
     : TermElabM (Option (TSyntax `term)) := do
   if args.size < 1 then
     throwErrorAt stx "\\![sound,...]: サブコマンドが必要にゃ"
-  let sub := match extractIdentValSonus args[0]! with
+  let sub := match extractIdentVal args[0]! with
     | some v => v
     | none   => ""
   match sub with
@@ -46,31 +29,31 @@ def expandeSonus (args : Array Lean.Syntax) (stx : Lean.Syntax)
   | "play" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,play,...]: ファイル名が必要にゃ"
-    let s ← expectaStrLitSonus args[1]! "\\![sound,play]"
+    let s ← expectaStrLit args[1]! "\\![sound,play]"
     pure <| some (← `(Signaculum.Sakura.Systema.sonusPulsus $s))
 
   | "loop" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,loop,...]: ファイル名が必要にゃ"
-    let s ← expectaStrLitSonus args[1]! "\\![sound,loop]"
+    let s ← expectaStrLit args[1]! "\\![sound,loop]"
     pure <| some (← `(Signaculum.Sakura.Systema.sonusOrbitans $s))
 
   | "stop" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,stop,...]: ファイル名が必要にゃ"
-    let s ← expectaStrLitSonus args[1]! "\\![sound,stop]"
+    let s ← expectaStrLit args[1]! "\\![sound,stop]"
     pure <| some (← `(Signaculum.Sakura.Systema.sonusInterrumpit $s))
 
   | "pause" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,pause,...]: ファイル名が必要にゃ"
-    let s ← expectaStrLitSonus args[1]! "\\![sound,pause]"
+    let s ← expectaStrLit args[1]! "\\![sound,pause]"
     pure <| some (← `(Signaculum.Sakura.Systema.sonusPausat $s))
 
   | "resume" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,resume,...]: ファイル名が必要にゃ"
-    let s ← expectaStrLitSonus args[1]! "\\![sound,resume]"
+    let s ← expectaStrLit args[1]! "\\![sound,resume]"
     pure <| some (← `(Signaculum.Sakura.Systema.sonusContinuat $s))
 
   | "wait" =>
@@ -79,7 +62,7 @@ def expandeSonus (args : Array Lean.Syntax) (stx : Lean.Syntax)
   | "load" =>
     if args.size < 2 then
       throwErrorAt stx "\\![sound,load,...]: ファイル名が必要にゃ"
-    let s ← expectaStrLitSonus args[1]! "\\![sound,load]"
+    let s ← expectaStrLit args[1]! "\\![sound,load]"
     pure <| some (← `(Signaculum.Sakura.Systema.sonusOneratur $s))
 
   | "cdplay" =>
@@ -91,7 +74,7 @@ def expandeSonus (args : Array Lean.Syntax) (stx : Lean.Syntax)
   | "option" =>
     if args.size < 3 then
       throwErrorAt stx "\\![sound,option,...]: ファイル名とオプションが必要にゃ"
-    let s ← expectaStrLitSonus args[1]! "\\![sound,option]"
+    let s ← expectaStrLit args[1]! "\\![sound,option]"
     let o : TSyntax `term := ⟨args[2]!⟩
     pure <| some (← `(Signaculum.Sakura.Systema.sonusOptio $s $o))
 

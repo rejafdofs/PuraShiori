@@ -5,54 +5,12 @@
 import Lean
 import Signaculum.Sakura.Scriptum
 import Signaculum.Syntaxis
+import Signaculum.Notatio.Expande.Auxilium
 
 namespace Signaculum.Notatio.Expande.Systema
 
 open Lean Elab Term Meta
-
--- ════════════════════════════════════════════════════
---  補助函數 (Functiones Auxiliares)
--- ════════════════════════════════════════════════════
-
-/-- 構文ノードから文字列リテラルを期待して取り出すにゃん -/
-private def expectaStrLitSystema (s : Lean.Syntax) (nomenSigni : String)
-    : TermElabM (Lean.TSyntax `str) := do
-  match s.isStrLit? with
-  | some _ => pure ⟨s⟩
-  | none   => throwErrorAt s s!"{nomenSigni}: 文字列が期待されてゐますにゃ"
-
-/-- cb からイヴェント名 term とパラメータ型配列を作るにゃ。
-    strLit → そのまま（型情報なし）、ident → registraLazium（型取得）、
-    項 → elaborate して型取得 → registraLaziumLambda -/
-private def resolveCallbackumEventum (cb : Syntax) (paramCount : Nat := 0)
-    : TermElabM Signaculum.CallbackumResolutum := do
-  if cb.isStrLit?.isSome then
-    let stx : TSyntax `term := ⟨cb⟩
-    return .staticum stx #[]
-  else if cb.isIdent then
-    match ← Signaculum.resolveToConstOpt ⟨cb⟩ with
-    | some fname =>
-      let ev ← Signaculum.registraLazium ⟨cb⟩
-      let some info := (← getEnv).find? fname |
-        throwError "resolveCallbackumEventum: {cb} が見つからにゃいにゃ"
-      let paramTypes ← Signaculum.getExplicitParamTypes info.type
-      let expr ← mkConstWithLevelParams fname
-      Term.addTermInfo' cb expr (isBinder := false)
-      return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
-    | none =>
-      let cbExpr ← elabTerm cb none
-      Term.addTermInfo' cb cbExpr (isBinder := false)
-      return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
-  else
-    let cbExpr ← elabTerm cb none
-    let cbType ← inferType cbExpr
-    let paramTypes ← Signaculum.getExplicitParamTypes (← whnf cbType)
-    if paramTypes.size == paramCount then
-      let posIdx := (cb.getPos?.getD ⟨0⟩).byteIdx
-      let ev ← Signaculum.registraLaziumLambda cb posIdx paramCount
-      return .staticum (← `($(Syntax.mkStrLit ev))) paramTypes
-    else
-      return .dynamicum (← Signaculum.generaCallbackumDynamicum ⟨cb⟩ paramCount)
+open Signaculum.Notatio.Expande (resolveCallbackum expectaStrLit)
 
 -- ════════════════════════════════════════════════════
 --  事象ディスパッチ (Dispatch Eventuum)
@@ -72,7 +30,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "raise" =>
     if h : args.size ≥ 1 then
       let cb := args[0]'(by omega)
-      let res ← resolveCallbackumEventum cb (args.size - 1)
+      let res ← resolveCallbackum cb (args.size - 1)
       some <$> res.cumActione fun evStx paramTypes => do
         if args.size == 1 then
           `(Signaculum.Sakura.Systema.excita $evStx)
@@ -88,7 +46,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "embed" =>
     if h : args.size ≥ 1 then
       let cb := args[0]'(by omega)
-      let res ← resolveCallbackumEventum cb (args.size - 1)
+      let res ← resolveCallbackum cb (args.size - 1)
       some <$> res.cumActione fun evStx paramTypes => do
         if args.size == 1 then
           `(Signaculum.Sakura.Systema.insere $evStx)
@@ -104,7 +62,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "notify" =>
     if h : args.size ≥ 1 then
       let cb := args[0]'(by omega)
-      let res ← resolveCallbackumEventum cb (args.size - 1)
+      let res ← resolveCallbackum cb (args.size - 1)
       some <$> res.cumActione fun evStx paramTypes => do
         if args.size == 1 then
           `(Signaculum.Sakura.Systema.notifica $evStx)
@@ -122,7 +80,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       let ms  : TSyntax `term := ⟨args[0]'(by omega)⟩
       let rep : TSyntax `term := ⟨args[1]'(by omega)⟩
       let cb := args[2]'(by omega)
-      let res ← resolveCallbackumEventum cb (args.size - 3)
+      let res ← resolveCallbackum cb (args.size - 3)
       some <$> res.cumActione fun evStx paramTypes => do
         if args.size == 3 then
           `(Signaculum.Sakura.Systema.excitaPostTempus $ms $rep $evStx)
@@ -140,7 +98,7 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       let ms  : TSyntax `term := ⟨args[0]'(by omega)⟩
       let rep : TSyntax `term := ⟨args[1]'(by omega)⟩
       let cb := args[2]'(by omega)
-      let res ← resolveCallbackumEventum cb (args.size - 3)
+      let res ← resolveCallbackum cb (args.size - 3)
       some <$> res.cumActione fun evStx paramTypes => do
         if args.size == 3 then
           `(Signaculum.Sakura.Systema.notificaPostTempus $ms $rep $evStx)
@@ -156,8 +114,8 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "raiseother" =>
     if args.size < 2 then
       throwErrorAt stx "\\![raiseother,...]: ghost, event の2引數が必要にゃ"
-    let g ← expectaStrLitSystema args[0]! "\\![raiseother]"
-    let e ← expectaStrLitSystema args[1]! "\\![raiseother]"
+    let g ← expectaStrLit args[0]! "\\![raiseother]"
+    let e ← expectaStrLit args[1]! "\\![raiseother]"
     pure <| some (← `(Signaculum.Sakura.Systema.excitaAlium $g $e))
 
   -- ────────────────────────────────────────────────
@@ -167,8 +125,8 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "notifyother" =>
     if args.size < 2 then
       throwErrorAt stx "\\![notifyother,...]: ghost, event の2引數が必要にゃ"
-    let g ← expectaStrLitSystema args[0]! "\\![notifyother]"
-    let e ← expectaStrLitSystema args[1]! "\\![notifyother]"
+    let g ← expectaStrLit args[0]! "\\![notifyother]"
+    let e ← expectaStrLit args[1]! "\\![notifyother]"
     pure <| some (← `(Signaculum.Sakura.Systema.notificaAlium $g $e))
 
   -- ────────────────────────────────────────────────
@@ -180,8 +138,8 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       throwErrorAt stx "\\![timerraiseother,...]: ms, rep, ghost, event の4引數が必要にゃ"
     let ms  : TSyntax `term := ⟨args[0]!⟩
     let rep : TSyntax `term := ⟨args[1]!⟩
-    let g ← expectaStrLitSystema args[2]! "\\![timerraiseother]"
-    let e ← expectaStrLitSystema args[3]! "\\![timerraiseother]"
+    let g ← expectaStrLit args[2]! "\\![timerraiseother]"
+    let e ← expectaStrLit args[3]! "\\![timerraiseother]"
     pure <| some (← `(Signaculum.Sakura.Systema.excitaAliumPostTempus $ms $rep $g $e))
 
   -- ────────────────────────────────────────────────
@@ -193,8 +151,8 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       throwErrorAt stx "\\![timernotifyother,...]: ms, rep, ghost, event の4引數が必要にゃ"
     let ms  : TSyntax `term := ⟨args[0]!⟩
     let rep : TSyntax `term := ⟨args[1]!⟩
-    let g ← expectaStrLitSystema args[2]! "\\![timernotifyother]"
-    let e ← expectaStrLitSystema args[3]! "\\![timernotifyother]"
+    let g ← expectaStrLit args[2]! "\\![timernotifyother]"
+    let e ← expectaStrLit args[3]! "\\![timernotifyother]"
     pure <| some (← `(Signaculum.Sakura.Systema.notificaAliumPostTempus $ms $rep $g $e))
 
   -- ────────────────────────────────────────────────
@@ -204,8 +162,8 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "raiseplugin" =>
     if args.size < 2 then
       throwErrorAt stx "\\![raiseplugin,...]: plugin, event の2引數が必要にゃ"
-    let p ← expectaStrLitSystema args[0]! "\\![raiseplugin]"
-    let e ← expectaStrLitSystema args[1]! "\\![raiseplugin]"
+    let p ← expectaStrLit args[0]! "\\![raiseplugin]"
+    let e ← expectaStrLit args[1]! "\\![raiseplugin]"
     pure <| some (← `(Signaculum.Sakura.Systema.vocaPlugin $p $e))
 
   -- ────────────────────────────────────────────────
@@ -215,8 +173,8 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
   | "notifyplugin" =>
     if args.size < 2 then
       throwErrorAt stx "\\![notifyplugin,...]: plugin, event の2引數が必要にゃ"
-    let p ← expectaStrLitSystema args[0]! "\\![notifyplugin]"
-    let e ← expectaStrLitSystema args[1]! "\\![notifyplugin]"
+    let p ← expectaStrLit args[0]! "\\![notifyplugin]"
+    let e ← expectaStrLit args[1]! "\\![notifyplugin]"
     pure <| some (← `(Signaculum.Sakura.Systema.notificaPlugin $p $e))
 
   -- ────────────────────────────────────────────────
@@ -228,8 +186,8 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       throwErrorAt stx "\\![timerraiseplugin,...]: ms, rep, plugin, event の4引數が必要にゃ"
     let ms  : TSyntax `term := ⟨args[0]!⟩
     let rep : TSyntax `term := ⟨args[1]!⟩
-    let p ← expectaStrLitSystema args[2]! "\\![timerraiseplugin]"
-    let e ← expectaStrLitSystema args[3]! "\\![timerraiseplugin]"
+    let p ← expectaStrLit args[2]! "\\![timerraiseplugin]"
+    let e ← expectaStrLit args[3]! "\\![timerraiseplugin]"
     pure <| some (← `(Signaculum.Sakura.Systema.excitaPluginPostTempus $ms $rep $p $e))
 
   -- ────────────────────────────────────────────────
@@ -241,8 +199,8 @@ def expandeEventum (imperium : String) (args : Array Lean.Syntax) (stx : Lean.Sy
       throwErrorAt stx "\\![timernotifyplugin,...]: ms, rep, plugin, event の4引數が必要にゃ"
     let ms  : TSyntax `term := ⟨args[0]!⟩
     let rep : TSyntax `term := ⟨args[1]!⟩
-    let p ← expectaStrLitSystema args[2]! "\\![timernotifyplugin]"
-    let e ← expectaStrLitSystema args[3]! "\\![timernotifyplugin]"
+    let p ← expectaStrLit args[2]! "\\![timernotifyplugin]"
+    let e ← expectaStrLit args[3]! "\\![timernotifyplugin]"
     pure <| some (← `(Signaculum.Sakura.Systema.notificaPluginPostTempus $ms $rep $p $e))
 
   -- ────────────────────────────────────────────────

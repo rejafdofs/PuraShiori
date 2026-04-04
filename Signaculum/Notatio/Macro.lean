@@ -177,8 +177,12 @@ private def manyLexemaFn : Lean.Parser.ParserFn := fun c s =>
   let input := c.fileMap.source
   let startPos := s.pos
   let sz := s.stxStack.size
+  -- 安全上限にゃん♪ Lean の partial def は使へないため Nat 燃料で再帰するにゃ。
+  -- 通常のスクリプトゥムブロックは數十〜數百トークンにゃが、
+  -- 極端に大きいブロックに備へて 100,000 まで許容するにゃ��
+  -- 上限に達したら明示的にエラーにするにゃん
   let rec loop (s : Lean.Parser.ParserState) : Nat → Lean.Parser.ParserState
-    | 0 => s
+    | 0 => s.mkError "scriptum ブロックのトークン數が上限 (100000) を超えましたにゃ。ブロックを分割してくださいにゃ"
     | n + 1 =>
       let sWs := Parsitor.skipWsFn c s
       if sWs.pos.byteIdx >= input.utf8ByteSize then s
@@ -203,7 +207,7 @@ private def manyLexemaFn : Lean.Parser.ParserFn := fun c s =>
             if s.hasError then
               { s with pos := sWs.pos, stxStack := s.stxStack.shrink szInner, errorMsg := .none }
             else loop s n
-  let s := loop s 10000
+  let s := loop s 100000
   let nodes := s.stxStack.extract sz s.stxStack.size
   let manyNode := Lean.Syntax.node (Lean.SourceInfo.synthetic startPos s.pos) Lean.nullKind nodes
   { s with stxStack := s.stxStack.shrink sz |>.push manyNode }

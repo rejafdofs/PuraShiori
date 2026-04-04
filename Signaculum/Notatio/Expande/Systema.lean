@@ -11,6 +11,7 @@
 
 import Lean
 import Signaculum.Sakura.Scriptum
+import Signaculum.Notatio.Expande.Auxilium
 import Signaculum.Notatio.Expande.Systema.Eventum
 import Signaculum.Notatio.Expande.Systema.Sonus
 import Signaculum.Notatio.Expande.Systema.Animatio
@@ -26,20 +27,7 @@ open Lean Elab Term
 --  補助函數 (Functiones Auxiliares)
 -- ════════════════════════════════════════════════════
 
-/-- 識別子やアトムから文字列値を取り出すにゃん -/
-private def extractIdentValSystema (s : Lean.Syntax) : Option String :=
-  if s.isIdent then
-    some (s.getId.toString (escape := false))
-  else match s.isAtom with
-  | true  => some s.getAtomVal
-  | false => none
-
-/-- 文字列リテラルを期待して取り出すにゃん -/
-private def expectaStrLitSys (s : Lean.Syntax) (nomenSigni : String)
-    : TermElabM (Lean.TSyntax `str) := do
-  match s.isStrLit? with
-  | some _ => pure ⟨s⟩
-  | none   => throwErrorAt s s!"{nomenSigni}: 文字列が期待されてゐますにゃ"
+-- extractIdentVal, expectaStrLit は Auxilium.lean に統合濟みにゃん♪
 
 -- ════════════════════════════════════════════════════
 --  主ディスパッチ函數 (Functio Principalis Dispatchonis Systematis)
@@ -127,7 +115,7 @@ def expandeSignumSystematisBasicum (nomen : String) (args : Array Lean.Syntax) (
   | "\\_v" =>
     if args.size < 1 then
       throwErrorAt stx "\\_v: ファイル名が必要にゃ"
-    let s ← expectaStrLitSys args[0]! "\\_v"
+    let s ← expectaStrLit args[0]! "\\_v"
     pure <| some (← `(Signaculum.Sakura.Systema.sonus $s))
 
   -- ────────────────────────────────────────────────
@@ -137,7 +125,7 @@ def expandeSignumSystematisBasicum (nomen : String) (args : Array Lean.Syntax) (
   | "\\8" =>
     if args.size < 1 then
       throwErrorAt stx "\\8: ファイル名が必要にゃ"
-    let s ← expectaStrLitSys args[0]! "\\8"
+    let s ← expectaStrLit args[0]! "\\8"
     pure <| some (← `(Signaculum.Sakura.Systema.sonus8 $s))
 
   -- ────────────────────────────────────────────────
@@ -147,9 +135,9 @@ def expandeSignumSystematisBasicum (nomen : String) (args : Array Lean.Syntax) (
   | "\\m" =>
     if args.size < 3 then
       throwErrorAt stx "\\m: umsg, wparam, lparam の3引數が必要にゃ"
-    let u ← expectaStrLitSys args[0]! "\\m"
-    let w ← expectaStrLitSys args[1]! "\\m"
-    let l ← expectaStrLitSys args[2]! "\\m"
+    let u ← expectaStrLit args[0]! "\\m"
+    let w ← expectaStrLit args[1]! "\\m"
+    let l ← expectaStrLit args[2]! "\\m"
     pure <| some (← `(Signaculum.Sakura.Systema.nuntiumWindowae $u $w $l))
 
   -- ────────────────────────────────────────────────
@@ -159,7 +147,7 @@ def expandeSignumSystematisBasicum (nomen : String) (args : Array Lean.Syntax) (
   | "\\__v" =>
     if args.size < 1 then
       throwErrorAt stx "\\__v: オプションが必要にゃ"
-    let o ← expectaStrLitSys args[0]! "\\__v"
+    let o ← expectaStrLit args[0]! "\\__v"
     pure <| some (← `(Signaculum.Sakura.Systema.synthesisVocis $o))
 
   -- ────────────────────────────────────────────────

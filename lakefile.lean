@@ -18,5 +18,8 @@ lean_exe testGhost where
 lean_exe testIntegratio where
   root := `TestIntegratio
 
+lean_exe testScriptum where
+  root := `TestScriptum
+
 lean_exe ghost where
   root := `Main

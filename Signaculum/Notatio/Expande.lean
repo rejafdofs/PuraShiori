@@ -1,6 +1,7 @@
 -- Signaculum.Notatio.Expande
 -- タグ展開ディスパッチのアグレガートルにゃん♪
 
+import Signaculum.Notatio.Expande.Auxilium
 import Signaculum.Notatio.Expande.Textus
 import Signaculum.Notatio.Expande.Fenestra
 import Signaculum.Notatio.Expande.Systema
