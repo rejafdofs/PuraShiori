@@ -275,7 +275,9 @@ private def parsitorExpressionisFn (c : ParserContext) (s : ParserState) : Parse
     if s.pos.byteIdx >= input.utf8ByteSize || s.pos.get input != '}' then
       let actual := if s.pos.byteIdx < input.utf8ByteSize then
         s!" (實際: '{s.pos.get input}')" else " (入力末尾)"
-      s.mkError s!"'{{}' 式の閉ぢ '}}' が期待されてゐますにゃ{actual}"
+      let lbrace := "{"
+      let rbrace := "}"
+      s.mkError s!"'{lbrace}' 式の閉ぢ '{rbrace}' が期待されてゐますにゃ{actual}"
     else
       let s := { s with pos := s.pos.next input }
       let node := Syntax.node (SourceInfo.synthetic startPos s.pos) lexemaExpressio #[termNode]

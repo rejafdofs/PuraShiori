@@ -11,7 +11,7 @@ open Lean Elab Term
 open Signaculum.Notatio.Expande (extractIdentVal expectaNatLit expectaStrLit)
 
 /-- 制御タグのディスパッチにゃん。處理できたら `some term` を返すにゃん -/
-def expandeImperium (nomen : String) (args : Array Lean.Syntax) (stx : Lean.Syntax)
+def expandeImperium (nomen : String) (_args : Array Lean.Syntax) (_stx : Lean.Syntax)
     : TermElabM (Option (TSyntax `term)) := do
   match nomen with
   | "\\e"  => pure <| some (← `(Signaculum.Sakura.Textus.finis))
