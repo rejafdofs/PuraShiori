@@ -4,3 +4,4 @@
 import Signaculum.Protocollum.Typi
 import Signaculum.Protocollum.Rogatio
 import Signaculum.Protocollum.Responsum
+import Signaculum.Protocollum.NominaEventuum

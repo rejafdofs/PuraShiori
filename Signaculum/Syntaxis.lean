@@ -110,9 +110,27 @@ elab "varia" "temporaria" n:ident ":" t:term ":=" v:term : command => do
     ghostAccumulatioExt.addEntry env (.varia {
       nomen := n.getId, typusSyntax := t, permanet := false })
 
-/-- 事象處理器を宣言するにゃん♪ -/
+/-- 事象處理器を宣言するにゃん♪ 文字列リテラル形にゃ -/
 elab "eventum" nomenEventi:str body:term : command => do
   let nomen := nomenEventi.getString
+  let nomenBasisTractatorum := "_tractator_" ++ nomen
+  let identTractatorum := mkIdent (Name.mkSimple nomenBasisTractatorum)
+  elabCommand (← `(def $identTractatorum : Signaculum.Nucleus.Tractator := $body))
+  let ns ← getCurrNamespace
+  let nomenPlenumTractatorum := ns ++ Name.mkSimple nomenBasisTractatorum
+  modifyEnv fun env =>
+    ghostAccumulatioExt.addEntry env (.eventum {
+      nomen, tractatorNomen := nomenPlenumTractatorum })
+
+/-- 事象處理器を宣言するにゃん♪ 識別子形にゃ（NominaEventuum の定數を受け取るにゃ）-/
+elab "eventum" nomenEventi:term body:term : command => do
+  let nomen ← liftTermElabM do
+    let expr ← Term.elabTerm nomenEventi (some (mkConst ``String))
+    let expr ← instantiateMVars expr
+    let expr ← whnf expr
+    match expr with
+    | .lit (.strVal s) => pure s
+    | _ => throwErrorAt nomenEventi "eventum: コンパイル時に確定する文字列定數が必要にゃ"
   let nomenBasisTractatorum := "_tractator_" ++ nomen
   let identTractatorum := mkIdent (Name.mkSimple nomenBasisTractatorum)
   elabCommand (← `(def $identTractatorum : Signaculum.Nucleus.Tractator := $body))
