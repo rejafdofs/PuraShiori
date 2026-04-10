@@ -735,6 +735,186 @@ construe
 
 ---
 
+## 正規表現 (ExpressioRegularis)
+
+`Signaculum.Utilia.ExpressioRegularis` は `pandaman64/lean-regex` ライブラリーのラッパーにゃ。ゴースト開發でのテクストゥス處理に使へるにゃん♪
+
+```lean
+import Signaculum
+open Signaculum.Utilia
+
+-- マッチ判定にゃ
+#eval congruatRE "にゃ[ん]?" "にゃん♪"       -- true
+
+-- 最初のマッチとキャプチャグループを取得にゃ
+#eval quaereRE "(\\d+)歳" "シロは3歳にゃん"   -- some #["3歳", "3"]
+
+-- 全マッチを取得にゃ
+#eval quaereOmnesRE "にゃ" "にゃんにゃん♪"     -- #["にゃ", "にゃ"]
+
+-- 置換にゃ
+#eval substitueRE "にゃ" "ワン" "にゃんにゃん"  -- "ワンワン"（にゃ→ワンに全部置換）
+
+-- 分割にゃ
+#eval scindeRE "[,、]" "りんご、みかん,ぶどう"   -- #["りんご", "みかん", "ぶどう"]
+
+-- マッチ數を數へるにゃ
+#eval numeraRE "にゃ" "にゃにゃにゃ"            -- 3
+```
+
+イヴェントゥム處理器の中で使ふ例にゃ:
+
+```lean
+eventum "OnCommunicate" fun rogatio => do
+  let msg := (rogatio.referentiam 0).getD ""
+  if congruatRE "こんにち[はわ]" msg then
+    sakura; superficies 0; loqui "こんにちはにゃん♪"; finis
+  else
+    pure ()
+```
+
+| 關數 | 説明 |
+|---|---|
+| `quaereRE exemplar textus` | 最初のマッチ + キャプチャグループ |
+| `congruatRE exemplar textus` | マッチ判定（`Bool`） |
+| `quaereOmnesRE exemplar textus` | 全マッチ文字列の配列 |
+| `substitueRE exemplar substitutio textus` | 全箇所置換 |
+| `scindeRE exemplar textus` | パターンで分割 |
+| `numeraRE exemplar textus` | マッチ數 |
+
+---
+
+## ゴースト間通信 (Communicationis)
+
+`Signaculum.Sakura.Systema.Communicationis` は SSTP/1.4 SEND プロトコルで他のゴーストにメッセージを送信するにゃ。SakuraIO コンテクスト内で直接呼べるにゃん♪
+
+```lean
+import Signaculum
+open Signaculum Sakura Sakura.Systema
+
+eventum "OnBoot" fun _ => do
+  -- 他ゴーストに SakuraScript を送信にゃ
+  communicaScriptum "まゆら" "\\h\\s[0]こんにちはにゃん♪\\e"
+  sakura; superficies 0; loqui "ごあいさつしたにゃ"; finis
+
+eventum "OnChatInput" fun rogatio => do
+  let msg := (rogatio.referentiam 0).getD ""
+  -- テクストゥムとして送信（SakuraScript ではなく平文）にゃ
+  communicaSentence "まゆら" msg
+  sakura; superficies 0; loqui "伝へたにゃ"; finis
+
+construe
+```
+
+| 關數 | 説明 |
+|---|---|
+| `communicaScriptum ghostNomen scriptum` | 他ゴーストに SakuraScript を送信（SakuraIO） |
+| `communicaSentence ghostNomen sentence` | 他ゴーストにテクストゥムを送信（SakuraIO） |
+
+IO コンテクストから直接使ふ場合は低レベル關數にゃ:
+
+```lean
+-- IO コンテクストから使ふにゃ
+Signaculum.Sstp.communicaSstpScriptum "まゆら" "\\h\\s[0]やあ\\e"
+Signaculum.Sstp.communicaSstpSentence "まゆら" "元気？"
+```
+
+---
+
+## SAORI ブリッジ (Saori)
+
+`Signaculum.Saori` は SAORI（外部 DLL/exe）を呼び出す機構にゃ。SAORI-universal（Win32 DLL）は procurator32 經由のパイプ通信で、SAORI-basic（.exe）は IO.Process で直接起動するにゃん♪
+
+### SAORI-universal（DLL）の使ひ方
+
+```lean
+import Signaculum
+open Signaculum.Saori
+
+eventum "OnBoot" fun _ => do
+  -- SAORI DLL をロードするにゃ
+  let ok ← liftM (onerareSaori "myplugin.dll" "/path/to/ghost/master")
+  if ok then
+    -- SAORI DLL を呼び出すにゃ（SakuraIO 内なら vocareSaoriM も使へるにゃ）
+    let res ← vocareSaoriM "myplugin.dll" #["arg0", "arg1"]
+    -- res[0] = Result、res[1] = Value0、res[2] = Value1、...
+    if h : res.size > 0 then
+      sakura; superficies 0; loqui s!"結果: {res[0]}"; finis
+    else
+      sakura; superficies 0; loqui "結果なしにゃ"; finis
+  else
+    sakura; superficies 0; loqui "ロード失敗にゃ"; finis
+
+eventum "OnClose" fun _ => do
+  -- SAORI DLL をアンロードするにゃ（unload 時に自動で全アンロードもされるにゃ）
+  liftM (exonerareSaori "myplugin.dll")
+  sakura; superficies 3; loqui "またにゃー"; finis
+
+construe
+```
+
+### SAORI-basic（.exe）の使ひ方
+
+```lean
+-- 外部プロセスを起動して結果を得るにゃ
+let result ← liftM (vocareSaoriBasic "myplugin.exe" #["arg0", "arg1"])
+match result with
+| some output => loqui s!"出力: {output}"
+| none        => loqui "実行失敗にゃ"
+```
+
+| 關數 | 説明 |
+|---|---|
+| `onerareSaori via directorium` | SAORI DLL をロード（`IO Bool`） |
+| `vocareSaori via argumenta` | SAORI DLL にリクエスト（`IO (Array String)`） |
+| `exonerareSaori via` | SAORI DLL をアンロード（`IO Unit`） |
+| `vocareSaoriM via argumenta` | SakuraIO 内から呼ぶラッパー |
+| `vocareSaoriBasic exeVia argumenta` | SAORI-basic .exe を起動（`IO (Option String)`） |
+
+---
+
+## タイマー (Horologium)
+
+`Signaculum.Utilia.Horologium` は OnSecondChange 用の汎用タイマーにゃ。`Eventum.Involucra.pulsaTimerColloquii`（ランダムトーク專用）とは違って、名前付きタイマーを複數管理できるにゃん♪
+
+```lean
+import Signaculum
+open Signaculum.Utilia
+
+-- タイマーを作成するにゃ（IO コンテクストで初期化にゃ）
+-- ※ 通常は onOnerare フック等で作成するにゃ
+def timerSalutationis ← creandum "salutatio" 60   -- 60秒ごとに發火にゃ
+def timerAnimationis  ← creandum "animatio" 10     -- 10秒ごとに發火にゃ
+
+eventum "OnSecondChange" fun _ => do
+  -- 複數タイマーを一括パルスにゃ
+  let accensae ← liftM (pulsaOmnia #[timerSalutationis, timerAnimationis])
+  for nomen in accensae do
+    if nomen == "salutatio" then
+      sakura; superficies 0; loqui "1分經ったにゃ"; finis
+    else if nomen == "animatio" then
+      sakura; superficies 5; loqui "にゃにゃ♪"; finis
+```
+
+個別のタイマーを使ふ場合にゃ:
+
+```lean
+eventum "OnSecondChange" fun _ => do
+  let fire ← liftM (pulsaHorologium timerSalutationis)
+  if fire then
+    sakura; superficies 0; loqui "發火にゃん♪"; finis
+  else pure ()
+```
+
+| 關數 | 説明 |
+|---|---|
+| `creandum nomen intervallum` | タイマー作成（`IO Horologium`） |
+| `pulsaHorologium h` | 1秒進めて發火なら `true`（`IO Bool`） |
+| `reinitia h` | タイマーをリセット |
+| `pulsaOmnia horologia` | 一括パルス、發火タイマー名の配列を返す |
+
+---
+
 ## 参照 (Referentia)
 
 - [UKADOC Project](https://ssp.shillest.net/ukadoc/manual/index.html) — SHIORI/3.0・SakuraScript 仕様にゃ

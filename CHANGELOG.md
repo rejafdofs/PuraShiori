@@ -2,6 +2,38 @@
 
 ## v0.7.0 (2026-04-10) — ユーティリティ・イベントラッパー・トーク管理 DSL
 
+### 正規表現 (ExpressioRegularis)
+- `Utilia/ExpressioRegularis.lean`: `pandaman64/lean-regex` ライブラリーのラッパーを新設。テクストゥス處理向けの正規表現關數群を提供
+- `quaereRE`: 正規表現で最初のマッチとキャプチャグループを檢索
+- `congruatRE`: テクストゥスがパターンにマッチするか判定
+- `quaereOmnesRE`: 全マッチ文字列を配列で返す
+- `substitueRE`: 正規表現による置換
+- `scindeRE`: 正規表現によるテクストゥス分割
+- `numeraRE`: マッチ數のカウント
+- `lakefile.lean`: `pandaman64/lean-regex` への依存を追加
+
+### ゴースト間通信 (Communicationis)
+- `Sstp.lean`: SSTP/1.4 SEND プロトコルによるゴースト間通信關數を追加。`communicaSstpScriptum`（SakuraScript 送信）と `communicaSstpSentence`（テクストゥム送信）を提供
+- `Sakura/Systema/Communicationis.lean`: SakuraIO コンテクスト内ラッパー `communicaScriptum` / `communicaSentence` を新設。`IfGhost` ヘッダーで送信先ゴーストを指定
+
+### SAORI ブリッジ (Saori)
+- `Saori.lean`: SAORI-universal（DLL）および SAORI-basic（.exe）の呼出し機構を新設
+- `onerareSaori`: SAORI DLL のロード（procurator32 經由、コマンドバイト 0x04）
+- `vocareSaori`: SAORI DLL へのリクエスト送信（コマンドバイト 0x05）。SAORI/1.0 リクエストゥムを組み立て、Result + Value 配列を返す
+- `exonerareSaori`: SAORI DLL のアンロード（コマンドバイト 0x06）
+- `vocareSaoriBasic`: SAORI-basic（.exe）を IO.Process で起動して結果を得る
+- `vocareSaoriM`: SakuraIO コンテクスト内から SAORI-universal を呼び出すラッパー
+- `procurator/procurator32/src/lib.rs`: Rust 側に SAORI DLL 管理（`SAORI_MODULES` HashMap）、`saori_onerare`/`saori_rogare`/`saori_exonerare` 關數、`tractare_saori_circulum` コマンドループを追加。ANSI ↔ UTF-8 變換對應
+- `Nucleus/Circulus.lean`: `Communicatio.scribeResponsum` で 0x00 コマンドバイト + 長さプレフィクスム應答を送信。SAORI コマンドループとの連攜に對應
+
+### タイマー (Horologium)
+- `Utilia/Horologium.lean`: OnSecondChange 用の高レヴェルタイマー抽象を新設
+- `Horologium` 構造體: 名前・間隔・殘り秒數を保持するタイマー狀態
+- `creandum`: タイマー作成（指定秒後に最初に發火）
+- `pulsaHorologium`: 1秒進めて發火時刻到達時に true を返しリセット
+- `reinitia`: タイマーをリセット
+- `pulsaOmnia`: 複數タイマーの一括パルス（發火したタイマー名の配列を返す）
+
 ### 日時ユーティリティ (Tempus)
 - `Utilia/Tempus.lean`: `Std.Time` を活用した日時関数群を新設。`obtineTempus`（現在時刻取得）、`estMane`/`estMeridies`/`estVespera`/`estNox`（時間帯判定）、`tempusAdTextum`（書式化）を提供
 
