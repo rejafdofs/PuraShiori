@@ -57,7 +57,7 @@ def estNox (dt : PlainDateTime) : Bool :=
 private def padZero (n : Int) : String :=
   let abs := if n < 0 then -n else n
   let digits := Nat.toDigits 10 abs.toNat
-  if digits.length < 2 then String.mk ('0' :: digits) else String.mk digits
+  if digits.length < 2 then String.ofList ('0' :: digits) else String.ofList digits
 
 /-- PlainDateTime を "YYYY-MM-DD HH:MM:SS" 形式の文字列にするにゃん -/
 def tempusAdTextum (dt : PlainDateTime) : String :=
