@@ -1,5 +1,49 @@
 # 變更記錄 (Mutationum Registrum)
 
+## v0.7.0 (2026-04-10) — ユーティリティ・イベントラッパー・トーク管理 DSL
+
+### 日時ユーティリティ (Tempus)
+- `Utilia/Tempus.lean`: `Std.Time` を活用した日時関数群を新設。`obtineTempus`（現在時刻取得）、`estMane`/`estMeridies`/`estVespera`/`estNox`（時間帯判定）、`tempusAdTextum`（書式化）を提供
+
+### ログ機能 (Registrum)
+- `Utilia/Registrum.lean`: YAYA の LOGGING 相当のログ機能を新設。`ghost_log.txt` にタイムスタンプ付きで記録
+- `registra`/`registraIndicium`/`registraMonitum`/`registraErrorem`: IO コンテクスト内でのログ出力（INFO/WARN/ERROR）
+- `registraM`: SakuraIO コンテクスト内でのログ出力
+- `registraEtNotifica`: SakuraIO 内でログ出力 + SHIORI 応答の ErrorLevel/ErrorDescription にも設定
+
+### SHIORI Resource 応答 (resourcea)
+- `Syntaxis.lean`: `resourcea "version" := "1.0.0"` マクロを追加。SHIORI Resource 応答（version, craftmanw, homeurl 等）を宣言的に定義可能に
+- 静的文字列値と動的 `IO String` 関数の両方に対応。`construe` がリソース応答ハンドラとして自動登録
+- `GhostAccumulatio` に `resourceae` フィールド、`GhostEntry` に `.resourcea` バリアントを追加
+
+### 日本語イベント名 (NominaIaponica)
+- `Eventum/NominaIaponica.lean`: 里々方式の日本語イベント名エイリアスを新設。`eventum "起動"` → `OnBoot` 等の自動変換
+- 70 以上のマッピングを定義（起動/終了、ゴースト切替、マウス、時間、トーク、選択肢、通信、入力、シェル、バルーン、ファイルドロップ、ネットワーク更新、OS 状態、消滅、キー、音声、インストール等）
+- `resolveNomenEventi` 関数でコンパイル時にテーブル参照・変換
+
+### 統一トーク管理 (Colloquium)
+- `Sakura/Textus/Colloquium.lean`: ランダムトーク・条件付きトーク・チェイントークを統一管理する `Colloquium` 帰納型を新設
+- 4 コンストラクタ: `.loquela`（通常）、`.conditio`（条件付き）、`.series`（チェイン）、`.seriesCum`（条件付きチェイン）
+- `Coe` インスタンスにより `SakuraIO Unit` と `Catena` を配列内で自動変換
+- `eligeColloquium`: 均等確率選択（アクティブチェイン優先続行）
+- `eligeColloquiumPonderatum`: 重み付き確率選択
+- `cum`/`cumSeries` 便利コンストラクタ
+
+### イベントラッパー (Involucra)
+- `Eventum/Involucra.lean`: 生の SHIORI イベントを加工する高レベル抽象を新設
+- なでられ判定: `iudicaNaderare` — OnMouseMove の連続回数が閾値を超えたら発火。scope+area 別カウント
+- `configuraNaderareLimen`/`configuraNaderareIntervallum` で閾値・間隔を設定可能
+- `nomenEventumMusis`: マウスイベントから「{scopeId}{areaName}{suffix}」形式のイベント名を生成
+- ランダムトークタイマー: `pulsaTimerColloquii` — OnSecondChange でカウントダウン、0 到達で発火通知
+- `configuraIntervallumColloquii` でランダムトーク間隔を設定可能（デフォルト 180 秒）
+
+### 変数デバッグ (Inspectio)
+- `Utilia/Inspectio.lean`: 変数デバッグ支援を新設。`construe` が `inspiceVariabiles : IO Unit` を自動生成
+- 全 `varia perpetua` の名前・型・現在値を `ghost_log.txt` に出力
+- `inspiceEtMitte`: 個別変数をログ出力しつつ SSTP でゴーストにも表示
+
+---
+
 ## v0.6.0 (2026-04-02) — チェイントーク (Catena Colloquiorum) 支援
 
 ### チェイントーク型・Exhibibilis インスタンス
